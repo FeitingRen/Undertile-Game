@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 172.8, "left": 4.84, "attrs": {} },
+    {
+      "type": "wokwi-ili9341",
+      "id": "lcd1",
+      "top": -124,
+      "left": -230.7,
+      "rotate": 90,
+      "attrs": {}
+    },
+    { "type": "wokwi-analog-joystick", "id": "joystick1", "top": 57, "left": 101.4, "attrs": {} }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "lcd1:GND", "esp:GND.2", "black", [ "v0" ] ],
+    [ "lcd1:CS", "esp:5", "green", [ "v0" ] ],
+    [ "lcd1:D/C", "esp:2", "green", [ "v0" ] ],
+    [ "lcd1:RST", "esp:4", "green", [ "v0" ] ],
+    [ "lcd1:MOSI", "esp:23", "green", [ "v0" ] ],
+    [ "lcd1:SCK", "esp:18", "green", [ "v0" ] ],
+    [ "lcd1:LED", "esp:21", "green", [ "v0" ] ],
+    [ "lcd1:MISO", "esp:12", "green", [ "v0" ] ],
+    [ "lcd1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "joystick1:GND", "esp:GND.2", "black", [ "v0" ] ],
+    [ "joystick1:VERT", "esp:35", "green", [ "v0" ] ],
+    [ "joystick1:HORZ", "esp:34", "green", [ "v0" ] ],
+    [ "esp:0", "joystick1:SEL", "green", [ "h0" ] ],
+    [ "joystick1:VCC", "esp:3V3", "red", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
