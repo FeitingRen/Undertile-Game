@@ -1,11 +1,14 @@
 #include <Arduino.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_ST7735.h> // Changed from ILI9341
+#include <Adafruit_ST7735.h> 
 #include <SPI.h>
 #include "game_defs.h"
+#include "background.h" 
+
+// --- DEBUG SETTINGS ---
+#define DEBUG_SKIP_INTRO false 
 
 // --- DISPLAY SETUP ---
-// Use ST7735 class instead of ILI9341
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 // --- GLOBAL VARIABLES ---
@@ -29,7 +32,6 @@ void handleBattle();
 void typeText(const char* text, int delaySpeed, bool shake = false);
 
 // --- ASSETS ---
-// 12x12 Heart Sprite (144 pixels)
 const uint16_t heart_sprite[144] = {
 0x0000, 0x0000, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0x0000, 0x0000, 
 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 
@@ -53,7 +55,7 @@ const uint16_t robot_npc[256] = {
   0x0000, 0x0000, 0xcd67, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0xcd67, 0x0000, 0x0000, 
   0x0000, 0x0000, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xcd67, 0x0000, 0x0000,
   0x0000, 0x0000, 0x0000, 0xcd67, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xcd67, 0xcd67, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xcd67, 0xcd67, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
   0x0000, 0x0000, 0x0000, 0x6320, 0x0000, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0x2f28, 0xcd67, 0x0000, 0x6320, 0x0000, 0x0000, 0x0000, 
@@ -64,6 +66,37 @@ const uint16_t robot_npc[256] = {
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
 };
 
+// --- GRAPHICS HELPER ---
+// Draws a sprite with transparency by checking if pixels are black (0x0000).
+// If bgMap is provided, it replaces black pixels with the background at that location.
+void drawSpriteMixed(int x, int y, const uint16_t* sprite, int w, int h, const uint16_t* bgMap) {
+    if (x < 0 || y < 0 || x + w > SCREEN_W || y + h > SCREEN_H) return; // Basic bounds safety
+
+    // Buffer to hold the mixed image
+    uint16_t buffer[256]; // Enough for 16x16 sprite
+
+    // 1. Copy Background section into buffer
+    for (int row = 0; row < h; row++) {
+        int screenY = y + row;
+        int bgIndexStart = (screenY * SCREEN_W) + x;
+        for (int col = 0; col < w; col++) {
+             // Copy pixel from the huge background array
+             buffer[row * w + col] = bgMap[bgIndexStart + col];
+        }
+    }
+
+    // 2. Overlay Sprite (Transparency Check)
+    for (int i = 0; i < w * h; i++) {
+        uint16_t pixel = sprite[i];
+        if (pixel != 0x0000) { // If NOT black
+            buffer[i] = pixel; // Overwrite background in buffer
+        }
+    }
+
+    // 3. Draw the combined result
+    tft.drawRGBBitmap(x, y, buffer, w, h);
+}
+
 // --- CLASSES ---
 struct NPC {
   int x, y;
@@ -72,7 +105,7 @@ struct NPC {
 class Player {
 public:
   float x, y, oldX, oldY;
-  float speed = 2.0; // Slightly reduced speed for smaller screen
+  float speed = 2.0; 
   int minX, maxX, minY, maxY;
 
   void init(int startX, int startY) {
@@ -94,20 +127,16 @@ public:
     int joyX = analogRead(JOYSTICK_X);
     int joyY = analogRead(JOYSTICK_Y);
     
-    // Adjusted thresholds for ESP32 ADC (0-4095)
-    // Center is approx 1850-2000 usually
     if (joyX < 1500) nextX += speed; 
     if (joyX > 2500) nextX -= speed; 
     if (joyY < 1500) nextY += speed; 
     if (joyY > 2500) nextY -= speed; 
     
-    // Bounds
     if (nextX < minX) nextX = minX;
     if (nextX > maxX - PLAYER_W) nextX = maxX - PLAYER_W;
     if (nextY < minY) nextY = minY;
     if (nextY > maxY - PLAYER_H) nextY = maxY - PLAYER_H;
 
-    // Collision
     if (currentState == MAP_WALK && enemy != nullptr) {
        if (!checkCollision(nextX, nextY, enemy->x, enemy->y, NPC_SIZE, NPC_SIZE)) {
           x = nextX; y = nextY;
@@ -117,14 +146,35 @@ public:
     }
   }
 
-  void draw() {
+  void draw(const uint16_t* bgMap = nullptr) {
     if ((int)x != (int)oldX || (int)y != (int)oldY) {
-      tft.drawRGBBitmap((int)x, (int)y, (uint16_t*)heart_sprite, PLAYER_W, PLAYER_H);
-      // Erase trails
-      if (x > oldX) tft.fillRect((int)oldX, (int)oldY, (int)x - (int)oldX, PLAYER_H, ST7735_BLACK);
-      else if (x < oldX) tft.fillRect((int)x + PLAYER_W, (int)oldY, (int)oldX - (int)x, PLAYER_H, ST7735_BLACK);
-      if (y > oldY) tft.fillRect((int)oldX, (int)oldY, PLAYER_W, (int)y - (int)oldY, ST7735_BLACK);
-      else if (y < oldY) tft.fillRect((int)oldX, (int)y + PLAYER_H, PLAYER_W, (int)oldY - (int)y, ST7735_BLACK);
+      
+      if (bgMap != nullptr) {
+        // 1. ERASE: Restore background at old position
+        // This is still needed to wipe the trail
+        int rx = (int)oldX; 
+        int ry = (int)oldY;
+        for(int row = 0; row < PLAYER_H; row++) {
+           int currentY = ry + row;
+           if(currentY >= 0 && currentY < SCREEN_H) {
+              tft.drawRGBBitmap(rx, currentY, (uint16_t*)(bgMap + (currentY * SCREEN_W) + rx), PLAYER_W, 1);
+           }
+        }
+
+        // 2. DRAW: Draw new position using Mixing function
+        drawSpriteMixed((int)x, (int)y, heart_sprite, PLAYER_W, PLAYER_H, bgMap);
+
+      } else {
+        // Fallback for screens without a background map (Battle)
+        // Standard erase (Black box)
+        if (x > oldX) tft.fillRect((int)oldX, (int)oldY, (int)x - (int)oldX, PLAYER_H, ST7735_BLACK);
+        else if (x < oldX) tft.fillRect((int)x + PLAYER_W, (int)oldY, (int)oldX - (int)x, PLAYER_H, ST7735_BLACK);
+        if (y > oldY) tft.fillRect((int)oldX, (int)oldY, PLAYER_W, (int)y - (int)oldY, ST7735_BLACK);
+        else if (y < oldY) tft.fillRect((int)oldX, (int)y + PLAYER_H, PLAYER_W, (int)oldY - (int)y, ST7735_BLACK);
+        
+        // Standard Draw
+        tft.drawRGBBitmap((int)x, (int)y, (uint16_t*)heart_sprite, PLAYER_W, PLAYER_H);
+      }
     }
   }
   
@@ -134,11 +184,12 @@ public:
 };
 
 Player player;
-NPC enemy = {70, 25}; // Scaled enemy position
+NPC enemy = {70, 25}; 
 
 // --- DIALOGUE VARIABLES ---
 int menuSelection = 0; 
 int inventoryOptions[3]; 
+int itemXPositions[3]; 
 int availableCount = 0;
 int lastDrawnSelection = -1; 
 int textCursorX = 10; 
@@ -148,13 +199,17 @@ void setup() {
   Serial.begin(115200);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   
-  // ST7735 Initialization
-  // Use INITR_BLACKTAB for 1.8" typically. If colors are wrong, try INITR_GREENTAB.
   tft.initR(INITR_BLACKTAB); 
-  tft.setRotation(1); // Landscape
+  tft.setRotation(1); 
   tft.fillScreen(ST7735_BLACK);
   
-  player.init(15, 60); // Scaled start pos
+  #if DEBUG_SKIP_INTRO
+    currentState = BATTLE;
+    player.x = 80; player.y = 90; 
+    player.setBounds(25, 135, 65, 115);
+  #else
+    player.init(15, 60); 
+  #endif
 }
 
 void loop() {
@@ -185,7 +240,7 @@ void handleMenu() {
   if (isStateFirstFrame) {
     tft.fillScreen(ST7735_BLACK);
     tft.setTextColor(ST7735_WHITE);
-    tft.setTextSize(1); // Size 2 is too big for 160px width with long text
+    tft.setTextSize(1);
     tft.setCursor(30, 40);
     tft.print("UNDERTALE ESP32");
     
@@ -204,28 +259,25 @@ void handleMenu() {
 
 void handleMap() {
   if (isStateFirstFrame) {
-    tft.fillScreen(ST7735_BLACK); 
+    tft.drawRGBBitmap(0, 0, bg_map, 160, 128);
     player.forceDraw();
     isStateFirstFrame = false;
   }
 
   player.update(&enemy);
-  player.draw();
   
-  // Draw NPC
-  tft.drawRGBBitmap(enemy.x, enemy.y, (uint16_t*)robot_npc, 16, 16);
+  // 1. Draw NPC with transparency (re-draws over any trail player left)
+  drawSpriteMixed(enemy.x, enemy.y, robot_npc, 16, 16, bg_map);
+  
+  // 2. Draw Player with transparency
+  player.draw(bg_map);
 
   float dist = sqrt(pow(player.x - enemy.x, 2) + pow(player.y - enemy.y, 2));
   if (dist < 20 && digitalRead(BUTTON_PIN) == LOW) {
       currentState = DIALOGUE;
-      
-      if (storyProgress == 0) {
-        currentDialogueState = D_INTRO_1; 
-      } else if (storyProgress == 1) {
-        currentDialogueState = D_REQUEST_FOOD_PART1; 
-      } else {
-        currentDialogueState = D_REQUEST_FOOD; 
-      }
+      if (storyProgress == 0) currentDialogueState = D_INTRO_1; 
+      else if (storyProgress == 1) currentDialogueState = D_REQUEST_FOOD_PART1; 
+      else currentDialogueState = D_REQUEST_FOOD; 
       
       isStateFirstFrame = true;
       while(digitalRead(BUTTON_PIN) == LOW) delay(10);
@@ -233,8 +285,6 @@ void handleMap() {
 }
 
 void handleDialogue() {
-  // Scaled Dialogue Box for 128x160
-  // Box at bottom ~40px high
   int boxY = 88;
   int boxH = 40;
   int textY = 94;
@@ -247,64 +297,32 @@ void handleDialogue() {
     tft.setCursor(5, textY); 
   }
 
-  // Helper lambda to clear text area
   auto clearText = [&]() {
      tft.fillRect(4, boxY+2, 152, boxH-4, ST7735_BLACK);
      tft.setCursor(5, textY);
   };
 
   switch (currentDialogueState) {
-    
     case D_INTRO_1:
-      if (isStateFirstFrame) {
-        clearText();
-        typeText("* WHAT!!?", 30);
-        isStateFirstFrame = false;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* WHAT!!?", 30); isStateFirstFrame = false; }
       if (isButtonPressed()) { currentDialogueState = D_INTRO_2; isStateFirstFrame = true; }
       break;
-
     case D_INTRO_2:
-      if (isStateFirstFrame) {
-        clearText();
-        typeText("* ...", 30);
-        isStateFirstFrame = false;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* ...", 30); isStateFirstFrame = false; }
       if (isButtonPressed()) { currentDialogueState = D_INTRO_4; isStateFirstFrame = true; }
       break;
-
     case D_INTRO_4:
-      if (isStateFirstFrame) {
-        clearText();
-        typeText("* Sorry, I've been here\n* alone for so long.", 30);
-        isStateFirstFrame = false;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* Sorry, I've been here\n* alone for so long.", 30); isStateFirstFrame = false; }
       if (isButtonPressed()) { currentDialogueState = D_INTRO_5; isStateFirstFrame = true; }
       break;
-
     case D_INTRO_5:
-      if (isStateFirstFrame) {
-        clearText();
-        typeText("* I'm actually a\n* nonchalant robot.", 30);
-        isStateFirstFrame = false;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* I'm actually a\n* nonchalant robot.", 30); isStateFirstFrame = false; }
       if (isButtonPressed()) { currentDialogueState = D_INTRO_6; isStateFirstFrame = true; }
       break;
-
     case D_INTRO_6:
-      if (isStateFirstFrame) {
-        clearText();
-        typeText("* Are you a human?", 30);
-        isStateFirstFrame = false;
-      }
-      if (isButtonPressed()) {
-        currentDialogueState = D_HUMAN_CHOICE;
-        menuSelection = 0; 
-        lastDrawnSelection = -1;
-        isStateFirstFrame = true;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* Are you a human?", 30); isStateFirstFrame = false; }
+      if (isButtonPressed()) { currentDialogueState = D_HUMAN_CHOICE; menuSelection = 0; lastDrawnSelection = -1; isStateFirstFrame = true; }
       break;
-
     case D_HUMAN_CHOICE:
       if (isStateFirstFrame) {
         clearText();
@@ -330,7 +348,6 @@ void handleDialogue() {
         isStateFirstFrame = true;
       }
       break;
-
     case D_HUMAN_RESULT_1:
       if (isStateFirstFrame) {
         clearText();
@@ -340,7 +357,6 @@ void handleDialogue() {
       }
       if (isButtonPressed()) { currentDialogueState = D_HUMAN_RESULT_2; isStateFirstFrame = true; }
       break;
-
     case D_HUMAN_RESULT_2:
       if (isStateFirstFrame) {
         clearText();
@@ -351,16 +367,10 @@ void handleDialogue() {
       }
       if (isButtonPressed()) { currentDialogueState = D_REQUEST_FOOD_PART1; isStateFirstFrame = true; }
       break;
-
     case D_REQUEST_FOOD_PART1:
-      if (isStateFirstFrame) {
-        clearText();
-        typeText("* My battery is low.", 30);
-        isStateFirstFrame = false;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* My battery is low.", 30); isStateFirstFrame = false; }
       if (isButtonPressed()) { currentDialogueState = D_REQUEST_FOOD; isStateFirstFrame = true; }
       break;
-
     case D_REQUEST_FOOD:
       if (isStateFirstFrame) {
         clearText();
@@ -375,13 +385,11 @@ void handleDialogue() {
         lastDrawnSelection = -1;
         isStateFirstFrame = false;
       }
-
       {
         int joyX = analogRead(JOYSTICK_X);
         if (joyX > 2500) menuSelection = 0;
         if (joyX < 1500) menuSelection = 1;
       }
-
       if (menuSelection != lastDrawnSelection) {
         tft.fillRect(15, textY + 15, 14, 14, ST7735_BLACK);
         tft.fillRect(85, textY + 15, 14, 14, ST7735_BLACK);
@@ -389,51 +397,53 @@ void handleDialogue() {
         else tft.drawRGBBitmap(85, textY + 15, heart_sprite, 12, 12);
         lastDrawnSelection = menuSelection;
       }
-
       if (isButtonPressed()) {
         if (menuSelection == 0) currentDialogueState = D_SELECT_ITEM;
         else currentDialogueState = D_REFUSAL;
         isStateFirstFrame = true;
       }
       break;
-
     case D_SELECT_ITEM:
       if (isStateFirstFrame) {
         clearText();
         tft.print("Give what?");
-        
         availableCount = 0;
         if (playerInventory.hasCoffee) inventoryOptions[availableCount++] = 0;
         if (playerInventory.hasGas)    inventoryOptions[availableCount++] = 1;
         if (playerInventory.hasBattery) inventoryOptions[availableCount++] = 2;
         
+        int currentX = 20; 
+        int gap = 20; 
+
         for(int i=0; i<availableCount; i++) {
-            tft.setCursor(20 + (i*50), textY + 15); // Compressed X spacing
+            itemXPositions[i] = currentX; 
+            tft.setCursor(currentX, textY + 15); 
             int itemType = inventoryOptions[i];
-            if(itemType == 0) tft.print("Coffee");
-            if(itemType == 1) tft.print("Gas");
-            if(itemType == 2) tft.print("Bat.");
+            int textWidth = 0;
+
+            if(itemType == 0) { tft.print("Coffee"); textWidth = 6 * 6; } 
+            if(itemType == 1) { tft.print("Gas");    textWidth = 3 * 6; } 
+            if(itemType == 2) { tft.print("Bat.");   textWidth = 4 * 6; } 
+            
+            currentX += textWidth + gap;
         }
 
         menuSelection = 0;
         lastDrawnSelection = -1;
         isStateFirstFrame = false;
       }
-      
       {
         int joyX = analogRead(JOYSTICK_X);
         if (joyX > 2500 && menuSelection > 0) { menuSelection--; delay(150); }
         if (joyX < 1500 && menuSelection < availableCount-1) { menuSelection++; delay(150); }
       }
-
       if (menuSelection != lastDrawnSelection) {
         if (lastDrawnSelection != -1) {
-            tft.fillRect(5 + (lastDrawnSelection*50), textY+15, 12, 12, ST7735_BLACK);
+            tft.fillRect(itemXPositions[lastDrawnSelection] - 14, textY+15, 12, 12, ST7735_BLACK);
         }
-        tft.drawRGBBitmap(5 + (menuSelection*50), textY+15, heart_sprite, 12, 12);
+        tft.drawRGBBitmap(itemXPositions[menuSelection] - 14, textY+15, heart_sprite, 12, 12);
         lastDrawnSelection = menuSelection;
       }
-
       if (isButtonPressed()) {
         int chosenItem = inventoryOptions[menuSelection];
         if (chosenItem == 0) {
@@ -447,13 +457,8 @@ void handleDialogue() {
         isStateFirstFrame = true;
       }
       break;
-
     case D_EATING:
-      if (isStateFirstFrame) {
-        clearText();
-        typeText("* CRUNCH CRUNCH.\n* That flavor!", 30);
-        isStateFirstFrame = false;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* CRUNCH CRUNCH.\n* That flavor!", 30); isStateFirstFrame = false; }
       if (isButtonPressed()) {
         storyProgress++;
         if (storyProgress > 3) storyProgress = 3; 
@@ -461,19 +466,10 @@ void handleDialogue() {
         isStateFirstFrame = true;
       }
       break;
-
     case D_REFUSAL:
-      if (isStateFirstFrame) {
-        clearText();
-        typeText("* Oh... okay.\n* I'll just go into Sleep Mode.", 40);
-        isStateFirstFrame = false;
-      }
-      if (isButtonPressed()) {
-        currentState = MAP_WALK;
-        isStateFirstFrame = true;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* Oh... okay.\n* I'll just go into Sleep Mode FOREVER.", 40); isStateFirstFrame = false; }
+      if (isButtonPressed()) { currentState = MAP_WALK; isStateFirstFrame = true; }
       break;
-
     case D_COFFEE_EVENT:
        if (isStateFirstFrame) {
         tft.fillScreen(ST7735_BLACK); 
@@ -498,10 +494,11 @@ void handleDialogue() {
         tft.fillScreen(ST7735_BLACK);
         tft.setCursor(20, 60); typeText("CTRL+ALT+DELETE ME!", 10, true);
         delay(1000);
+        
         currentState = BATTLE;
         isStateFirstFrame = true;
-        player.x = 80; player.y = 100;
-        player.setBounds(20, 140, 50, 120);
+        player.x = 80; player.y = 90;
+        player.setBounds(25, 135, 65, 115);
        }
        break;
   }
@@ -510,7 +507,6 @@ void handleDialogue() {
 void handleBattle() {
   if (isStateFirstFrame) {
     tft.fillScreen(ST7735_BLACK);
-    // Scaled box for battle
     tft.drawRect(24, 64, 112, 52, ST7735_WHITE); 
     player.forceDraw();
     tft.setCursor(30, 20);
@@ -531,14 +527,13 @@ void typeText(const char* text, int delaySpeed, bool shake) {
 
   for (int i = 0; i < strlen(text); i++) {
     if(text[i] == '\n') {
-      startY += 10; // Reduced line height for smaller screen
+      startY += 10; 
       startX = originalX; 
       tft.setCursor(startX, startY);
       continue;
     }
-
     if (shake) {
-       int ox = random(-1, 2); // Reduced shake
+       int ox = random(-1, 2); 
        int oy = random(-1, 2);
        tft.setCursor(startX + ox, startY + oy);
        tft.print(text[i]);
@@ -549,14 +544,12 @@ void typeText(const char* text, int delaySpeed, bool shake) {
        startX = tft.getCursorX();
        startY = tft.getCursorY();
     }
-
     if (digitalRead(BUTTON_PIN) == LOW) {
       delaySpeed = 0; 
       hasSkipped = true; 
     }
     delay(delaySpeed);
   }
-  
   if (hasSkipped) {
     while (digitalRead(BUTTON_PIN) == LOW) delay(10);
   }
