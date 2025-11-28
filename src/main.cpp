@@ -30,9 +30,26 @@ void handleMap();
 void handleDialogue();
 void handleBattle();
 void typeText(const char* text, int delaySpeed, bool shake = false);
+void drawSpriteMixed(int x, int y, const uint16_t* sprite, int w, int h, const uint16_t* bgMap);
 
 // --- ASSETS ---
+// Lime Background (0x07C0) for transparency
 const uint16_t heart_sprite[144] = {
+0x07C0, 0x07C0, 0xf800, 0xf800, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0xf800, 0xf800, 0x07C0, 0x07C0, 
+0x07C0, 0xf800, 0xf800, 0xf800, 0xf800, 0x07C0, 0x07C0, 0xf800, 0xf800, 0xf800, 0xf800, 0x07C0, 
+0x07C0, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x07C0, 
+0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
+0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
+0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
+0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
+0x07C0, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x07C0, 
+0x07C0, 0x07C0, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x07C0, 0x07C0, 
+0x07C0, 0x07C0, 0x07C0, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x07C0, 0x07C0, 0x07C0, 
+0x07C0, 0x07C0, 0x07C0, 0x07C0, 0xf800, 0xf800, 0xf800, 0xf800, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 
+0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0xf800, 0xf800, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0
+};
+
+const uint16_t heart_sprite_blk[144] = {
 0x0000, 0x0000, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0x0000, 0x0000, 
 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 
 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 
@@ -48,56 +65,52 @@ const uint16_t heart_sprite[144] = {
 };
 
 const uint16_t robot_npc[256] = {
-  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0xcd67, 0xd5a9, 0xd5a9, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0xcd67, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0xcd67, 0x0000, 0x2f28, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x2f28, 0x0000, 0xcd67, 0x0000, 0x0000,
-  0x0000, 0x0000, 0xcd67, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0xcd67, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xcd67, 0x0000, 0x0000,
-  0x0000, 0x0000, 0x0000, 0xcd67, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xcd67, 0xcd67, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xcd67, 0xcd67, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
-  0x0000, 0x0000, 0x0000, 0x6320, 0x0000, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0x2f28, 0xcd67, 0x0000, 0x6320, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x6320, 0x0000, 0x6320, 0x6320, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x6320, 0x6320, 0x0000, 0x6320, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0xcd67, 0xcd67, 0xcd67, 0xcd67, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000,
-  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
+0x0000, 0x07C0, 0x07C0, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x07C0, 0x07C0, 0x0000,   
+0x0000, 0x07C0, 0x0000, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0x0000, 0x07C0, 0x0000,   
+0x0000, 0x0000, 0xCD67, 0xD5A9, 0xD5A9, 0xD5A9, 0xCD67, 0xD5A9, 0xD5A9, 0xCD67, 0xD5A9, 0xD5A9, 0xD5A9, 0xCD67, 0x0000, 0x0000,   
+0x0000, 0x0000, 0xCD67, 0x0000, 0x2F28, 0x0000, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0x0000, 0x2F28, 0x0000, 0xCD67, 0x0000, 0x0000,   
+0x07C0, 0x0000, 0xCD67, 0x0000, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0x0000, 0xCD67, 0x0000, 0x07C0,   
+0x07C0, 0x0000, 0xCD67, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0x0000, 0x0000, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xCD67, 0x0000, 0x07C0,   
+0x07C0, 0x07C0, 0x0000, 0xCD67, 0xCD67, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0xCD67, 0xCD67, 0x0000, 0x07C0, 0x07C0,   
+0x07C0, 0x07C0, 0x07C0, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x07C0, 0x07C0, 0x07C0,   
+0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x0000, 0xCD67, 0xCD67, 0x0000, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0,   
+0x07C0, 0x07C0, 0x07C0, 0x0000, 0x0000, 0x0000, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0x0000, 0x0000, 0x0000, 0x07C0, 0x07C0, 0x07C0,   
+0x07C0, 0x07C0, 0x0000, 0x6320, 0x0000, 0xCD67, 0xD5A9, 0xD5A9, 0xD5A9, 0x2F28, 0xCD67, 0x0000, 0x6320, 0x0000, 0x07C0, 0x07C0,   
+0x07C0, 0x0000, 0x6320, 0x0000, 0x6320, 0x6320, 0xD5A9, 0xD5A9, 0xD5A9, 0xD5A9, 0x6320, 0x6320, 0x0000, 0x6320, 0x0000, 0x07C0,   
+0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0xCD67, 0xCD67, 0xCD67, 0xCD67, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000,   
+0x0000, 0x07C0, 0x0000, 0x0000, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0x0000, 0x0000, 0x07C0, 0x0000,   
+0x07C0, 0x07C0, 0x07C0, 0x0000, 0x0000, 0x0000, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x0000, 0x0000, 0x0000, 0x07C0, 0x07C0, 0x07C0,   
+0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0, 0x07C0,   
 };
 
 // --- GRAPHICS HELPER ---
-// Draws a sprite with transparency by checking if pixels are black (0x0000).
-// If bgMap is provided, it replaces black pixels with the background at that location.
 void drawSpriteMixed(int x, int y, const uint16_t* sprite, int w, int h, const uint16_t* bgMap) {
-    if (x < 0 || y < 0 || x + w > SCREEN_W || y + h > SCREEN_H) return; // Basic bounds safety
+    if (x < 0 || y < 0 || x + w > SCREEN_W || y + h > SCREEN_H) return; 
 
-    // Buffer to hold the mixed image
-    uint16_t buffer[256]; // Enough for 16x16 sprite
+    uint16_t buffer[256]; 
 
-    // 1. Copy Background section into buffer
     for (int row = 0; row < h; row++) {
         int screenY = y + row;
         int bgIndexStart = (screenY * SCREEN_W) + x;
         for (int col = 0; col < w; col++) {
-             // Copy pixel from the huge background array
              buffer[row * w + col] = bgMap[bgIndexStart + col];
         }
     }
 
-    // 2. Overlay Sprite (Transparency Check)
     for (int i = 0; i < w * h; i++) {
         uint16_t pixel = sprite[i];
-        if (pixel != 0x0000) { // If NOT black
-            buffer[i] = pixel; // Overwrite background in buffer
+        if (pixel != 0x07C0) { // Check for Lime Green Transparency
+            buffer[i] = pixel; 
         }
     }
-
-    // 3. Draw the combined result
     tft.drawRGBBitmap(x, y, buffer, w, h);
 }
 
 // --- CLASSES ---
+struct Rect {
+    int x, y, w, h;
+};
+
 struct NPC {
   int x, y;
 };
@@ -106,15 +119,29 @@ class Player {
 public:
   float x, y, oldX, oldY;
   float speed = 2.0; 
-  int minX, maxX, minY, maxY;
+  
+  Rect* zones = nullptr;
+  int zoneCount = 0;
 
   void init(int startX, int startY) {
     x = startX; y = startY; oldX = x; oldY = y;
-    setBounds(0, SCREEN_W, 0, SCREEN_H);
   }
 
-  void setBounds(int x1, int x2, int y1, int y2) {
-    minX = x1; maxX = x2; minY = y1; maxY = y2;
+  void setZones(Rect* newZones, int count) {
+      zones = newZones;
+      zoneCount = count;
+  }
+  
+  bool isWalkable(int px, int py) {
+      if (zoneCount == 0) return true; 
+      
+      for(int i=0; i<zoneCount; i++) {
+          if (px >= zones[i].x && px <= zones[i].x + zones[i].w &&
+              py >= zones[i].y && py <= zones[i].y + zones[i].h) {
+              return true;
+          }
+      }
+      return false;
   }
 
   bool checkCollision(float newX, float newY, int objX, int objY, int objW, int objH) {
@@ -129,29 +156,39 @@ public:
     
     if (joyX < 1500) nextX += speed; 
     if (joyX > 2500) nextX -= speed; 
+    
+    int feetX = (int)nextX + (PLAYER_W / 2);
+    int feetY = (int)y + PLAYER_H;
+    
+    if (isWalkable(feetX, feetY)) {
+        if (nextX >= 0 && nextX <= SCREEN_W - PLAYER_W) {
+            x = nextX;
+        }
+    }
+    
+    nextY = y;
     if (joyY < 1500) nextY += speed; 
     if (joyY > 2500) nextY -= speed; 
     
-    if (nextX < minX) nextX = minX;
-    if (nextX > maxX - PLAYER_W) nextX = maxX - PLAYER_W;
-    if (nextY < minY) nextY = minY;
-    if (nextY > maxY - PLAYER_H) nextY = maxY - PLAYER_H;
+    feetX = (int)x + (PLAYER_W / 2);
+    feetY = (int)nextY + PLAYER_H;
+
+    if (isWalkable(feetX, feetY)) {
+        if (nextY >= 0 && nextY <= SCREEN_H - PLAYER_H) {
+             y = nextY;
+        }
+    }
 
     if (currentState == MAP_WALK && enemy != nullptr) {
-       if (!checkCollision(nextX, nextY, enemy->x, enemy->y, NPC_SIZE, NPC_SIZE)) {
-          x = nextX; y = nextY;
+       if (checkCollision(x, y, enemy->x, enemy->y, NPC_SIZE, NPC_SIZE)) {
+          x = oldX; y = oldY;
        }
-    } else {
-       x = nextX; y = nextY;
     }
   }
 
   void draw(const uint16_t* bgMap = nullptr) {
     if ((int)x != (int)oldX || (int)y != (int)oldY) {
-      
       if (bgMap != nullptr) {
-        // 1. ERASE: Restore background at old position
-        // This is still needed to wipe the trail
         int rx = (int)oldX; 
         int ry = (int)oldY;
         for(int row = 0; row < PLAYER_H; row++) {
@@ -160,31 +197,29 @@ public:
               tft.drawRGBBitmap(rx, currentY, (uint16_t*)(bgMap + (currentY * SCREEN_W) + rx), PLAYER_W, 1);
            }
         }
-
-        // 2. DRAW: Draw new position using Mixing function
         drawSpriteMixed((int)x, (int)y, heart_sprite, PLAYER_W, PLAYER_H, bgMap);
-
       } else {
-        // Fallback for screens without a background map (Battle)
-        // Standard erase (Black box)
         if (x > oldX) tft.fillRect((int)oldX, (int)oldY, (int)x - (int)oldX, PLAYER_H, ST7735_BLACK);
         else if (x < oldX) tft.fillRect((int)x + PLAYER_W, (int)oldY, (int)oldX - (int)x, PLAYER_H, ST7735_BLACK);
         if (y > oldY) tft.fillRect((int)oldX, (int)oldY, PLAYER_W, (int)y - (int)oldY, ST7735_BLACK);
         else if (y < oldY) tft.fillRect((int)oldX, (int)y + PLAYER_H, PLAYER_W, (int)oldY - (int)y, ST7735_BLACK);
-        
-        // Standard Draw
         tft.drawRGBBitmap((int)x, (int)y, (uint16_t*)heart_sprite, PLAYER_W, PLAYER_H);
       }
     }
   }
   
-  void forceDraw() {
-    tft.drawRGBBitmap((int)x, (int)y, (uint16_t*)heart_sprite, PLAYER_W, PLAYER_H);
+  // UPDATED: Now allows passing bgMap for transparent initial draw
+  void forceDraw(const uint16_t* bgMap = nullptr) {
+    if (bgMap != nullptr) {
+        drawSpriteMixed((int)x, (int)y, heart_sprite, PLAYER_W, PLAYER_H, bgMap);
+    } else {
+        tft.drawRGBBitmap((int)x, (int)y, (uint16_t*)heart_sprite, PLAYER_W, PLAYER_H);
+    }
   }
 };
 
 Player player;
-NPC enemy = {70, 25}; 
+NPC enemy = {85,56};
 
 // --- DIALOGUE VARIABLES ---
 int menuSelection = 0; 
@@ -206,7 +241,11 @@ void setup() {
   #if DEBUG_SKIP_INTRO
     currentState = BATTLE;
     player.x = 80; player.y = 90; 
-    player.setBounds(25, 135, 65, 115);
+    
+    // For battle, we still define a simple zone
+    static Rect battleZone[] = { {25, 65, 65, 50} }; 
+    player.setZones(battleZone, 1);
+    
   #else
     player.init(15, 60); 
   #endif
@@ -252,24 +291,37 @@ void handleMenu() {
   if (isButtonPressed()) {
     currentState = MAP_WALK;
     isStateFirstFrame = true;
-    player.x = 10; player.y = 60;
-    player.setBounds(0, SCREEN_W, 0, SCREEN_H);
+    player.x = 25; player.y = 60; 
+    
+    static Rect walkableFloors[] = {
+      { 21, 48, 122, 2 },
+      { 21, 51, 109, 43 },
+      { 10, 82, 11, 2 },
+      { 11, 79, 9, 2 },
+      { 13, 74, 8, 4 },
+      { 14, 71, 7, 2 },
+      { 15, 68, 6, 2 },
+      { 17, 66, 4, 1 },
+      { 18, 63, 3, 2 },
+      { 18, 61, 2, 1 },
+      { 19, 58, 1, 2 },
+      { 130, 69, 7, 25 },
+      { 137, 82, 6, 12 }
+    };
+    player.setZones(walkableFloors, 13);
   }
 }
 
 void handleMap() {
   if (isStateFirstFrame) {
     tft.drawRGBBitmap(0, 0, bg_map, 160, 128);
-    player.forceDraw();
+    // UPDATED: Now passing bg_map here ensures transparency on frame 1
+    player.forceDraw(bg_map); 
     isStateFirstFrame = false;
   }
 
   player.update(&enemy);
-  
-  // 1. Draw NPC with transparency (re-draws over any trail player left)
   drawSpriteMixed(enemy.x, enemy.y, robot_npc, 16, 16, bg_map);
-  
-  // 2. Draw Player with transparency
   player.draw(bg_map);
 
   float dist = sqrt(pow(player.x - enemy.x, 2) + pow(player.y - enemy.y, 2));
@@ -336,10 +388,10 @@ void handleDialogue() {
         if (joyX < 1500) menuSelection = 1;
       }
       if (menuSelection != lastDrawnSelection) {
-        tft.fillRect(15, textY + 10, 14, 14, ST7735_BLACK);
-        tft.fillRect(85, textY + 10, 14, 14, ST7735_BLACK);
-        if (menuSelection == 0) tft.drawRGBBitmap(15, textY + 10, heart_sprite, 12, 12);
-        else tft.drawRGBBitmap(85, textY + 10, heart_sprite, 12, 12);
+        tft.fillRect(15, textY + 8, 14, 14, ST7735_BLACK);
+        tft.fillRect(85, textY + 8, 14, 14, ST7735_BLACK);
+        if (menuSelection == 0) tft.drawRGBBitmap(15, textY + 8, heart_sprite_blk, 12, 12);
+        else tft.drawRGBBitmap(85, textY + 8, heart_sprite_blk, 12, 12);
         lastDrawnSelection = menuSelection;
       }
       if (isButtonPressed()) {
@@ -352,7 +404,7 @@ void handleDialogue() {
       if (isStateFirstFrame) {
         clearText();
         if (playerChoiceYesNo == 0) typeText("* First human friend!", 30);
-        else typeText("* Then you are the 1,025th\n* rock I've met today.", 30);
+        else typeText("Then you are the 1,025th\n* rock I've met today.", 30);
         isStateFirstFrame = false;
       }
       if (isButtonPressed()) { currentDialogueState = D_HUMAN_RESULT_2; isStateFirstFrame = true; }
@@ -375,7 +427,7 @@ void handleDialogue() {
       if (isStateFirstFrame) {
         clearText();
         if (storyProgress == 1) typeText("* Do you have any food?", 30); 
-        else if (storyProgress == 2) typeText("* Can I have one more unit?", 30);
+        else if (storyProgress == 2) typeText("* Can I have one more?", 30);
         else if (storyProgress == 3) typeText("* Just one last byte?", 30);
         
         tft.setCursor(30, textY + 15); tft.print("GIVE");
@@ -391,10 +443,10 @@ void handleDialogue() {
         if (joyX < 1500) menuSelection = 1;
       }
       if (menuSelection != lastDrawnSelection) {
-        tft.fillRect(15, textY + 15, 14, 14, ST7735_BLACK);
-        tft.fillRect(85, textY + 15, 14, 14, ST7735_BLACK);
-        if (menuSelection == 0) tft.drawRGBBitmap(15, textY + 15, heart_sprite, 12, 12);
-        else tft.drawRGBBitmap(85, textY + 15, heart_sprite, 12, 12);
+        tft.fillRect(15, textY + 13, 14, 14, ST7735_BLACK);
+        tft.fillRect(85, textY + 13, 14, 14, ST7735_BLACK);
+        if (menuSelection == 0) tft.drawRGBBitmap(15, textY + 13, heart_sprite_blk, 12, 12);
+        else tft.drawRGBBitmap(85, textY + 13, heart_sprite_blk, 12, 12);
         lastDrawnSelection = menuSelection;
       }
       if (isButtonPressed()) {
@@ -439,9 +491,9 @@ void handleDialogue() {
       }
       if (menuSelection != lastDrawnSelection) {
         if (lastDrawnSelection != -1) {
-            tft.fillRect(itemXPositions[lastDrawnSelection] - 14, textY+15, 12, 12, ST7735_BLACK);
+            tft.fillRect(itemXPositions[lastDrawnSelection] - 14, textY+13, 12, 12, ST7735_BLACK);
         }
-        tft.drawRGBBitmap(itemXPositions[menuSelection] - 14, textY+15, heart_sprite, 12, 12);
+        tft.drawRGBBitmap(itemXPositions[menuSelection] - 14, textY+13, heart_sprite_blk, 12, 12);
         lastDrawnSelection = menuSelection;
       }
       if (isButtonPressed()) {
@@ -498,7 +550,8 @@ void handleDialogue() {
         currentState = BATTLE;
         isStateFirstFrame = true;
         player.x = 80; player.y = 90;
-        player.setBounds(25, 135, 65, 115);
+        static Rect battleZone[] = { {25, 65, 65, 50} }; 
+        player.setZones(battleZone, 1);
        }
        break;
   }
