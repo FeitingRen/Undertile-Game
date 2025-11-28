@@ -1,25 +1,24 @@
 #include <Arduino.h>
 #include <Adafruit_GFX.h>
-#include <Adafruit_ILI9341.h>
+#include <Adafruit_ST7735.h> // Changed from ILI9341
 #include <SPI.h>
 #include "game_defs.h"
 
 // --- DISPLAY SETUP ---
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
+// Use ST7735 class instead of ILI9341
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 // --- GLOBAL VARIABLES ---
 GameState currentState = MENU;
 DialogueState currentDialogueState = D_INTRO_1;
-Inventory playerInventory = {true, true, true}; // Start with all 3 items
+Inventory playerInventory = {true, true, true}; 
 
-// Story Progress: 0 = Just Met, 1 = Round 1 (Hungry), 2 = Round 2, 3 = Round 3
 int storyProgress = 0; 
 bool isStateFirstFrame = true;
 unsigned long lastFrameTime = 0;
 const int targetFPS = 60;
 const int frameDelay = 1000 / targetFPS;
 
-// Stores the player's Yes(0)/No(1) choice to remember it across split dialogue states
 int playerChoiceYesNo = 0; 
 
 // --- PROTOTYPES ---
@@ -58,7 +57,7 @@ const uint16_t robot_npc[256] = {
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xcd67, 0xcd67, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
   0x0000, 0x0000, 0x0000, 0x6320, 0x0000, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0x2f28, 0xcd67, 0x0000, 0x6320, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x6320, 0x0000, 0x6320, 0x6320, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x6320, 0x6320, 0x0000, 0x6320, 0x0000, 0x0000,
+  0x0000, 0x0000, 0x6320, 0x0000, 0x6320, 0x6320, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x6320, 0x6320, 0x0000, 0x6320, 0x0000, 0x0000, 
   0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0xcd67, 0xcd67, 0xcd67, 0xcd67, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000, 
   0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000,
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
@@ -73,12 +72,12 @@ struct NPC {
 class Player {
 public:
   float x, y, oldX, oldY;
-  float speed = 3.0;
+  float speed = 2.0; // Slightly reduced speed for smaller screen
   int minX, maxX, minY, maxY;
 
   void init(int startX, int startY) {
     x = startX; y = startY; oldX = x; oldY = y;
-    setBounds(0, 240, 0, 320);
+    setBounds(0, SCREEN_W, 0, SCREEN_H);
   }
 
   void setBounds(int x1, int x2, int y1, int y2) {
@@ -95,10 +94,12 @@ public:
     int joyX = analogRead(JOYSTICK_X);
     int joyY = analogRead(JOYSTICK_Y);
     
-    if (joyX < 1800) nextX += speed; 
-    if (joyX > 2200) nextX -= speed; 
-    if (joyY < 1800) nextY += speed; 
-    if (joyY > 2200) nextY -= speed; 
+    // Adjusted thresholds for ESP32 ADC (0-4095)
+    // Center is approx 1850-2000 usually
+    if (joyX < 1500) nextX += speed; 
+    if (joyX > 2500) nextX -= speed; 
+    if (joyY < 1500) nextY += speed; 
+    if (joyY > 2500) nextY -= speed; 
     
     // Bounds
     if (nextX < minX) nextX = minX;
@@ -119,10 +120,11 @@ public:
   void draw() {
     if ((int)x != (int)oldX || (int)y != (int)oldY) {
       tft.drawRGBBitmap((int)x, (int)y, (uint16_t*)heart_sprite, PLAYER_W, PLAYER_H);
-      if (x > oldX) tft.fillRect((int)oldX, (int)oldY, (int)x - (int)oldX, PLAYER_H, ILI9341_BLACK);
-      else if (x < oldX) tft.fillRect((int)x + PLAYER_W, (int)oldY, (int)oldX - (int)x, PLAYER_H, ILI9341_BLACK);
-      if (y > oldY) tft.fillRect((int)oldX, (int)oldY, PLAYER_W, (int)y - (int)oldY, ILI9341_BLACK);
-      else if (y < oldY) tft.fillRect((int)oldX, (int)y + PLAYER_H, PLAYER_W, (int)oldY - (int)y, ILI9341_BLACK);
+      // Erase trails
+      if (x > oldX) tft.fillRect((int)oldX, (int)oldY, (int)x - (int)oldX, PLAYER_H, ST7735_BLACK);
+      else if (x < oldX) tft.fillRect((int)x + PLAYER_W, (int)oldY, (int)oldX - (int)x, PLAYER_H, ST7735_BLACK);
+      if (y > oldY) tft.fillRect((int)oldX, (int)oldY, PLAYER_W, (int)y - (int)oldY, ST7735_BLACK);
+      else if (y < oldY) tft.fillRect((int)oldX, (int)y + PLAYER_H, PLAYER_W, (int)oldY - (int)y, ST7735_BLACK);
     }
   }
   
@@ -132,24 +134,27 @@ public:
 };
 
 Player player;
-NPC enemy = {140, 40};
+NPC enemy = {70, 25}; // Scaled enemy position
 
 // --- DIALOGUE VARIABLES ---
 int menuSelection = 0; 
 int inventoryOptions[3]; 
 int availableCount = 0;
 int lastDrawnSelection = -1; 
-// To handle dynamic cursor positioning in typeText
-int textCursorX = 20; 
-int textCursorY = 185; 
+int textCursorX = 10; 
+int textCursorY = 95; 
 
 void setup() {
   Serial.begin(115200);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
-  tft.begin();
-  tft.setRotation(1);
-  tft.fillScreen(ILI9341_BLACK);
-  player.init(30, 120);
+  
+  // ST7735 Initialization
+  // Use INITR_BLACKTAB for 1.8" typically. If colors are wrong, try INITR_GREENTAB.
+  tft.initR(INITR_BLACKTAB); 
+  tft.setRotation(1); // Landscape
+  tft.fillScreen(ST7735_BLACK);
+  
+  player.init(15, 60); // Scaled start pos
 }
 
 void loop() {
@@ -178,13 +183,13 @@ bool isButtonPressed() {
 // --- SCENES ---
 void handleMenu() {
   if (isStateFirstFrame) {
-    tft.fillScreen(ILI9341_BLACK);
-    tft.setTextColor(ILI9341_WHITE);
-    tft.setTextSize(2); 
-    tft.setCursor(60, 80);
+    tft.fillScreen(ST7735_BLACK);
+    tft.setTextColor(ST7735_WHITE);
+    tft.setTextSize(1); // Size 2 is too big for 160px width with long text
+    tft.setCursor(30, 40);
     tft.print("UNDERTALE ESP32");
-    tft.setTextSize(1);
-    tft.setCursor(90, 120);
+    
+    tft.setCursor(20, 80);
     tft.print("Press Button to Start");
     isStateFirstFrame = false; 
   }
@@ -192,14 +197,14 @@ void handleMenu() {
   if (isButtonPressed()) {
     currentState = MAP_WALK;
     isStateFirstFrame = true;
-    player.x = 20; player.y = 120;
-    player.setBounds(0, 320, 0, 240);
+    player.x = 10; player.y = 60;
+    player.setBounds(0, SCREEN_W, 0, SCREEN_H);
   }
 }
 
 void handleMap() {
   if (isStateFirstFrame) {
-    tft.fillScreen(ILI9341_BLACK); 
+    tft.fillScreen(ST7735_BLACK); 
     player.forceDraw();
     isStateFirstFrame = false;
   }
@@ -207,21 +212,19 @@ void handleMap() {
   player.update(&enemy);
   player.draw();
   
-  // NEW: Draw the robot sprite (16x16 size)
+  // Draw NPC
   tft.drawRGBBitmap(enemy.x, enemy.y, (uint16_t*)robot_npc, 16, 16);
-  // --- CHANGED SECTION ENDS HERE ---
 
   float dist = sqrt(pow(player.x - enemy.x, 2) + pow(player.y - enemy.y, 2));
-  if (dist < 30 && digitalRead(BUTTON_PIN) == LOW) {
+  if (dist < 20 && digitalRead(BUTTON_PIN) == LOW) {
       currentState = DIALOGUE;
       
-      // Determine Start State based on progress
       if (storyProgress == 0) {
         currentDialogueState = D_INTRO_1; 
       } else if (storyProgress == 1) {
-        currentDialogueState = D_REQUEST_FOOD_PART1; // Special split for round 1
+        currentDialogueState = D_REQUEST_FOOD_PART1; 
       } else {
-        currentDialogueState = D_REQUEST_FOOD; // Direct to request for round 2/3
+        currentDialogueState = D_REQUEST_FOOD; 
       }
       
       isStateFirstFrame = true;
@@ -230,79 +233,67 @@ void handleMap() {
 }
 
 void handleDialogue() {
-  // Common UI Setup
+  // Scaled Dialogue Box for 128x160
+  // Box at bottom ~40px high
+  int boxY = 88;
+  int boxH = 40;
+  int textY = 94;
+
   if (isStateFirstFrame && currentDialogueState != D_COFFEE_EVENT) {
-    tft.fillRect(10, 180, 300, 50, ILI9341_BLACK); 
-    tft.drawRect(8, 178, 304, 54, ILI9341_WHITE); 
-    tft.setTextColor(ILI9341_WHITE);
+    tft.fillRect(2, boxY, 156, boxH, ST7735_BLACK); 
+    tft.drawRect(0, boxY-2, 160, boxH+2, ST7735_WHITE); 
+    tft.setTextColor(ST7735_WHITE);
     tft.setTextSize(1);
-    // Init Cursor for typeText
-    tft.setCursor(20, 185); 
+    tft.setCursor(5, textY); 
   }
+
+  // Helper lambda to clear text area
+  auto clearText = [&]() {
+     tft.fillRect(4, boxY+2, 152, boxH-4, ST7735_BLACK);
+     tft.setCursor(5, textY);
+  };
 
   switch (currentDialogueState) {
     
-    // --- SPLIT INTRO PHASE 1 ---
     case D_INTRO_1:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK); // Clear text area
-        tft.setCursor(20, 190);
+        clearText();
         typeText("* WHAT!!?", 30);
         isStateFirstFrame = false;
       }
-      if (isButtonPressed()) {
-        currentDialogueState = D_INTRO_2;
-        isStateFirstFrame = true;
-      }
+      if (isButtonPressed()) { currentDialogueState = D_INTRO_2; isStateFirstFrame = true; }
       break;
 
-    // --- SPLIT INTRO PHASE 2 ---
     case D_INTRO_2:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK); // Clear text area
-        tft.setCursor(20, 190);
+        clearText();
         typeText("* ...", 30);
         isStateFirstFrame = false;
       }
-      if (isButtonPressed()) {
-        currentDialogueState = D_INTRO_4;
-        isStateFirstFrame = true;
-      }
+      if (isButtonPressed()) { currentDialogueState = D_INTRO_4; isStateFirstFrame = true; }
       break;
 
-    // --- SPLIT INTRO PHASE 4 ---
     case D_INTRO_4:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK); // Clear text area
-        tft.setCursor(20, 190);
-        typeText("* Sorry, I've been here alone for so long.", 30);
+        clearText();
+        typeText("* Sorry, I've been here\n* alone for so long.", 30);
         isStateFirstFrame = false;
       }
-      if (isButtonPressed()) {
-        currentDialogueState = D_INTRO_5;
-        isStateFirstFrame = true;
-      }
+      if (isButtonPressed()) { currentDialogueState = D_INTRO_5; isStateFirstFrame = true; }
       break;
 
-    // --- SPLIT INTRO PHASE 5 ---
     case D_INTRO_5:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK); // Clear text area
-        tft.setCursor(20, 190);
-        typeText("* I'm actually a nonchalant robot.", 30);
+        clearText();
+        typeText("* I'm actually a\n* nonchalant robot.", 30);
         isStateFirstFrame = false;
       }
-      if (isButtonPressed()) {
-        currentDialogueState = D_INTRO_6;
-        isStateFirstFrame = true;
-      }
+      if (isButtonPressed()) { currentDialogueState = D_INTRO_6; isStateFirstFrame = true; }
       break;
 
-    // --- SPLIT INTRO PHASE 6 ---
     case D_INTRO_6:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK); // Clear text area
-        tft.setCursor(20, 190);
+        clearText();
         typeText("* Are you a human?", 30);
         isStateFirstFrame = false;
       }
@@ -316,9 +307,9 @@ void handleDialogue() {
 
     case D_HUMAN_CHOICE:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK);
-        tft.setCursor(60, 200); tft.print("YES");
-        tft.setCursor(180, 200); tft.print("NO");
+        clearText();
+        tft.setCursor(30, textY + 10); tft.print("YES");
+        tft.setCursor(100, textY + 10); tft.print("NO");
         isStateFirstFrame = false;
       }
       {
@@ -327,10 +318,10 @@ void handleDialogue() {
         if (joyX < 1500) menuSelection = 1;
       }
       if (menuSelection != lastDrawnSelection) {
-        tft.fillRect(40, 200, 16, 16, ILI9341_BLACK);
-        tft.fillRect(160, 200, 16, 16, ILI9341_BLACK);
-        if (menuSelection == 0) tft.drawRGBBitmap(40, 200, heart_sprite, 12, 12);
-        else tft.drawRGBBitmap(160, 200, heart_sprite, 12, 12);
+        tft.fillRect(15, textY + 10, 14, 14, ST7735_BLACK);
+        tft.fillRect(85, textY + 10, 14, 14, ST7735_BLACK);
+        if (menuSelection == 0) tft.drawRGBBitmap(15, textY + 10, heart_sprite, 12, 12);
+        else tft.drawRGBBitmap(85, textY + 10, heart_sprite, 12, 12);
         lastDrawnSelection = menuSelection;
       }
       if (isButtonPressed()) {
@@ -342,10 +333,9 @@ void handleDialogue() {
 
     case D_HUMAN_RESULT_1:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK);
-        tft.setCursor(20, 185);
+        clearText();
         if (playerChoiceYesNo == 0) typeText("* First human friend!", 30);
-        else typeText("* Then you are the 1,025th rock\n* I have spoken to today.", 30);
+        else typeText("* Then you are the 1,025th\n* rock I've met today.", 30);
         isStateFirstFrame = false;
       }
       if (isButtonPressed()) { currentDialogueState = D_HUMAN_RESULT_2; isStateFirstFrame = true; }
@@ -353,45 +343,33 @@ void handleDialogue() {
 
     case D_HUMAN_RESULT_2:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK);
-        tft.setCursor(20, 185);
+        clearText();
         if (playerChoiceYesNo == 0) typeText("* I mean. Cool. Whatever.", 30);
-        else typeText("* The other rocks were less talkative.", 30);
+        else typeText("* The other rocks were\n* less talkative.", 30);
         storyProgress = 1; 
         isStateFirstFrame = false;
       }
-      if (isButtonPressed()) { 
-        currentDialogueState = D_REQUEST_FOOD_PART1; // Go to new part 1
-        isStateFirstFrame = true; 
-      }
+      if (isButtonPressed()) { currentDialogueState = D_REQUEST_FOOD_PART1; isStateFirstFrame = true; }
       break;
 
-    // --- NEW: PART 1 of Round 1 ---
     case D_REQUEST_FOOD_PART1:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK);
-        tft.setCursor(20, 185);
+        clearText();
         typeText("* My battery is low.", 30);
         isStateFirstFrame = false;
       }
-      if (isButtonPressed()) {
-        currentDialogueState = D_REQUEST_FOOD; // Proceed to part 2
-        isStateFirstFrame = true;
-      }
+      if (isButtonPressed()) { currentDialogueState = D_REQUEST_FOOD; isStateFirstFrame = true; }
       break;
 
-    // --- REQUEST FOOD (Round 1 Part 2, or Round 2/3) ---
     case D_REQUEST_FOOD:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK);
-        tft.setCursor(20, 185);
-        
-        if (storyProgress == 1) typeText("* Do you have any food?", 30); // Part 2 text
+        clearText();
+        if (storyProgress == 1) typeText("* Do you have any food?", 30); 
         else if (storyProgress == 2) typeText("* Can I have one more unit?", 30);
-        else if (storyProgress == 3) typeText("* Just one last byte? I promise.", 30);
+        else if (storyProgress == 3) typeText("* Just one last byte?", 30);
         
-        tft.setCursor(60, 205); tft.print("GIVE");
-        tft.setCursor(180, 205); tft.print("REFUSE");
+        tft.setCursor(30, textY + 15); tft.print("GIVE");
+        tft.setCursor(100, textY + 15); tft.print("REFUSE");
         
         menuSelection = 0; 
         lastDrawnSelection = -1;
@@ -405,10 +383,10 @@ void handleDialogue() {
       }
 
       if (menuSelection != lastDrawnSelection) {
-        tft.fillRect(40, 205, 16, 16, ILI9341_BLACK);
-        tft.fillRect(160, 205, 16, 16, ILI9341_BLACK);
-        if (menuSelection == 0) tft.drawRGBBitmap(40, 205, heart_sprite, 12, 12);
-        else tft.drawRGBBitmap(160, 205, heart_sprite, 12, 12);
+        tft.fillRect(15, textY + 15, 14, 14, ST7735_BLACK);
+        tft.fillRect(85, textY + 15, 14, 14, ST7735_BLACK);
+        if (menuSelection == 0) tft.drawRGBBitmap(15, textY + 15, heart_sprite, 12, 12);
+        else tft.drawRGBBitmap(85, textY + 15, heart_sprite, 12, 12);
         lastDrawnSelection = menuSelection;
       }
 
@@ -421,8 +399,7 @@ void handleDialogue() {
 
     case D_SELECT_ITEM:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK);
-        tft.setCursor(20, 185);
+        clearText();
         tft.print("Give what?");
         
         availableCount = 0;
@@ -431,11 +408,11 @@ void handleDialogue() {
         if (playerInventory.hasBattery) inventoryOptions[availableCount++] = 2;
         
         for(int i=0; i<availableCount; i++) {
-            tft.setCursor(50 + (i*80), 210);
+            tft.setCursor(20 + (i*50), textY + 15); // Compressed X spacing
             int itemType = inventoryOptions[i];
             if(itemType == 0) tft.print("Coffee");
             if(itemType == 1) tft.print("Gas");
-            if(itemType == 2) tft.print("Battery");
+            if(itemType == 2) tft.print("Bat.");
         }
 
         menuSelection = 0;
@@ -450,13 +427,10 @@ void handleDialogue() {
       }
 
       if (menuSelection != lastDrawnSelection) {
-        // Erase old cursor (if one was drawn)
         if (lastDrawnSelection != -1) {
-            tft.fillRect(34 + (lastDrawnSelection*80), 210, 12, 12, ILI9341_BLACK);
+            tft.fillRect(5 + (lastDrawnSelection*50), textY+15, 12, 12, ST7735_BLACK);
         }
-        // Draw new cursor
-        tft.drawRGBBitmap(34 + (menuSelection*80), 210, heart_sprite, 12, 12);
-        
+        tft.drawRGBBitmap(5 + (menuSelection*50), textY+15, heart_sprite, 12, 12);
         lastDrawnSelection = menuSelection;
       }
 
@@ -476,9 +450,8 @@ void handleDialogue() {
 
     case D_EATING:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK);
-        tft.setCursor(20, 185);
-        typeText("* CRUNCH CRUNCH.\n* That texture! That flavor!", 30);
+        clearText();
+        typeText("* CRUNCH CRUNCH.\n* That flavor!", 30);
         isStateFirstFrame = false;
       }
       if (isButtonPressed()) {
@@ -491,8 +464,7 @@ void handleDialogue() {
 
     case D_REFUSAL:
       if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK);
-        tft.setCursor(20, 185);
+        clearText();
         typeText("* Oh... okay.\n* I'll just go into Sleep Mode.", 40);
         isStateFirstFrame = false;
       }
@@ -504,32 +476,32 @@ void handleDialogue() {
 
     case D_COFFEE_EVENT:
        if (isStateFirstFrame) {
-        tft.fillScreen(ILI9341_BLACK); 
-        tft.setTextColor(ILI9341_WHITE);
-        tft.setTextSize(2);
-        tft.setCursor(20, 50); typeText("THANKS! SLURP...", 50);
+        tft.fillScreen(ST7735_BLACK); 
+        tft.setTextColor(ST7735_WHITE);
+        tft.setTextSize(1);
+        tft.setCursor(10, 30); typeText("THANKS! SLURP...", 50);
         delay(300);
-        tft.setCursor(20, 80); typeText("Analyzing...", 50);
+        tft.setCursor(10, 50); typeText("Analyzing...", 50);
         delay(1000);
-        tft.setCursor(20, 110); typeText("Is this C8H10N4O2?", 50);
+        tft.setCursor(10, 70); typeText("Is this C8H10N4O2?", 50);
         delay(1000);
-        tft.setTextColor(ILI9341_RED);
-        tft.setCursor(20, 140); typeText("Was that... COFFEE?", 100, true); 
+        tft.setTextColor(ST7735_RED);
+        tft.setCursor(10, 90); typeText("Was that... COFFEE?", 100, true); 
         delay(1500);
-        tft.fillScreen(ILI9341_BLACK);
-        tft.setCursor(10, 100); typeText("NO OVERLCOCKING!!!", 30, true);
+        tft.fillScreen(ST7735_BLACK);
+        tft.setCursor(5, 50); typeText("NO OVERCLOCKING!!!", 30, true);
         delay(1000);
-        tft.setCursor(10, 140); typeText("I CAN TASTE MATH!", 20, true);
+        tft.setCursor(5, 70); typeText("I CAN TASTE MATH!", 20, true);
         delay(2000);
-        tft.fillScreen(ILI9341_RED);
+        tft.fillScreen(ST7735_RED);
         delay(100);
-        tft.fillScreen(ILI9341_BLACK);
-        tft.setCursor(40, 110); typeText("CTRL + ALT + DELETE ME!", 10, true);
+        tft.fillScreen(ST7735_BLACK);
+        tft.setCursor(20, 60); typeText("CTRL+ALT+DELETE ME!", 10, true);
         delay(1000);
         currentState = BATTLE;
         isStateFirstFrame = true;
-        player.x = 160; player.y = 200;
-        player.setBounds(50, 270, 130, 230);
+        player.x = 80; player.y = 100;
+        player.setBounds(20, 140, 50, 120);
        }
        break;
   }
@@ -537,12 +509,13 @@ void handleDialogue() {
 
 void handleBattle() {
   if (isStateFirstFrame) {
-    tft.fillScreen(ILI9341_BLACK);
-    tft.drawRect(48, 128, 224, 104, ILI9341_WHITE); 
+    tft.fillScreen(ST7735_BLACK);
+    // Scaled box for battle
+    tft.drawRect(24, 64, 112, 52, ST7735_WHITE); 
     player.forceDraw();
-    tft.setCursor(60, 40);
-    tft.setTextColor(ILI9341_RED);
-    tft.setTextSize(2);
+    tft.setCursor(30, 20);
+    tft.setTextColor(ST7735_RED);
+    tft.setTextSize(1);
     tft.print("OVERCLOCKED ROBOT");
     isStateFirstFrame = false;
   }
@@ -558,28 +531,18 @@ void typeText(const char* text, int delaySpeed, bool shake) {
 
   for (int i = 0; i < strlen(text); i++) {
     if(text[i] == '\n') {
-      // Approximate line height as 10px * text size is a safer bet, 
-      // but strictly following standard: 8px * size + spacing.
-      // Since we can't easily get textsize, we rely on hardcoded average or logic.
-      // 12 is good for Size 1. For Size 2 it might be tight, but readable.
-      startY += 12; 
+      startY += 10; // Reduced line height for smaller screen
       startX = originalX; 
       tft.setCursor(startX, startY);
       continue;
     }
 
     if (shake) {
-       int ox = random(-2, 3);
-       int oy = random(-2, 3);
+       int ox = random(-1, 2); // Reduced shake
+       int oy = random(-1, 2);
        tft.setCursor(startX + ox, startY + oy);
        tft.print(text[i]);
-       
-       // CRITICAL FIX:
-       // The cursor has now moved forward by the character width.
-       // We calculate the next startX by taking the current cursor and subtracting the jitter.
-       // This guarantees correct spacing regardless of Text Size (1, 2, 3, etc).
        startX = tft.getCursorX() - ox;
-       
     } else {
        tft.setCursor(startX, startY);
        tft.print(text[i]);

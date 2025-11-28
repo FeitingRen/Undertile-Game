@@ -3,15 +3,34 @@
 
 #include <Arduino.h>
 
-// --- WIRING DEFINITIONS (ESP32 Standard VSPI) ---
+// --- WIRING DEFINITIONS (ESP32) ---
+// Display (ST7735)
 #define TFT_CS        5
 #define TFT_RST       4
 #define TFT_DC        2
+// MOSI = 23, SCK = 18 (VSPI default, no define needed for HW SPI)
+
+// Joystick
 #define JOYSTICK_X    34
 #define JOYSTICK_Y    35
-#define BUTTON_PIN    0 
+#define BUTTON_PIN    32  // Updated from 0 to 32
+
+// Audio (MAX98357A) - Ready for future use
+#define I2S_BCLK      26
+#define I2S_LRC       25
+#define I2S_DOUT      22
+
+// MicroSD Card - Ready for future use
+#define SD_CS         21
+#define SD_MISO       19
+#define SD_MOSI       23
+#define SD_SCK        18
 
 // --- GAME CONSTANTS ---
+// Adjusted screen size for ST7735 Landscape
+#define SCREEN_W      160
+#define SCREEN_H      128
+
 #define PLAYER_W      12
 #define PLAYER_H      12
 #define NPC_SIZE      16
@@ -26,23 +45,23 @@ enum GameState {
 };
 
 enum DialogueState {
-  D_INTRO_1,         // "WHAT!!? "
-  D_INTRO_2,         // "..."
-  D_INTRO_4,         // "Sorry, I've been here alone for so long."
-  D_INTRO_5,         // "I am actually a nonchalant robot."
-  D_INTRO_6,         // "Are you a human?"
+  D_INTRO_1,         
+  D_INTRO_2,         
+  D_INTRO_4,         
+  D_INTRO_5,         
+  D_INTRO_6,         
 
-  D_HUMAN_CHOICE,    // Yes/No selection
-  D_HUMAN_RESULT_1,  // "You are my first friend" OR "You are a rock"
-  D_HUMAN_RESULT_2,  // "Cool whatever" OR "Rocks were less talkative"
+  D_HUMAN_CHOICE,    
+  D_HUMAN_RESULT_1,  
+  D_HUMAN_RESULT_2,  
   
-  D_REQUEST_FOOD_PART1, // NEW: "My battery is low..." (Wait)
-  D_REQUEST_FOOD,       // "Do you have any food?" OR Round 2/3 texts + Choices
+  D_REQUEST_FOOD_PART1, 
+  D_REQUEST_FOOD,       
   
-  D_SELECT_ITEM,     // Inventory list
-  D_EATING,          // "Crunch crunch"
-  D_REFUSAL,         // "Sleep mode..."
-  D_COFFEE_EVENT     // "Analyzing..." -> Breakdown
+  D_SELECT_ITEM,     
+  D_EATING,          
+  D_REFUSAL,         
+  D_COFFEE_EVENT     
 };
 
 // --- DATA STRUCTURES ---
