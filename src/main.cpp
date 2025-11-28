@@ -30,23 +30,39 @@ void handleBattle();
 void typeText(const char* text, int delaySpeed, bool shake = false);
 
 // --- ASSETS ---
-const uint16_t heart_sprite[256] = {
-  0x0000, 0x0000, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0x0000, 0x0000, 
-  0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 
-  0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
-  0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
-  0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
-  0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
-  0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
-  0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
-  0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
-  0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
-  0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000,
-  0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
-  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
+// 12x12 Heart Sprite (144 pixels)
+const uint16_t heart_sprite[144] = {
+0x0000, 0x0000, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0x0000, 0x0000, 
+0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 
+0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 
+0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
+0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
+0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
+0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 
+0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 
+0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 
+0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 
+0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xf800, 0xf800, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
+};
+
+const uint16_t robot_npc[256] = {
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0xcd67, 0xd5a9, 0xd5a9, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0xcd67, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0xcd67, 0x0000, 0x2f28, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x2f28, 0x0000, 0xcd67, 0x0000, 0x0000,
+  0x0000, 0x0000, 0xcd67, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0xcd67, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xcd67, 0x0000, 0x0000,
+  0x0000, 0x0000, 0x0000, 0xcd67, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0xcd67, 0xcd67, 0x0000, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xcd67, 0xcd67, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+  0x0000, 0x0000, 0x0000, 0x6320, 0x0000, 0xcd67, 0xd5a9, 0xd5a9, 0xd5a9, 0x2f28, 0xcd67, 0x0000, 0x6320, 0x0000, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0x6320, 0x0000, 0x6320, 0x6320, 0xd5a9, 0xd5a9, 0xd5a9, 0xd5a9, 0x6320, 0x6320, 0x0000, 0x6320, 0x0000, 0x0000,
+  0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0xcd67, 0xcd67, 0xcd67, 0xcd67, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000, 0x6320, 0x6320, 0x0000, 0x0000, 0x0000, 0x0000,
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
 };
 
 // --- CLASSES ---
@@ -190,7 +206,10 @@ void handleMap() {
 
   player.update(&enemy);
   player.draw();
-  tft.fillRect(enemy.x, enemy.y, NPC_SIZE, NPC_SIZE, ILI9341_RED);
+  
+  // NEW: Draw the robot sprite (16x16 size)
+  tft.drawRGBBitmap(enemy.x, enemy.y, (uint16_t*)robot_npc, 16, 16);
+  // --- CHANGED SECTION ENDS HERE ---
 
   float dist = sqrt(pow(player.x - enemy.x, 2) + pow(player.y - enemy.y, 2));
   if (dist < 30 && digitalRead(BUTTON_PIN) == LOW) {
@@ -239,20 +258,6 @@ void handleDialogue() {
 
     // --- SPLIT INTRO PHASE 2 ---
     case D_INTRO_2:
-      if (isStateFirstFrame) {
-        tft.fillRect(12, 182, 296, 46, ILI9341_BLACK); // Clear text area
-        tft.setCursor(20, 190);
-        typeText("* ...", 30);
-        isStateFirstFrame = false;
-      }
-      if (isButtonPressed()) {
-        currentDialogueState = D_INTRO_3;
-        isStateFirstFrame = true;
-      }
-      break;
-
-    // --- SPLIT INTRO PHASE 3 ---
-    case D_INTRO_3:
       if (isStateFirstFrame) {
         tft.fillRect(12, 182, 296, 46, ILI9341_BLACK); // Clear text area
         tft.setCursor(20, 190);
@@ -339,7 +344,7 @@ void handleDialogue() {
       if (isStateFirstFrame) {
         tft.fillRect(12, 182, 296, 46, ILI9341_BLACK);
         tft.setCursor(20, 185);
-        if (playerChoiceYesNo == 0) typeText("* You are my first human friend!", 30);
+        if (playerChoiceYesNo == 0) typeText("* First human friend!", 30);
         else typeText("* Then you are the 1,025th rock\n* I have spoken to today.", 30);
         isStateFirstFrame = false;
       }
@@ -385,8 +390,8 @@ void handleDialogue() {
         else if (storyProgress == 2) typeText("* Can I have one more unit?", 30);
         else if (storyProgress == 3) typeText("* Just one last byte? I promise.", 30);
         
-        tft.setCursor(60, 220); tft.print("GIVE");
-        tft.setCursor(180, 220); tft.print("REFUSE");
+        tft.setCursor(60, 205); tft.print("GIVE");
+        tft.setCursor(180, 205); tft.print("REFUSE");
         
         menuSelection = 0; 
         lastDrawnSelection = -1;
@@ -400,10 +405,10 @@ void handleDialogue() {
       }
 
       if (menuSelection != lastDrawnSelection) {
-        tft.fillRect(40, 220, 16, 16, ILI9341_BLACK);
-        tft.fillRect(160, 220, 16, 16, ILI9341_BLACK);
-        if (menuSelection == 0) tft.drawRGBBitmap(40, 220, heart_sprite, 12, 12);
-        else tft.drawRGBBitmap(160, 220, heart_sprite, 12, 12);
+        tft.fillRect(40, 205, 16, 16, ILI9341_BLACK);
+        tft.fillRect(160, 205, 16, 16, ILI9341_BLACK);
+        if (menuSelection == 0) tft.drawRGBBitmap(40, 205, heart_sprite, 12, 12);
+        else tft.drawRGBBitmap(160, 205, heart_sprite, 12, 12);
         lastDrawnSelection = menuSelection;
       }
 
@@ -425,6 +430,14 @@ void handleDialogue() {
         if (playerInventory.hasGas)    inventoryOptions[availableCount++] = 1;
         if (playerInventory.hasBattery) inventoryOptions[availableCount++] = 2;
         
+        for(int i=0; i<availableCount; i++) {
+            tft.setCursor(50 + (i*80), 210);
+            int itemType = inventoryOptions[i];
+            if(itemType == 0) tft.print("Coffee");
+            if(itemType == 1) tft.print("Gas");
+            if(itemType == 2) tft.print("Battery");
+        }
+
         menuSelection = 0;
         lastDrawnSelection = -1;
         isStateFirstFrame = false;
@@ -435,17 +448,15 @@ void handleDialogue() {
         if (joyX > 2500 && menuSelection > 0) { menuSelection--; delay(150); }
         if (joyX < 1500 && menuSelection < availableCount-1) { menuSelection++; delay(150); }
       }
-      
+
       if (menuSelection != lastDrawnSelection) {
-        tft.fillRect(30, 210, 280, 16, ILI9341_BLACK); 
-        for(int i=0; i<availableCount; i++) {
-            tft.setCursor(50 + (i*80), 210);
-            int itemType = inventoryOptions[i];
-            if(itemType == 0) tft.print("Coffee");
-            if(itemType == 1) tft.print("Gas");
-            if(itemType == 2) tft.print("Battery");
+        // Erase old cursor (if one was drawn)
+        if (lastDrawnSelection != -1) {
+            tft.fillRect(34 + (lastDrawnSelection*80), 210, 12, 12, ILI9341_BLACK);
         }
+        // Draw new cursor
         tft.drawRGBBitmap(34 + (menuSelection*80), 210, heart_sprite, 12, 12);
+        
         lastDrawnSelection = menuSelection;
       }
 
@@ -497,19 +508,19 @@ void handleDialogue() {
         tft.setTextColor(ILI9341_WHITE);
         tft.setTextSize(2);
         tft.setCursor(20, 50); typeText("THANKS! SLURP...", 50);
-        delay(500);
+        delay(300);
         tft.setCursor(20, 80); typeText("Analyzing...", 50);
-        delay(500);
+        delay(1000);
         tft.setCursor(20, 110); typeText("Is this C8H10N4O2?", 50);
-        delay(500);
+        delay(1000);
         tft.setTextColor(ILI9341_RED);
         tft.setCursor(20, 140); typeText("Was that... COFFEE?", 100, true); 
-        delay(500);
+        delay(1500);
         tft.fillScreen(ILI9341_BLACK);
-        tft.setCursor(10, 100); typeText("NO OVERCLOCKING!!!", 30, true);
-        delay(500);
-        tft.setCursor(10, 140); typeText("I CAN TASTE MATH!", 20, true);
+        tft.setCursor(10, 100); typeText("NO OVERLCOCKING!!!", 30, true);
         delay(1000);
+        tft.setCursor(10, 140); typeText("I CAN TASTE MATH!", 20, true);
+        delay(2000);
         tft.fillScreen(ILI9341_RED);
         delay(100);
         tft.fillScreen(ILI9341_BLACK);
@@ -539,18 +550,20 @@ void handleBattle() {
   player.draw();
 }
 
-// Updated typeText with explicit line spacing control
 void typeText(const char* text, int delaySpeed, bool shake) {
   int startX = tft.getCursorX();
   int startY = tft.getCursorY();
-  int originalX = startX; // Remember starting X for new lines
+  int originalX = startX; 
   bool hasSkipped = false;
 
   for (int i = 0; i < strlen(text); i++) {
-    // Check for newline char
     if(text[i] == '\n') {
-      startY += 12; // Add 12 pixels for new line (adjusts spacing)
-      startX = originalX; // Reset X to left margin
+      // Approximate line height as 10px * text size is a safer bet, 
+      // but strictly following standard: 8px * size + spacing.
+      // Since we can't easily get textsize, we rely on hardcoded average or logic.
+      // 12 is good for Size 1. For Size 2 it might be tight, but readable.
+      startY += 12; 
+      startX = originalX; 
       tft.setCursor(startX, startY);
       continue;
     }
@@ -559,15 +572,17 @@ void typeText(const char* text, int delaySpeed, bool shake) {
        int ox = random(-2, 3);
        int oy = random(-2, 3);
        tft.setCursor(startX + ox, startY + oy);
-       startX += 6; // Manually advance X (assuming char width ~6px for size 1)
-    }
-    
-    tft.print(text[i]);
-    
-    // If not shaking, we rely on standard print to advance cursor, 
-    // but for shake we manually set it.
-    // If NOT shaking, we must update startX/Y to current position for next char logic
-    if(!shake) {
+       tft.print(text[i]);
+       
+       // CRITICAL FIX:
+       // The cursor has now moved forward by the character width.
+       // We calculate the next startX by taking the current cursor and subtracting the jitter.
+       // This guarantees correct spacing regardless of Text Size (1, 2, 3, etc).
+       startX = tft.getCursorX() - ox;
+       
+    } else {
+       tft.setCursor(startX, startY);
+       tft.print(text[i]);
        startX = tft.getCursorX();
        startY = tft.getCursorY();
     }

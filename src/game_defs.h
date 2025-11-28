@@ -12,9 +12,9 @@
 #define BUTTON_PIN    0 
 
 // --- GAME CONSTANTS ---
-#define PLAYER_W      16
-#define PLAYER_H      16
-#define NPC_SIZE      20
+#define PLAYER_W      12
+#define PLAYER_H      12
+#define NPC_SIZE      16
 
 // --- ENUMS ---
 enum GameState { 
@@ -28,10 +28,10 @@ enum GameState {
 enum DialogueState {
   D_INTRO_1,         // "WHAT!!? "
   D_INTRO_2,         // "..."
-  D_INTRO_3,         // "..."
   D_INTRO_4,         // "Sorry, I've been here alone for so long."
-  D_INTRO_5,         // "I'm actualy a nonchalant robot."
+  D_INTRO_5,         // "I am actually a nonchalant robot."
   D_INTRO_6,         // "Are you a human?"
+
   D_HUMAN_CHOICE,    // Yes/No selection
   D_HUMAN_RESULT_1,  // "You are my first friend" OR "You are a rock"
   D_HUMAN_RESULT_2,  // "Cool whatever" OR "Rocks were less talkative"
