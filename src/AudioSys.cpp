@@ -79,9 +79,13 @@ void playTextSound() {
     size_t bytes_written;
     
     // We process the audio in small chunks (256 bytes = 128 samples)
-    // This keeps the memory usage low and the loop fast.
     uint8_t tempBuffer[256]; 
     size_t chunk_size = sizeof(tempBuffer);
+
+    // Track total samples for fading logic
+    int samplesPlayedSoFar = 0;
+    const int fadeDurationSamples = 150; // Increased to ~150 for smoother edges
+    int totalSampleCount = audioBufferSize / 2; // Assuming 16-bit audio
 
     for (size_t i = 0; i < audioBufferSize; i += chunk_size) {
         // 1. Calculate how many bytes remain
@@ -90,14 +94,30 @@ void playTextSound() {
         // 2. Copy the raw original audio into our temp buffer
         memcpy(tempBuffer, &audioBuffer[i], bytes_to_process);
 
-        // 3. Apply Volume Scaling
-        // We cast the buffer to int16_t* because your WAV is 16-bit
+        // 3. Apply Volume Scaling with Fade-In AND Fade-Out
         int16_t* samples = (int16_t*)tempBuffer;
         size_t sample_count = bytes_to_process / 2; // 2 bytes per sample
 
         for (size_t s = 0; s < sample_count; s++) {
-            // Multiply the sample by the volume factor
-            samples[s] = (int16_t)(samples[s] * soundVolume);
+            float fadeFactorIn = 1.0f;
+            float fadeFactorOut = 1.0f;
+
+            // Calculate Fade-In (Start)
+            if (samplesPlayedSoFar < fadeDurationSamples) {
+                fadeFactorIn = (float)samplesPlayedSoFar / (float)fadeDurationSamples;
+            }
+
+            // Calculate Fade-Out (End)
+            int samplesRemaining = totalSampleCount - samplesPlayedSoFar;
+            if (samplesRemaining < fadeDurationSamples && samplesRemaining > 0) {
+                 fadeFactorOut = (float)samplesRemaining / (float)fadeDurationSamples;
+            }
+
+            // Use the most restrictive fade factor (allows handling short audio files gracefully)
+            float finalFade = (fadeFactorIn < fadeFactorOut) ? fadeFactorIn : fadeFactorOut;
+            
+            samples[s] = (int16_t)(samples[s] * soundVolume * finalFade);
+            samplesPlayedSoFar++;
         }
 
         // 4. Send the modified chunk to the I2S Driver
