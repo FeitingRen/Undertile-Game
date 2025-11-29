@@ -1,22 +1,45 @@
 #include <Arduino.h>
 #include <Adafruit_GFX.h>
+#include <Adafruit_ST7735.h> 
 #include <SPI.h>
+#include <Keypad.h> 
+#include <SD.h>             // NEW: SD Card
+#include <driver/i2s.h>     // NEW: Audio Driver
 #include "game_defs.h"
 #include "background.h" 
 #include "characters.h" 
-#include "AudioSys.h"
-#include "Battle.h"
-#include "Globals.h"
-#include "Player.h"  
-#include "Utils.h"
 
 // --- DEBUG SETTINGS ---
-#define DEBUG_SKIP_INTRO true 
+#define DEBUG_SKIP_INTRO false 
+
+// --- DISPLAY SETUP ---
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+
+// --- KEYPAD SETUP ---
+const byte ROWS = 3; 
+const byte COLS = 2; 
+
+char hexaKeys[ROWS][COLS] = {
+  {0, 'R'},   // Row 2
+  {'U', 'D'}, // Row 3
+  {'E', 'L'}  // Row 4
+};
+
+byte rowPins[ROWS] = {KEYPAD_R2, KEYPAD_R3, KEYPAD_R4}; 
+byte colPins[COLS] = {KEYPAD_C3, KEYPAD_C4}; 
+
+Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 char globalKey = 0;
 unsigned long interactionCooldown = 0; 
 unsigned long inputIgnoreTimer = 0; 
 unsigned long menuMoveTimer = 0; 
+
+// --- AUDIO GLOBALS ---
+uint8_t* audioBuffer = nullptr;
+size_t audioBufferSize = 0;
+bool audioLoaded = false;
+float soundVolume = 0.5; // Range: 0.0 (Mute) to 1.0 (Max)
 
 // --- GLOBAL VARIABLES ---
 GameState currentState = MENU;
@@ -36,7 +59,107 @@ void handleMenu();
 void handleMap();
 void handleDialogue();
 void handleBattle();
+void typeText(const char* text, int delaySpeed, bool shake = false);
+void drawSpriteMixed(int x, int y, const uint16_t* sprite, int w, int h, const uint16_t* bgMap);
+void setupAudio(); // NEW
+void playTextSound(); // NEW
 
+// --- GRAPHICS HELPER ---
+void drawSpriteMixed(int x, int y, const uint16_t* sprite, int w, int h, const uint16_t* bgMap) {
+    if (x < 0 || y < 0 || x + w > SCREEN_W || y + h > SCREEN_H) return; 
+    uint16_t buffer[256]; 
+    for (int row = 0; row < h; row++) {
+        int screenY = y + row;
+        int bgIndexStart = (screenY * SCREEN_W) + x;
+        for (int col = 0; col < w; col++) {
+             buffer[row * w + col] = bgMap[bgIndexStart + col];
+        }
+    }
+    for (int i = 0; i < w * h; i++) {
+        uint16_t pixel = sprite[i];
+        if (pixel != 0x07C0) buffer[i] = pixel; 
+    }
+    tft.drawRGBBitmap(x, y, buffer, w, h);
+}
+
+// --- CLASSES ---
+struct Rect { int x, y, w, h; };
+struct NPC { int x, y; };
+
+class Player {
+public:
+  float x, y, oldX, oldY;
+  float speed = 2.0; 
+  Rect* zones = nullptr;
+  int zoneCount = 0;
+
+  void init(int startX, int startY) { x = startX; y = startY; oldX = x; oldY = y; }
+  void setZones(Rect* newZones, int count) { zones = newZones; zoneCount = count; }
+  
+  bool isWalkable(int px, int py) {
+      if (zoneCount == 0) return true; 
+      for(int i=0; i<zoneCount; i++) {
+          if (px >= zones[i].x && px <= zones[i].x + zones[i].w &&
+              py >= zones[i].y && py <= zones[i].y + zones[i].h) return true;
+      }
+      return false;
+  }
+
+  bool checkCollision(float newX, float newY, int objX, int objY, int objW, int objH) {
+    return (newX < objX + objW && newX + PLAYER_W > objX && newY < objY + objH && newY + PLAYER_H > objY);
+  }
+
+  void update(NPC* enemy = nullptr) {
+    oldX = x; oldY = y;
+    float nextX = x, nextY = y;
+    for (int i=0; i<LIST_MAX; i++) {
+        if (customKeypad.key[i].kstate == PRESSED || customKeypad.key[i].kstate == HOLD) {
+            char k = customKeypad.key[i].kchar;
+            if (k == 'L') nextX -= speed;
+            if (k == 'R') nextX += speed;
+            if (k == 'U') nextY -= speed;
+            if (k == 'D') nextY += speed;
+        }
+    }
+    int feetX = (int)nextX + (PLAYER_W / 2); int feetY = (int)y + PLAYER_H;
+    if (isWalkable(feetX, feetY)) { if (nextX >= 0 && nextX <= SCREEN_W - PLAYER_W) x = nextX; }
+    nextY = (nextY == y) ? y : nextY; 
+    feetX = (int)x + (PLAYER_W / 2); feetY = (int)nextY + PLAYER_H;
+    if (isWalkable(feetX, feetY)) { if (nextY >= 0 && nextY <= SCREEN_H - PLAYER_H) y = nextY; }
+
+    if (currentState == MAP_WALK && enemy != nullptr) {
+       if (checkCollision(x, y, enemy->x, enemy->y, NPC_SIZE, NPC_SIZE)) { x = oldX; y = oldY; }
+    }
+  }
+
+  void draw(const uint16_t* bgMap = nullptr) {
+    if ((int)x != (int)oldX || (int)y != (int)oldY) {
+      if (bgMap != nullptr) {
+        int rx = (int)oldX; int ry = (int)oldY;
+        for(int row = 0; row < PLAYER_H; row++) {
+           int currentY = ry + row;
+           if(currentY >= 0 && currentY < SCREEN_H) {
+              tft.drawRGBBitmap(rx, currentY, (uint16_t*)(bgMap + (currentY * SCREEN_W) + rx), PLAYER_W, 1);
+           }
+        }
+        drawSpriteMixed((int)x, (int)y, heart_sprite, PLAYER_W, PLAYER_H, bgMap);
+      } else {
+        if (x > oldX) tft.fillRect((int)oldX, (int)oldY, (int)x - (int)oldX, PLAYER_H, ST7735_BLACK);
+        else if (x < oldX) tft.fillRect((int)x + PLAYER_W, (int)oldY, (int)oldX - (int)x, PLAYER_H, ST7735_BLACK);
+        if (y > oldY) tft.fillRect((int)oldX, (int)oldY, PLAYER_W, (int)y - (int)oldY, ST7735_BLACK);
+        else if (y < oldY) tft.fillRect((int)oldX, (int)y + PLAYER_H, PLAYER_W, (int)oldY - (int)y, ST7735_BLACK);
+        tft.drawRGBBitmap((int)x, (int)y, (uint16_t*)heart_sprite_blk, PLAYER_W, PLAYER_H);
+      }
+    }
+  }
+  
+  void forceDraw(const uint16_t* bgMap = nullptr) {
+    if (bgMap != nullptr) drawSpriteMixed((int)x, (int)y, heart_sprite, PLAYER_W, PLAYER_H, bgMap);
+    else tft.drawRGBBitmap((int)x, (int)y, (uint16_t*)heart_sprite_blk, PLAYER_W, PLAYER_H);
+  }
+};
+
+Player player;
 NPC enemy = {85,56};
 
 // --- DIALOGUE VARIABLES ---
@@ -54,7 +177,7 @@ void setup() {
   tft.setRotation(1); 
   tft.fillScreen(ST7735_BLACK);
   
-  setupAudio(); 
+  setupAudio(); // Initialize SD and I2S
   
   #if DEBUG_SKIP_INTRO
     currentState = BATTLE;
@@ -86,11 +209,109 @@ void loop() {
   }
 }
 
+// --- UTILS ---
 bool isEnterPressed() {
   if (globalKey == 'E') { globalKey = 0; return true; }
   return false;
 }
 
+// --- AUDIO FUNCTIONS ---
+void setupAudio() {
+    // 1. Initialize SD Card
+    // Note: SD uses SPI. Ensure SD_CS (21) is correct.
+    if (!SD.begin(SD_CS)) {
+        Serial.println("SD Start Failed");
+        return;
+    }
+
+    // 2. Load "text.wav" into RAM
+    File file = SD.open("/text.wav");
+    if (!file) {
+        Serial.println("text.wav not found!");
+        return;
+    }
+
+    // Read WAV Header to get Sample Rate
+    uint8_t header[44];
+    file.read(header, 44);
+    
+    // Extract Sample Rate (Offset 24, 4 bytes, little endian)
+    uint32_t sampleRate = header[24] | (header[25] << 8) | (header[26] << 16) | (header[27] << 24);
+    uint16_t channels = header[22] | (header[23] << 8);
+    
+    Serial.printf("WAV: %d Hz, %d Channels\n", sampleRate, channels);
+
+    audioBufferSize = file.size() - 44; // Total size minus header
+    audioBuffer = (uint8_t*)malloc(audioBufferSize); // Allocate RAM
+    
+    if (audioBuffer) {
+        file.read(audioBuffer, audioBufferSize); // Copy file to RAM
+        audioLoaded = true;
+        Serial.println("Audio Loaded to RAM");
+    } else {
+        Serial.println("Not enough RAM for audio!");
+    }
+    file.close();
+
+    // 3. Configure I2S
+    i2s_config_t i2s_config = {
+        .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
+        .sample_rate = sampleRate, 
+        .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
+        .channel_format = (channels == 2) ? I2S_CHANNEL_FMT_RIGHT_LEFT : I2S_CHANNEL_FMT_ONLY_LEFT,
+        .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+        .dma_buf_count = 8,
+        .dma_buf_len = 64,
+        .use_apll = false,
+        .tx_desc_auto_clear = true
+    };
+
+    i2s_pin_config_t pin_config = {
+        .bck_io_num = I2S_BCLK,
+        .ws_io_num = I2S_LRC,
+        .data_out_num = I2S_DOUT,
+        .data_in_num = I2S_PIN_NO_CHANGE
+    };
+
+    i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
+    i2s_set_pin(I2S_NUM_0, &pin_config);
+    i2s_zero_dma_buffer(I2S_NUM_0);
+}
+
+void playTextSound() {
+    if (!audioLoaded || !audioBuffer) return;
+
+    size_t bytes_written;
+    
+    // We process the audio in small chunks (256 bytes = 128 samples)
+    // This keeps the memory usage low and the loop fast.
+    uint8_t tempBuffer[256]; 
+    size_t chunk_size = sizeof(tempBuffer);
+
+    for (size_t i = 0; i < audioBufferSize; i += chunk_size) {
+        // 1. Calculate how many bytes remain
+        size_t bytes_to_process = (audioBufferSize - i) < chunk_size ? (audioBufferSize - i) : chunk_size;
+
+        // 2. Copy the raw original audio into our temp buffer
+        memcpy(tempBuffer, &audioBuffer[i], bytes_to_process);
+
+        // 3. Apply Volume Scaling
+        // We cast the buffer to int16_t* because your WAV is 16-bit
+        int16_t* samples = (int16_t*)tempBuffer;
+        size_t sample_count = bytes_to_process / 2; // 2 bytes per sample
+
+        for (size_t s = 0; s < sample_count; s++) {
+            // Multiply the sample by the volume factor
+            samples[s] = (int16_t)(samples[s] * soundVolume);
+        }
+
+        // 4. Send the modified chunk to the I2S Driver
+        i2s_write(I2S_NUM_0, tempBuffer, bytes_to_process, &bytes_written, portMAX_DELAY);
+    }
+}
+
+// --- SCENES ---
 void handleMenu() {
   if (isStateFirstFrame) {
     tft.fillScreen(ST7735_BLACK);
@@ -292,8 +513,7 @@ void handleDialogue() {
         tft.setCursor(5, 70); typeText("I CAN TASTE MATH!", 20, true); delay(1000);
         tft.fillScreen(ST7735_RED); delay(100); tft.fillScreen(ST7735_BLACK);
         tft.setCursor(20, 60); typeText("CTRL+ALT+DELETE ME!", 10, true); delay(1000);
-        currentState = BATTLE; 
-        isStateFirstFrame = true;
+        currentState = BATTLE; isStateFirstFrame = true;
         player.x = 80; player.y = 90;
         static Rect battleZone[] = { {25, 65, 110, 50} }; player.setZones(battleZone, 1);
        }
@@ -303,10 +523,44 @@ void handleDialogue() {
 
 void handleBattle() {
   if (isStateFirstFrame) {
-    tft.fillScreen(ST7735_BLACK); tft.drawRect(23, 63, 113, 53, ST7735_WHITE); 
+    tft.fillScreen(ST7735_BLACK); tft.drawRect(24, 64, 112, 52, ST7735_WHITE); 
     player.forceDraw();
     tft.setCursor(30, 20); tft.setTextColor(ST7735_RED); tft.setTextSize(1);
     tft.print("OVERCLOCKED ROBOT"); isStateFirstFrame = false;
   }
   player.update(); player.draw();
+}
+
+void typeText(const char* text, int delaySpeed, bool shake) {
+  int startX = tft.getCursorX(); int startY = tft.getCursorY(); int originalX = startX; 
+  bool hasSkipped = false;
+
+  for (int i = 0; i < strlen(text); i++) {
+    if(text[i] == '\n') { startY += 10; startX = originalX; tft.setCursor(startX, startY); continue; }
+    
+    // --- PLAY AUDIO HERE ---
+    if (text[i] != ' ') { // Don't play sound for spaces
+        playTextSound();
+    }
+
+    if (shake) {
+       int ox = random(-1, 2); int oy = random(-1, 2);
+       tft.setCursor(startX + ox, startY + oy); tft.print(text[i]);
+       startX = tft.getCursorX() - ox;
+    } else {
+       tft.setCursor(startX, startY); tft.print(text[i]);
+       startX = tft.getCursorX(); startY = tft.getCursorY();
+    }
+    
+    customKeypad.getKeys(); 
+    for (int k=0; k<LIST_MAX; k++) {
+       if (customKeypad.key[k].kstate == PRESSED && customKeypad.key[k].kchar == 'E') {
+           delaySpeed = 0; hasSkipped = true;
+       }
+    }
+    delay(delaySpeed);
+  }
+  
+  if (hasSkipped) delay(200);
+  globalKey = 0; 
 }

@@ -10,14 +10,10 @@
 #define TFT_DC        2
 // MOSI = 23, SCK = 18 (VSPI default, no define needed for HW SPI)
 
-// --- INPUT: 4x4 KEYPAD ---
-// We only use 5 specific keys, mapped to 3 Rows and 2 Cols
-#define KEYPAD_R2     13 // Row for S8 (Right)
-#define KEYPAD_R3     14 // Row for S11 (Up), S12 (Down)
-#define KEYPAD_R4     27 // Row for S15 (Enter), S16 (Left)
-
-#define KEYPAD_C3     32 // Col for S11, S15
-#define KEYPAD_C4     33 // Col for S8, S12, S16
+// Joystick
+#define JOYSTICK_X    34
+#define JOYSTICK_Y    35
+#define BUTTON_PIN    32  // Updated from 0 to 32
 
 // Audio (MAX98357A) - Ready for future use
 #define I2S_BCLK      26
@@ -78,14 +74,6 @@ struct Inventory {
 struct PlayerData {
   float x, y;
   int hp;
-};
-
-struct Rect { 
-  int x, y, w, h; 
-};
-
-struct NPC { 
-  int x, y; 
 };
 
 #endif
