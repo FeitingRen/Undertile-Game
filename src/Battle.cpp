@@ -7,7 +7,8 @@
 // --- BATTLE VARIABLES ---
 BattlePhase battlePhase = B_INIT;
 unsigned long battleTimer = 0;
-const int QUESTION_TIME = 5000; // 5 seconds
+const int QUESTION_TIME = 3000; // 3 seconds
+int dialogueIndex = 0; 
 
 // Rects for the box
 Rect currentBox = {9, 41, 141, 72}; 
@@ -23,16 +24,64 @@ int qTextX_Opt2 = 0, qTextY_Opt2 = 0;
 // REDRAW FLAG: Prevents screen flashing
 bool battleRedrawNeeded = true;
 
+// Helper to check for 'E' key press inside Battle
+bool isInteractPressed() {
+    customKeypad.getKeys(); // Update keypad state
+    for (int i=0; i<LIST_MAX; i++) {
+        // Check for newly PRESSED 'E'
+        if (customKeypad.key[i].kstate == PRESSED && customKeypad.key[i].kchar == 'E') {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Helper to set zones and box
 void setupBox(int x, int y, int w, int h) {
     currentBox = {x, y, w, h};
     player.setZones(&currentBox, 1);
 }
 
+// Helper to draw the speech bubble
+// 'instant' = true for questions (so we don't delay the timer)
+// 'instant' = false for dialogue (for typing effect)
+void drawSpeechBubble(const char* text, bool instant) {
+    // Robot is at approx (9, 15), size 16x16.
+    // Bubble connects to right side.
+    int bx = 30; int by = 5; int bw = 120; int bh = 30;
+    
+    // Draw Bubble Background
+    tft.fillRoundRect(bx, by, bw, bh, 4, ST7735_WHITE);
+    tft.drawRoundRect(bx, by, bw, bh, 4, ST7735_BLACK);
+    
+    // Draw "Tail" pointing to robot
+    tft.fillTriangle(bx, by+10, bx, by+20, bx-5, by+15, ST7735_WHITE);
+    
+    // Setup Text
+    tft.setTextColor(ST7735_BLACK); 
+    tft.setTextSize(1);
+    tft.setCursor(bx + 5, by + 5);
+    
+    if (instant) {
+        tft.print(text);
+    } else {
+        typeText(text, 30);
+        // Draw "Press E" prompt only for dialogue
+        tft.setCursor(bx + bw - 10, by + bh - 8);
+        tft.setTextColor(ST7735_RED);
+        tft.print(">");
+    }
+}
+
 void initBattle() {
-    battlePhase = B_Q1_SETUP;
+    battlePhase = B_Q1_DIALOGUE;
     player.hp = PLAYER_MAX_HP;
     
+    player.oldX = player.x; player.oldY = player.y; // Sync to prevent smear
+
+    // Initial Dialogue Text
+    currentQ = "I hate human food";
+
     // Default Battle Setup
     battleRedrawNeeded = true; 
 }
@@ -73,6 +122,14 @@ void updateBattle() {
     }
 
     switch (battlePhase) {
+        // --- QUESTION 1 FLOW ---
+        case B_Q1_DIALOGUE:
+            // Just wait for input. Drawing happens in drawBattle.
+            if (isInteractPressed()) { 
+                battlePhase = B_Q1_SETUP; 
+            }
+            break;
+        
         case B_Q1_SETUP:// {9, 41, 141, 72}
             setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); 
             player.x = 73; player.y = 71; 
@@ -115,8 +172,17 @@ void updateBattle() {
 
         case B_Q1_RESULT:
             if (millis() - battleTimer > 800) {
-                battlePhase = B_Q2_SETUP;
+                battlePhase = B_Q2_DIALOGUE;
+                // FIX ISSUE 2: Reset Box and update Text for next dialogue
+                // setupBox(79, 41, 70, 72); 
+                currentQ = "Too easy? How about \n this one!";
+                battleRedrawNeeded = true;
             }
+            break;
+
+        // --- QUESTION 2 FLOW ---
+        case B_Q2_DIALOGUE:
+            if (isInteractPressed()) battlePhase = B_Q2_SETUP;
             break;
 
         case B_Q2_SETUP:
@@ -312,11 +378,21 @@ void drawBattle() {
         // Draw Robot
         tft.drawRGBBitmap(9, 15, robot_npc_blk, 16, 16);
         
+        // Fix Issue 3: Use Speech Bubble for EVERYTHING (Dialogue and Questions)
+        // Check if we are in a dialogue phase to determine if we use 'typing' effect
+        bool isDialogue = (battlePhase == B_Q1_DIALOGUE || battlePhase == B_Q2_DIALOGUE || 
+                           battlePhase == B_Q3_DIALOGUE || battlePhase == B_Q4_DIALOGUE || 
+                           battlePhase == B_Q5_DIALOGUE || battlePhase == B_Q6_DIALOGUE);
+
+        drawSpeechBubble(currentQ, !isDialogue); // Instant if NOT dialogue (so timer doesn't drift)
+
+        /*                   
         // Draw Text
         tft.setCursor(35, 6);
         tft.setTextColor(ST7735_WHITE);
         tft.setTextSize(1);
         tft.print(currentQ);
+        */ 
 
         // Draw Battle Box
         tft.drawRect(currentBox.x - 1, currentBox.y - 1, currentBox.w + 2, currentBox.h + 2, ST7735_WHITE);
