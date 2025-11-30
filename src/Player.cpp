@@ -1,6 +1,6 @@
 #include "Player.h"
-#include "characters.h" // FIX: Needed for heart_sprite, heart_sprite_blk
-#include "Utils.h"      // FIX: Needed for drawSpriteMixed
+#include "characters.h" 
+#include "Utils.h"      
 
 Player player; 
 
@@ -24,6 +24,8 @@ bool Player::checkCollision(float newX, float newY, int objX, int objY, int objW
 void Player::update(NPC* enemy) {
     oldX = x; oldY = y;
     float nextX = x, nextY = y;
+    
+    // Read Input
     for (int i=0; i<LIST_MAX; i++) {
         if (customKeypad.key[i].kstate == PRESSED || customKeypad.key[i].kstate == HOLD) {
             char k = customKeypad.key[i].kchar;
@@ -33,11 +35,35 @@ void Player::update(NPC* enemy) {
             if (k == 'D') nextY += speed;
         }
     }
-    int feetX = (int)nextX + (PLAYER_W / 2); int feetY = (int)y + PLAYER_H;
-    if (isWalkable(feetX, feetY)) { if (nextX >= 0 && nextX <= SCREEN_W - PLAYER_W) x = nextX; }
-    nextY = (nextY == y) ? y : nextY; 
-    feetX = (int)x + (PLAYER_W / 2); feetY = (int)nextY + PLAYER_H;
-    if (isWalkable(feetX, feetY)) { if (nextY >= 0 && nextY <= SCREEN_H - PLAYER_H) y = nextY; }
+
+    // FIX ISSUE 1: Strict Bounds for Battle Mode
+    if (currentState == BATTLE && zones != nullptr && zoneCount > 0) {
+        // In Battle, zones[0] is always the currentBox.
+        Rect box = zones[0];
+
+        // STRICT CLAMPING: Ensure the ENTIRE sprite stays inside the box.
+        // We do not use isWalkable() here because isWalkable checks for "feet", 
+        // which allows the body to clip into walls.
+        
+        // Clamp X
+        if (nextX < box.x) nextX = box.x;
+        if (nextX + PLAYER_W > box.x + box.w) nextX = box.x + box.w - PLAYER_W;
+        
+        // Clamp Y
+        if (nextY < box.y) nextY = box.y;
+        if (nextY + PLAYER_H > box.y + box.h) nextY = box.y + box.h - PLAYER_H;
+
+        x = nextX;
+        y = nextY;
+    } 
+    else {
+        // Standard Map Movement (Original Logic)
+        int feetX = (int)nextX + (PLAYER_W / 2); int feetY = (int)y + PLAYER_H;
+        if (isWalkable(feetX, feetY)) { if (nextX >= 0 && nextX <= SCREEN_W - PLAYER_W) x = nextX; }
+        nextY = (nextY == y) ? y : nextY; 
+        feetX = (int)x + (PLAYER_W / 2); feetY = (int)nextY + PLAYER_H;
+        if (isWalkable(feetX, feetY)) { if (nextY >= 0 && nextY <= SCREEN_H - PLAYER_H) y = nextY; }
+    }
 
     // FIX: currentState is now visible via Globals.h
     if (currentState == MAP_WALK && enemy != nullptr) {
