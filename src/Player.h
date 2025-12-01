@@ -15,6 +15,7 @@ public:
     // functions
     void init(int startX, int startY);
     void setZones(Rect* newZones, int count);
+    int hp; 
     bool isWalkable(int px, int py);
     bool checkCollision(float newX, float newY, int objX, int objY, int objW, int objH);
     void forceDraw(const uint16_t* bgMap = nullptr);

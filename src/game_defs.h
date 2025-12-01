@@ -8,36 +8,32 @@
 #define TFT_CS        5
 #define TFT_RST       4
 #define TFT_DC        2
-// MOSI = 23, SCK = 18 (VSPI default, no define needed for HW SPI)
 
 // --- INPUT: 4x4 KEYPAD ---
-// We only use 5 specific keys, mapped to 3 Rows and 2 Cols
-#define KEYPAD_R2     13 // Row for S8 (Right)
-#define KEYPAD_R3     14 // Row for S11 (Up), S12 (Down)
-#define KEYPAD_R4     27 // Row for S15 (Enter), S16 (Left)
+#define KEYPAD_R2     13 
+#define KEYPAD_R3     14 
+#define KEYPAD_R4     27 
 
-#define KEYPAD_C3     32 // Col for S11, S15
-#define KEYPAD_C4     33 // Col for S8, S12, S16
+#define KEYPAD_C3     32 
+#define KEYPAD_C4     33 
 
-// Audio (MAX98357A) - Ready for future use
+// Audio
 #define I2S_BCLK      26
 #define I2S_LRC       25
 #define I2S_DOUT      22
 
-// MicroSD Card - Ready for future use
+// MicroSD
 #define SD_CS         21
-#define SD_MISO       19
-#define SD_MOSI       23
-#define SD_SCK        18
 
 // --- GAME CONSTANTS ---
-// Adjusted screen size for ST7735 Landscape
 #define SCREEN_W      160
 #define SCREEN_H      128
 
 #define PLAYER_W      12
 #define PLAYER_H      12
 #define NPC_SIZE      16
+
+#define PLAYER_MAX_HP 20
 
 // --- ENUMS ---
 enum GameState { 
@@ -54,14 +50,11 @@ enum DialogueState {
   D_INTRO_4,         
   D_INTRO_5,         
   D_INTRO_6,         
-
   D_HUMAN_CHOICE,    
   D_HUMAN_RESULT_1,  
   D_HUMAN_RESULT_2,  
-  
   D_REQUEST_FOOD_PART1, 
   D_REQUEST_FOOD,       
-  
   D_SELECT_ITEM,     
   D_EATING,          
   D_REFUSAL,         
@@ -73,11 +66,6 @@ struct Inventory {
   bool hasCoffee;
   bool hasGas;
   bool hasBattery;
-};
-
-struct PlayerData {
-  float x, y;
-  int hp;
 };
 
 struct Rect { 

@@ -11,7 +11,8 @@
 #include "Utils.h"
 
 // --- DEBUG SETTINGS ---
-#define DEBUG_SKIP_INTRO false 
+// Set to true to skip the coffee scene and jump straight to battle
+#define DEBUG_SKIP_INTRO true 
 
 char globalKey = 0;
 unsigned long interactionCooldown = 0; 
@@ -36,6 +37,7 @@ void handleMenu();
 void handleMap();
 void handleDialogue();
 void handleBattle();
+void handleGameOver();
 
 NPC enemy = {85,56};
 
@@ -58,9 +60,7 @@ void setup() {
   
   #if DEBUG_SKIP_INTRO
     currentState = BATTLE;
-    player.x = 80; player.y = 90; 
-    static Rect battleZone[] = { {31, 77, 98, 38} }; 
-    player.setZones(battleZone, 1);
+    initBattle(); // Initialize the NEW battle system immediately
   #else
     player.init(15, 60); 
   #endif
@@ -81,7 +81,7 @@ void loop() {
       case MAP_WALK: handleMap(); break;
       case DIALOGUE: handleDialogue(); break;
       case BATTLE: handleBattle(); break;
-      case GAME_OVER: break;
+      case GAME_OVER: handleGameOver(); break;
     }
   }
 }
@@ -139,66 +139,34 @@ void handleDialogue() {
     tft.setTextColor(ST7735_WHITE); tft.setTextSize(1); tft.setCursor(5, textY); 
   }
   auto clearText = [&]() { tft.fillRect(4, boxY+2, 152, boxH-4, ST7735_BLACK); tft.setCursor(5, textY); };
-
-  // Helper to ensure we don't skip accidentally
-  // It checks if Enter is pressed AND if the input cooldown has passed
   auto canProceed = [&]() { return isEnterPressed() && millis() > inputIgnoreTimer; };
 
   switch (currentDialogueState) {
     case D_INTRO_1:
-      if (isStateFirstFrame) { 
-          clearText(); 
-          typeText("* WHAT!!?", 30); 
-          isStateFirstFrame = false; 
-          inputIgnoreTimer = millis() + 300; // Wait 300ms before accepting next input
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* WHAT!!?", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 300; }
       if (canProceed()) { currentDialogueState = D_INTRO_2; isStateFirstFrame = true; }
       break;
     case D_INTRO_2:
-      if (isStateFirstFrame) { 
-          clearText(); 
-          typeText("* ...", 30); 
-          isStateFirstFrame = false; 
-          inputIgnoreTimer = millis() + 300;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* ...", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 300; }
       if (canProceed()) { currentDialogueState = D_INTRO_4; isStateFirstFrame = true; }
       break;
     case D_INTRO_4:
-      if (isStateFirstFrame) { 
-          clearText(); 
-          typeText("* Sorry, I've been here\n* alone for so long.", 30); 
-          isStateFirstFrame = false; 
-          inputIgnoreTimer = millis() + 300;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* Sorry, I've been here\n* alone for so long.", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 300; }
       if (canProceed()) { currentDialogueState = D_INTRO_5; isStateFirstFrame = true; }
       break;
     case D_INTRO_5:
-      if (isStateFirstFrame) { 
-          clearText(); 
-          typeText("* I'm actually a\n* nonchalant robot.", 30); 
-          isStateFirstFrame = false; 
-          inputIgnoreTimer = millis() + 300;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* I'm actually a\n* nonchalant robot.", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 300; }
       if (canProceed()) { currentDialogueState = D_INTRO_6; isStateFirstFrame = true; }
       break;
     case D_INTRO_6:
-      if (isStateFirstFrame) { 
-          clearText(); 
-          typeText("* Are you a human?", 30); 
-          isStateFirstFrame = false; 
-          inputIgnoreTimer = millis() + 500; // Slightly longer wait before choice
-      }
-      if (canProceed()) { 
-          currentDialogueState = D_HUMAN_CHOICE; menuSelection = 0; lastDrawnSelection = -1; 
-          isStateFirstFrame = true; 
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* Are you a human?", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 500; }
+      if (canProceed()) { currentDialogueState = D_HUMAN_CHOICE; menuSelection = 0; lastDrawnSelection = -1; isStateFirstFrame = true; }
       break;
     case D_HUMAN_CHOICE:
       if (isStateFirstFrame) {
         clearText();
         tft.setCursor(30, textY + 10); tft.print("YES"); tft.setCursor(100, textY + 10); tft.print("NO");
-        isStateFirstFrame = false;
-        inputIgnoreTimer = millis() + 300; // Safety delay
+        isStateFirstFrame = false; inputIgnoreTimer = millis() + 300;
       }
       if (millis() > menuMoveTimer) {
         if (globalKey == 'R') { menuSelection = 1; menuMoveTimer = millis() + 200; globalKey = 0; }
@@ -210,17 +178,14 @@ void handleDialogue() {
         else tft.drawRGBBitmap(85, textY + 8, heart_sprite_blk, 12, 12);
         lastDrawnSelection = menuSelection;
       }
-      if (canProceed()) {
-        playerChoiceYesNo = menuSelection; currentDialogueState = D_HUMAN_RESULT_1; isStateFirstFrame = true;
-      }
+      if (canProceed()) { playerChoiceYesNo = menuSelection; currentDialogueState = D_HUMAN_RESULT_1; isStateFirstFrame = true; }
       break;
     case D_HUMAN_RESULT_1:
       if (isStateFirstFrame) {
         clearText();
         if (playerChoiceYesNo == 0) typeText("* First human friend!", 30);
         else typeText("Then you are the 1,025th\n* rock I've met today.", 30);
-        isStateFirstFrame = false;
-        inputIgnoreTimer = millis() + 300;
+        isStateFirstFrame = false; inputIgnoreTimer = millis() + 300;
       }
       if (canProceed()) { currentDialogueState = D_HUMAN_RESULT_2; isStateFirstFrame = true; }
       break;
@@ -229,18 +194,12 @@ void handleDialogue() {
         clearText();
         if (playerChoiceYesNo == 0) typeText("* I mean. Cool. Whatever.", 30);
         else typeText("* The other rocks were\n* less talkative.", 30);
-        storyProgress = 1; isStateFirstFrame = false;
-        inputIgnoreTimer = millis() + 300;
+        storyProgress = 1; isStateFirstFrame = false; inputIgnoreTimer = millis() + 300;
       }
       if (canProceed()) { currentDialogueState = D_REQUEST_FOOD_PART1; isStateFirstFrame = true; }
       break;
     case D_REQUEST_FOOD_PART1:
-      if (isStateFirstFrame) { 
-          clearText(); 
-          typeText("* My battery is low.", 30); 
-          isStateFirstFrame = false;
-          inputIgnoreTimer = millis() + 300;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* My battery is low.", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 300; }
       if (canProceed()) { currentDialogueState = D_REQUEST_FOOD; isStateFirstFrame = true; }
       break;
     case D_REQUEST_FOOD:
@@ -250,8 +209,7 @@ void handleDialogue() {
         else if (storyProgress == 2) typeText("* Can I have one more?", 30);
         else if (storyProgress == 3) typeText("* Just one last byte?", 30);
         tft.setCursor(30, textY + 15); tft.print("GIVE"); tft.setCursor(100, textY + 15); tft.print("REFUSE");
-        menuSelection = 0; lastDrawnSelection = -1; isStateFirstFrame = false;
-        inputIgnoreTimer = millis() + 300;
+        menuSelection = 0; lastDrawnSelection = -1; isStateFirstFrame = false; inputIgnoreTimer = millis() + 300;
       }
       if (millis() > menuMoveTimer) {
         if (globalKey == 'R') { menuSelection = 1; menuMoveTimer = millis() + 200; globalKey = 0; }
@@ -284,8 +242,7 @@ void handleDialogue() {
             if(itemType == 2) { tft.print("Bat.");   textWidth = 24; } 
             currentX += textWidth + gap;
         }
-        menuSelection = 0; lastDrawnSelection = -1; isStateFirstFrame = false;
-        inputIgnoreTimer = millis() + 300;
+        menuSelection = 0; lastDrawnSelection = -1; isStateFirstFrame = false; inputIgnoreTimer = millis() + 300;
       }
       if (millis() > menuMoveTimer) {
           if (globalKey == 'R' && menuSelection < availableCount-1) { menuSelection++; menuMoveTimer = millis() + 200; globalKey = 0; }
@@ -308,24 +265,11 @@ void handleDialogue() {
       }
       break;
     case D_EATING:
-      if (isStateFirstFrame) { 
-          clearText(); 
-          typeText("* CRUNCH CRUNCH.\n* That flavor!", 30); 
-          isStateFirstFrame = false; 
-          inputIgnoreTimer = millis() + 300;
-      }
-      if (canProceed()) {
-        storyProgress++; if (storyProgress > 3) storyProgress = 3; 
-        currentDialogueState = D_REQUEST_FOOD; isStateFirstFrame = true;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* CRUNCH CRUNCH.\n* That flavor!", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 300; }
+      if (canProceed()) { storyProgress++; if (storyProgress > 3) storyProgress = 3; currentDialogueState = D_REQUEST_FOOD; isStateFirstFrame = true; }
       break;
     case D_REFUSAL:
-      if (isStateFirstFrame) { 
-          clearText(); 
-          typeText("* Oh... okay.\n* I'll just go into Sleep\n* Mode FOREVER.", 40); 
-          isStateFirstFrame = false; 
-          inputIgnoreTimer = millis() + 300;
-      }
+      if (isStateFirstFrame) { clearText(); typeText("* Oh... okay.\n* I'll just go into Sleep\n* Mode FOREVER.", 40); isStateFirstFrame = false; inputIgnoreTimer = millis() + 300; }
       if (canProceed()) { currentState = MAP_WALK; isStateFirstFrame = true; interactionCooldown = millis() + 1000; }
       break;
     case D_COFFEE_EVENT:
@@ -341,21 +285,37 @@ void handleDialogue() {
         tft.setCursor(5, 70); typeText("I CAN TASTE MATH!", 20, true); delay(1000);
         tft.fillScreen(ST7735_RED); delay(100); tft.fillScreen(ST7735_BLACK);
         tft.setCursor(20, 60); typeText("CTRL+ALT+DELETE ME!", 10, true); delay(1000);
+        
+        // --- START BATTLE HERE ---
         currentState = BATTLE; 
-        isStateFirstFrame = true;
-        player.x = 80; player.y = 90;
-        static Rect battleZone[] = { {25, 65, 110, 50} }; player.setZones(battleZone, 1);
+        isStateFirstFrame = true; 
+        initBattle(); // Initialize new Battle System
        }
        break;
   }
 }
 
 void handleBattle() {
-  if (isStateFirstFrame) {
-    tft.fillScreen(ST7735_BLACK); tft.drawRect(23, 63, 113, 53, ST7735_WHITE); 
-    player.forceDraw();
-    tft.setCursor(30, 20); tft.setTextColor(ST7735_RED); tft.setTextSize(1);
-    tft.print("OVERCLOCKED ROBOT"); isStateFirstFrame = false;
-  }
-  player.update(); player.draw();
+  updateBattle(); // Uses the new logic from Battle.cpp
+  drawBattle();   // Uses the new visuals from Battle.cpp
+}
+
+void handleGameOver() {
+    if (isStateFirstFrame) {
+        tft.fillScreen(ST7735_BLACK);
+        tft.setTextColor(ST7735_RED);
+        tft.setTextSize(2);
+        tft.setCursor(25, 50);
+        tft.print("GAME OVER");
+        tft.setTextSize(1);
+        tft.setCursor(30, 80);
+        tft.setTextColor(ST7735_WHITE);
+        tft.print("Don't give up!");
+        isStateFirstFrame = false;
+    }
+    // Simple reset if enter is pressed
+    if (isEnterPressed()) {
+        currentState = MENU;
+        isStateFirstFrame = true;
+    }
 }

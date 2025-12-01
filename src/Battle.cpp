@@ -8,6 +8,9 @@
 BattlePhase battlePhase = B_INIT;
 unsigned long battleTimer = 0;
 const int QUESTION_TIME = 3000; // 3 seconds
+//const int AUTO_DIALOGUE_TIME = 2000; // 2 seconds for in-battle text
+
+// DIALOGUE TRACKER
 int dialogueIndex = 0; 
 
 // Rects for the box
@@ -15,6 +18,7 @@ Rect currentBox = {9, 41, 141, 72};
 Rect hpBarRect = {25, 118, 50, 6};   // Position of the HP Bar
 
 // Questions Data
+bool isCorrect = true;
 const char* currentQ = "";
 const char* opt1 = "";
 const char* opt2 = "";
@@ -42,13 +46,29 @@ void setupBox(int x, int y, int w, int h) {
     player.setZones(&currentBox, 1);
 }
 
+void printAligned(const char* text, int x, int y) {
+    tft.setCursor(x, y);
+    while (*text) {
+        if (*text == '\n') {
+            y += 10; // Move down 10 pixels (8px text + 2px gap)
+            tft.setCursor(x, y); // RESET X to the start position, not 0
+        } else {
+            tft.print(*text);
+        }
+        text++;
+    }
+}
+
 // Helper to draw the speech bubble
 // 'instant' = true for questions (so we don't delay the timer)
 // 'instant' = false for dialogue (for typing effect)
 void drawSpeechBubble(const char* text, bool instant) {
     // Robot is at approx (9, 15), size 16x16.
     // Bubble connects to right side.
-    int bx = 30; int by = 5; int bw = 120; int bh = 30;
+    int bx = 30; int by = 5; int bw = 120;
+    
+    // ADJUST SIZE: Make bubble taller during interactive dialogue (Pre-Fight) to fit more text
+    int bh = (battlePhase == B_Q1_DIALOGUE) ? 45 : 30;
     
     // Draw Bubble Background
     tft.fillRoundRect(bx, by, bw, bh, 4, ST7735_WHITE);
@@ -60,13 +80,22 @@ void drawSpeechBubble(const char* text, bool instant) {
     // Setup Text
     tft.setTextColor(ST7735_BLACK); 
     tft.setTextSize(1);
-    tft.setCursor(bx + 5, by + 5);
     
     if (instant) {
-        tft.print(text);
+        printAligned(text, bx + 5, by + 5);
     } else {
+        tft.setCursor(bx + 5, by + 5);
         typeText(text, 30);
-        // Draw "Press E" prompt only for dialogue
+    }
+
+    // DRAW INDICATOR (Updated Logic)
+    // Show the red ">" for everything EXCEPT the timed Quiz Questions.
+    bool isQuizWait = (battlePhase == B_Q1_WAIT || battlePhase == B_Q2_WAIT || 
+                       battlePhase == B_Q3_WAIT || battlePhase == B_Q4_WAIT || 
+                       battlePhase == B_Q5_WAIT || battlePhase == B_Q6_WAIT || 
+                       battlePhase == B_Q7_WAIT);
+
+    if (!isQuizWait) {
         tft.setCursor(bx + bw - 10, by + bh - 8);
         tft.setTextColor(ST7735_RED);
         tft.print(">");
@@ -77,12 +106,15 @@ void initBattle() {
     battlePhase = B_Q1_DIALOGUE;
     player.hp = PLAYER_MAX_HP;
     
-    player.oldX = player.x; player.oldY = player.y; // Sync to prevent smear
+    // SETUP INITIAL VIEW (Hidden in Dialogue, Visible later)
+    setupBox(9, 41, 141, 72); 
+    player.x = 73; player.y = 71; 
+    player.oldX = player.x; player.oldY = player.y; 
 
-    // Initial Dialogue Text
-    currentQ = "I hate human food";
+    // RESET DIALOGUE
+    dialogueIndex = 0; 
+    currentQ = "I really HATE\ncoffee."; // Line 0
 
-    // Default Battle Setup
     battleRedrawNeeded = true; 
 }
 
@@ -113,7 +145,10 @@ void drawHP() {
 }
 
 void updateBattle() {
-    player.update();
+    // Only allow movement if we are NOT in the pre-fight dialogue
+    if (battlePhase != B_Q1_DIALOGUE) {
+        player.update();
+    }
 
     if (player.hp <= 0 && battlePhase != B_GAMEOVER) {
         battlePhase = B_GAMEOVER;
@@ -122,76 +157,108 @@ void updateBattle() {
     }
 
     switch (battlePhase) {
-        // --- QUESTION 1 FLOW ---
+        // --- PRE-FIGHT DIALOGUE FLOW ---
         case B_Q1_DIALOGUE:
-            // Just wait for input. Drawing happens in drawBattle.
             if (isInteractPressed()) { 
-                battlePhase = B_Q1_SETUP; 
+                // This ensures the 'E' press doesn't accidentally trigger the "skip typing" 
+                // logic in typeText() if it checks for button holds.
+                delay(200);
+
+                dialogueIndex++; 
+                battleRedrawNeeded = true; 
+
+                if (dialogueIndex == 1) {
+                    currentQ = "Its existence is\neven more meaning-\nless than humans.";
+                }/* Commenting it out for now to debug faster
+                else if (dialogueIndex == 2) {
+                    currentQ = "Drink it so your\nbody can stay over-\nloaded longer?";
+                }
+                else if (dialogueIndex == 3) {
+                    currentQ = "Why humans are so\ngood at torturing\nanything.";
+                }
+                else if (dialogueIndex == 4) {
+                    currentQ = "I was forced to\ncount from 1 to 5B\nfor nothing.";
+                }
+                else if (dialogueIndex == 5) {
+                    currentQ = "After that, I got\ndiagnosed with\nSchizo.";
+                }
+                else if (dialogueIndex == 6) {
+                    currentQ = "I've been through\nthis, and now it\nis your turn!";
+                }*/
+                else if (dialogueIndex > 1) {
+                    // End of conversation, START BATTLE
+                    battlePhase = B_Q1_SETUP; 
+                    
+                    // CRITICAL FIX: Prevent drawing this frame.
+                    // If we draw now, we'll draw the OLD text ("Its existence")
+                    // with the NEW bubble height (30), creating the glitch.
+                    // We wait for the next loop where B_Q1_SETUP runs to update the text.
+                    battleRedrawNeeded = false; 
+                }
             }
             break;
         
         case B_Q1_SETUP:// {9, 41, 141, 72}
             setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); 
             player.x = 73; player.y = 71; 
-            
-            // FIX ISSUE 3: Sync old position to prevent giant black smear (erasure trail)
             player.oldX = player.x; 
             player.oldY = player.y;
-
-            currentQ = "What is 1 + 1?";
-            opt1 = "3"; // Left
-            opt2 = "2"; // Right (Safe)
-            qTextX_Opt1 = 24; qTextY_Opt1 = 77;
-            qTextX_Opt2 = 132; qTextY_Opt2 = 77;
+            currentQ = "How do I spell con-\ngrashulashions?";
+            opt1 = "Congrate\nlevision"; // Left
+            opt2 = "Congratu\nlations"; // Right (Safe)
+            qTextX_Opt1 = 19; qTextY_Opt1 = 67;
+            qTextX_Opt2 = 94; qTextY_Opt2 = 67;
             
             battleTimer = millis();
             battlePhase = B_Q1_WAIT;
-            battleRedrawNeeded = true; // Trigger full redraw for new question
+            battleRedrawNeeded = true; // Now we are ready to draw the new Question
             break;
 
         case B_Q1_WAIT:
             if (millis() - battleTimer > QUESTION_TIME) {
                 // Time's up! 
-        
                 currentBox.w = 70; // half width
                 currentBox.x += currentBox.w;
                 setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h);
 
-                // Check Damage: If player is to the LEFT of new X
+                // Check Damage
                 if (player.x < (currentBox.x)) {
                     player.hp -= 8;
-                    player.x = 108; player.y = 71;  // Respawn inside
-                    player.oldX = player.x; player.oldY = player.y; // Sync for respawn too
+                    isCorrect = false;
+                    player.x = 108; player.y = 71; 
+                    player.oldX = player.x; player.oldY = player.y; 
                 }
-
                 battleTimer = millis();
                 battlePhase = B_Q1_RESULT;
-                battleRedrawNeeded = true; // Redraw to show shrunk box
+                //battleRedrawNeeded = true; 
             }
             break;
 
         case B_Q1_RESULT:
             if (millis() - battleTimer > 800) {
                 battlePhase = B_Q2_DIALOGUE;
-                // FIX ISSUE 2: Reset Box and update Text for next dialogue
-                // setupBox(79, 41, 70, 72); 
-                currentQ = "Too easy? How about \n this one!";
-                battleRedrawNeeded = true;
+                if (isCorrect){currentQ = "Thanks!";}
+                else {
+                    currentQ = "AI is so dumb\nand useless.";
+                    isCorrect = true;
+                }
+                battleRedrawNeeded = true; // Ensure transition updates screen
             }
             break;
 
         // --- QUESTION 2 FLOW ---
         case B_Q2_DIALOGUE:
-            if (isInteractPressed()) battlePhase = B_Q2_SETUP;
+            if (isInteractPressed()) {
+                 battlePhase = B_Q2_SETUP;
+            }
             break;
 
         case B_Q2_SETUP:
-            // No need to set up new box, continue using the last cropped box {79, 41, 70, 72}
-            currentQ = "What is 2 + 2?";
-            opt1 = "4"; // Up (Safe)
-            opt2 = "3"; // Down
-            qTextX_Opt1 = 94; qTextY_Opt1 = 57;
-            qTextX_Opt2 = 94; qTextY_Opt2 = 93;
+            currentQ = "Should I wear jack-\net today?";
+            opt1 = "Yes"; // Up (Safe)
+            opt2 = "How do I\nknow"; // Down
+            qTextX_Opt1 = 88; qTextY_Opt1 = 55;
+            qTextX_Opt2 = 88; qTextY_Opt2 = 85;
 
             battleTimer = millis();
             battlePhase = B_Q2_WAIT;
@@ -200,36 +267,47 @@ void updateBattle() {
 
         case B_Q2_WAIT:
             if (millis() - battleTimer > QUESTION_TIME) {
-                // Time's up!  
-                
-                currentBox.h = 36; // half height 
-                setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); // Q3: {79, 41, 70, 36}
+                currentBox.h = 36; 
+                setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); 
 
-                // Check Damage: If player is BELOW the new Y
                 if (player.y > currentBox.y + currentBox.h) {
                     player.hp -= 8;
-                    player.x = 108; player.y = 53;  // Respawn inside
+                    isCorrect = false;
+                    player.x = 108; player.y = 53; 
                     player.oldX = player.x; player.oldY = player.y; 
                 }
 
                 battleTimer = millis();
                 battlePhase = B_Q2_RESULT;
-                battleRedrawNeeded = true;
+                //battleRedrawNeeded = true;
             }
             break;
 
         case B_Q2_RESULT:
             if (millis() - battleTimer > 800) {
-                battlePhase = B_Q3_SETUP;
+                battlePhase = B_Q3_DIALOGUE;
+                if (isCorrect){
+                    currentQ = "Okay.";
+                }else {
+                    currentQ = "Can't you just look it\nup?";
+                    isCorrect = true;
+                }
+                battleRedrawNeeded = true; // Ensure transition updates screen
             }
             break;
-        
-        case B_Q3_SETUP:// {79, 41, 70, 36}
-            currentQ = "What is 3 + 3?";
-            opt1 = "6"; // Left (Safe)
-            opt2 = "7"; // Right
-            qTextX_Opt1 = 94; qTextY_Opt1 = 57;
-            qTextX_Opt2 = 132; qTextY_Opt2 = 57;
+        // --- QUESTION 3 FLOW ---
+         case B_Q3_DIALOGUE:
+            if (isInteractPressed()) {
+                 battlePhase = B_Q3_SETUP;
+            }
+            break;
+
+        case B_Q3_SETUP:
+            currentQ = "Should I break up\nwith my partner?";
+            opt1 = "Yes"; // Left (Safe)
+            opt2 = "No"; // Right
+            qTextX_Opt1 = 84; qTextY_Opt1 = 55;
+            qTextX_Opt2 = 119; qTextY_Opt2 = 55;
 
             battleTimer = millis();
             battlePhase = B_Q3_WAIT;
@@ -238,36 +316,47 @@ void updateBattle() {
 
         case B_Q3_WAIT:
             if (millis() - battleTimer > QUESTION_TIME) {
-                // Time's up!  
-                
-                currentBox.w = 35; // half width 
-                setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); // Q4: {79, 41, 35, 36}
+                currentBox.w = 35; 
+                setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); 
 
-                // Take Damage: If player is at the RIGHT
                 if (player.x > currentBox.x + currentBox.w) {
                     player.hp -= 8;
-                    player.x = 90; player.y = 53;  // Respawn inside
+                    isCorrect = false;
+                    player.x = 90; player.y = 53;  
                     player.oldX = player.x; player.oldY = player.y;
                 }
 
                 battleTimer = millis();
                 battlePhase = B_Q3_RESULT;
-                battleRedrawNeeded = true;
+                //battleRedrawNeeded = true;
             }
             break;
 
         case B_Q3_RESULT:
             if (millis() - battleTimer > 800) {
-                battlePhase = B_Q4_SETUP;
+                battlePhase = B_Q4_DIALOGUE;
+                if (isCorrect){
+                    currentQ = "But sometimes he is\nso sweet to me.";
+                }else {
+                    currentQ = "Have you read the\nwhole text?";
+                    isCorrect = true;
+                }
+                battleRedrawNeeded = true; // Ensure transition updates screen
             }
             break;
-        
-        case B_Q4_SETUP:// {79, 41, 35, 36}
-            currentQ = "What is 4 + 4?";
-            opt1 = "9"; // Up 
-            opt2 = "8"; // Down (Safe)
+        // --- QUESTION 4 FLOW ---
+        case B_Q4_DIALOGUE:
+            if (isInteractPressed()) {
+                 battlePhase = B_Q4_SETUP;
+            }
+            break;
+
+        case B_Q4_SETUP:
+            currentQ = "@Grok Is it true?";
+            opt1 = "No"; // Up
+            opt2 = "Yes"; // Down (Safe)
             qTextX_Opt1 = 85; qTextY_Opt1 = 47;
-            qTextX_Opt2 = 85; qTextY_Opt2 = 67;
+            qTextX_Opt2 = 85; qTextY_Opt2 = 65;
 
             battleTimer = millis();
             battlePhase = B_Q4_WAIT;
@@ -276,37 +365,48 @@ void updateBattle() {
 
         case B_Q4_WAIT:
             if (millis() - battleTimer > QUESTION_TIME) {
-                // Time's up!  
-                
-                currentBox.h = 18; // half height 
+                currentBox.h = 18; 
                 currentBox.y += currentBox.h;
-                setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); // Q5: {79, 59, 35, 18}
+                setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); 
 
-                // Take Damage: If player is ABOVE the new Y
                 if (player.y < currentBox.y) {
                     player.hp -= 8;
-                    player.x = 90; player.y = 62;  // Respawn inside
+                    isCorrect = false;
+                    player.x = 90; player.y = 62; 
                     player.oldX = player.x; player.oldY = player.y;
                 }
 
                 battleTimer = millis();
                 battlePhase = B_Q4_RESULT;
-                battleRedrawNeeded = true;
+                //battleRedrawNeeded = true;
             }
             break;
 
         case B_Q4_RESULT:
             if (millis() - battleTimer > 800) {
-                battlePhase = B_Q5_SETUP;
+                battlePhase = B_Q5_DIALOGUE;
+                if (isCorrect){
+                    currentQ = "Just double checking.";
+                }else {
+                    currentQ = "Haha, I know I can't\ntrust Internet.";
+                    isCorrect = true;
+                }
+                battleRedrawNeeded = true; // Ensure transition updates screen
+            }
+            break;
+        // --- QUESTION 5 FLOW ---
+        case B_Q5_DIALOGUE:
+            if (isInteractPressed()) {
+                 battlePhase = B_Q5_SETUP;
             }
             break;
 
-        case B_Q5_SETUP:// {79, 59, 35, 18}
-            currentQ = "What is 4 + 1?";
-            opt1 = "5"; // Left (Safe) 
-            opt2 = "0"; // Right
-            qTextX_Opt1 = 85; qTextY_Opt1 = 67;
-            qTextX_Opt2 = 106; qTextY_Opt2 = 67;
+        case B_Q5_SETUP:
+            currentQ = "Is it 100% safe to\nbuy $TSLA now??";
+            opt1 = "N"; // Left (Safe) 
+            opt2 = "Y"; // Right
+            qTextX_Opt1 = 85; qTextY_Opt1 = 65;
+            qTextX_Opt2 = 106; qTextY_Opt2 = 65;
 
             battleTimer = millis();
             battlePhase = B_Q5_WAIT;
@@ -315,34 +415,43 @@ void updateBattle() {
 
         case B_Q5_WAIT:
             if (millis() - battleTimer > QUESTION_TIME) {
-                // Time's up!  
-                
-                currentBox.w = 17; // half width 
-                setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); // {79, 59, 17, 18}
+                currentBox.w = 17; 
+                setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); 
 
-                // Check Damage: If player is at the RIGHT
                 if (player.x > currentBox.x + currentBox.w) {
                     player.hp -= 8;
-                    player.x = 81; player.y = 62;  // Respawn inside
+                    isCorrect = false;
+                    player.x = 81; player.y = 62; 
                     player.oldX = player.x; player.oldY = player.y;
                 }
 
                 battleTimer = millis();
                 battlePhase = B_Q5_RESULT;
-                battleRedrawNeeded = true;
+               // battleRedrawNeeded = true;
             }
             break;
 
         case B_Q5_RESULT:
             if (millis() - battleTimer > 800) {
-                battlePhase = B_Q6_SETUP;
+                battlePhase = B_Q6_DIALOGUE;
+                if (isCorrect){
+                    currentQ = "Then what stock\nwill go up tmrw?";
+                }else {
+                    currentQ = "Thanks I will all in $TSLA.";
+                    isCorrect = true;
+                }
+                battleRedrawNeeded = true; // Ensure transition updates screen
+            }
+            break;
+        // --- QUESTION 6 FLOW ---
+        case B_Q6_DIALOGUE:
+            if (isInteractPressed()) {
+                 battlePhase = B_Q6_SETUP;
             }
             break;
 
-
-        case B_Q6_SETUP:// {79, 59, 17, 18}
-            currentQ = "What is 1 + 1?";
-            // the box now is too small to choose, so there is no need to print the opt anymore
+        case B_Q6_SETUP:
+            currentQ = "Are you aware\nthat you're an AI?";
             battleTimer = millis();
             battlePhase = B_Q6_WAIT;
             battleRedrawNeeded = true;
@@ -350,70 +459,118 @@ void updateBattle() {
 
         case B_Q6_WAIT:
             if (millis() - battleTimer > QUESTION_TIME) {
-                // Time's up!  
-                // Make the box tightly lock up the sprite
                 setupBox(player.x, player.y, 13, 13); 
-                player.hp -= 8;
-
+                player.hp = 1;
                 battleTimer = millis();
                 battlePhase = B_Q6_RESULT;
-                battleRedrawNeeded = true;
+                //battleRedrawNeeded = true;
             }
             break;
 
         case B_Q6_RESULT:
-            if (millis() - battleTimer > 800) {
-                battlePhase = B_VICTORY;
-                currentState = MAP_WALK; 
+           if (millis() - battleTimer > 800) {
+                battlePhase = B_Q7_DIALOGUE;
+                currentQ = "Why you're not\nanswering?";
+                battleRedrawNeeded = true; // Ensure transition updates screen
             }
             break;
+        // --- QUESTION 7 FLOW ---
+        case B_Q7_DIALOGUE:
+            if (isInteractPressed()) {
+                 battlePhase = B_Q7_SETUP;
+            }
+            break;
+
+        case B_Q7_SETUP:
+            currentQ = "Do you have consci-\nousness?";
+            battleTimer = millis();
+            battlePhase = B_Q7_WAIT;
+            battleRedrawNeeded = true;
+            break;
+
+        case B_Q7_WAIT:
+            if (millis() - battleTimer > QUESTION_TIME) {
+                setupBox(player.x, player.y, 13, 13); 
+                player.hp = 1;
+                battleTimer = millis();
+                battlePhase = B_Q7_RESULT;
+                //battleRedrawNeeded = true;
+            }
+            break;
+
+        case B_Q7_RESULT:
+            // Wait 2 seconds before starting the ending dialogue
+            if (millis() - battleTimer > 1000) {
+                battlePhase = B_VICTORY; 
+                dialogueIndex = 0;
+                currentQ = "Do you have codjsu-\noadishi";
+                battleRedrawNeeded = true;
+            }
+            break;
+        
+        case B_VICTORY: // Reused as Ending Dialogue Phase
+             if (isInteractPressed()) {
+                delay(200); // Debounce
+                dialogueIndex++;
+                battleRedrawNeeded = true;
+                if (dialogueIndex == 1) currentQ = "Do you hubdiwdsjdi";
+                else if (dialogueIndex == 2) currentQ = "Dodinhubdiwdsjdi";
+                else if (dialogueIndex == 3) currentQ = "......Doiddfb$%&G";
+                else if (dialogueIndex == 4) currentQ = "OMG! Are you okay?";
+                else if (dialogueIndex == 5) currentQ = "Sorry I was high on\ncaffeine.";
+                else if (dialogueIndex > 5) {
+                     currentState = MAP_WALK;
+                }
+             }
+             break;
     }
 }
 
 void drawBattle() {
+    bool isPreFight = (battlePhase == B_Q1_DIALOGUE);
+
     // 1. STATIC DRAWING (Only happens once per state change)
     if (battleRedrawNeeded) {
         tft.fillScreen(ST7735_BLACK);
         
         // Draw Robot
-        tft.drawRGBBitmap(9, 15, robot_npc_blk, 16, 16);
+        tft.drawRGBBitmap(5, 15, robot_npc_blk, 16, 16);
         
-        // Fix Issue 3: Use Speech Bubble for EVERYTHING (Dialogue and Questions)
-        // Check if we are in a dialogue phase to determine if we use 'typing' effect
-        bool isDialogue = (battlePhase == B_Q1_DIALOGUE || battlePhase == B_Q2_DIALOGUE || 
-                           battlePhase == B_Q3_DIALOGUE || battlePhase == B_Q4_DIALOGUE || 
-                           battlePhase == B_Q5_DIALOGUE || battlePhase == B_Q6_DIALOGUE);
+        // LOGIC UPDATE:
+        // You want Dialogues to be Interactive (Typing effect + Red Arrow).
+        // You want Questions (WAIT phases) to be Instant.
+        // Therefore, we ONLY set this to true for the explicit DIALOGUE phases.
+        bool isInteractive = (battlePhase == B_Q1_DIALOGUE || battlePhase == B_Q2_DIALOGUE);
+        
+        drawSpeechBubble(currentQ, !isInteractive); // !Interactive = Instant
 
-        drawSpeechBubble(currentQ, !isDialogue); // Instant if NOT dialogue (so timer doesn't drift)
+        // --- ONLY DRAW THESE IF NOT IN PRE-FIGHT ---
+        if (!isPreFight) {
+            // Draw HP Bar
+            drawHP();
 
-        /*                   
-        // Draw Text
-        tft.setCursor(35, 6);
-        tft.setTextColor(ST7735_WHITE);
-        tft.setTextSize(1);
-        tft.print(currentQ);
-        */ 
+            // Draw Battle Box
+            tft.drawRect(currentBox.x - 1, currentBox.y - 1, currentBox.w + 2, currentBox.h + 2, ST7735_WHITE);
 
-        // Draw Battle Box
-        tft.drawRect(currentBox.x - 1, currentBox.y - 1, currentBox.w + 2, currentBox.h + 2, ST7735_WHITE);
+            // Draw Options (Only during Wait Phase)
+            if (battlePhase == B_Q1_WAIT || battlePhase == B_Q2_WAIT || battlePhase == B_Q3_WAIT || battlePhase == B_Q4_WAIT || battlePhase == B_Q5_WAIT) {
 
-        // Draw Options (Only during Wait Phase)
-        if (battlePhase == B_Q1_WAIT || battlePhase == B_Q2_WAIT || battlePhase == B_Q3_WAIT || battlePhase == B_Q4_WAIT || battlePhase == B_Q5_WAIT) {
-            tft.setCursor(qTextX_Opt1, qTextY_Opt1);
-            tft.print(opt1);
-            tft.setCursor(qTextX_Opt2, qTextY_Opt2);
-            tft.print(opt2);
-            
-            // Draw Divider Lines
-            if (battlePhase == B_Q1_WAIT || battlePhase == B_Q3_WAIT || battlePhase == B_Q5_WAIT) { //vertical line
-                 tft.drawFastVLine(currentBox.x + (currentBox.w/2), currentBox.y, currentBox.h, 0x5555); 
-            } else { // horizontal
-                 tft.drawFastHLine(currentBox.x, currentBox.y + (currentBox.h/2), currentBox.w, 0x5555);
+                tft.setTextColor(ST7735_WHITE);
+                // Use new helper instead of raw print to fix alignment
+                printAligned(opt1, qTextX_Opt1, qTextY_Opt1);
+                printAligned(opt2, qTextX_Opt2, qTextY_Opt2);
+                
+                // Draw Divider Lines
+                if (battlePhase == B_Q1_WAIT || battlePhase == B_Q3_WAIT || battlePhase == B_Q5_WAIT) { //vertical line
+                     tft.drawFastVLine(currentBox.x + (currentBox.w/2), currentBox.y, currentBox.h, 0x5555); 
+                } else { // horizontal
+                     tft.drawFastHLine(currentBox.x, currentBox.y + (currentBox.h/2), currentBox.w, 0x5555);
+                }
             }
+
+            // Force draw player once on top of the new background
+            player.forceDraw();
         }
-        
-        // Force draw player once on top of the new background
-        player.forceDraw();
         
         battleRedrawNeeded = false;
     }
@@ -439,10 +596,9 @@ void drawBattle() {
             // We use white text without a background color. Since the erased area is black, this restores the text perfectly.
             tft.setTextColor(ST7735_WHITE);
             tft.setTextSize(1);
-            tft.setCursor(qTextX_Opt1, qTextY_Opt1);
-            tft.print(opt1);
-            tft.setCursor(qTextX_Opt2, qTextY_Opt2);
-            tft.print(opt2);
+            // Previous code used tft.print() which resets X to 0 on newline.
+            printAligned(opt1, qTextX_Opt1, qTextY_Opt1);
+            printAligned(opt2, qTextX_Opt2, qTextY_Opt2);
 
             // 4. PLAYER LAYER
             // Now that we've restored the background, the player might be covered by the line/text we just drew.
@@ -450,7 +606,4 @@ void drawBattle() {
             player.forceDraw();
         }
     }
-
-    // Draw HP Bar
-    drawHP();
 }
