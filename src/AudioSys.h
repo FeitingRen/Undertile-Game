@@ -4,16 +4,15 @@
 #include <Arduino.h>
 
 void setupAudio();
+void playVoice(); // Plays the "blip" sound (blocking-ish but fast)
 
-// Plays the currently loaded "voice" sound (e.g., text.wav)
-// fast and optimized for repetitive typing.
-void playVoice();
+// --- NEW NON-BLOCKING API ---
+void startSFX(const char* filename); // Starts playing a file
+void updateSFX();                    // Call this in your loop to keep music playing
+void stopSFX();                      // Stops music manually
+bool isSFXPlaying();                 // Check if music is still going
 
-// Loads and plays a specific sound file once (Blocking).
-// Use this for events like the dialup sounds.
-void playSFX(const char* filename);
-
-// Allows changing the typing sound (e.g. to a different voice)
-void setVoice(const char* filename);
+// A replacement for delay() that keeps music playing
+void waitAndPump(int ms);
 
 #endif

@@ -11,7 +11,6 @@
 #include "Utils.h"
 
 // --- DEBUG SETTINGS ---
-// Set to true to skip the coffee scene and jump straight to battle
 #define DEBUG_SKIP_INTRO false 
 
 char globalKey = 0;
@@ -24,12 +23,11 @@ GameState currentState = MENU;
 DialogueState currentDialogueState = D_INTRO_1;
 Inventory playerInventory = {true, true, true}; 
 
-// --- NEW GLOBALS FOR RESTORING STATE ---
+// --- RESTORING STATE ---
 float preBattleX = 25; 
 float preBattleY = 60;
 bool battleCompleted = false;
 
-// Global Map Zones
 Rect walkableFloors[] = {
     { 21, 48, 122, 2 }, { 21, 51, 109, 43 }, { 10, 82, 11, 2 },
     { 11, 79, 9, 2 }, { 13, 74, 8, 4 }, { 14, 71, 7, 2 },
@@ -53,8 +51,6 @@ void handleBattle();
 void handleGameOver();
 
 NPC enemy = {85,56};
-
-// --- DIALOGUE VARIABLES ---
 int menuSelection = 0; 
 int inventoryOptions[3]; 
 int itemXPositions[3]; 
@@ -81,6 +77,10 @@ void setup() {
 
 void loop() {
   unsigned long currentTime = millis();
+  
+  // Pump audio every frame to ensure it doesn't stutter outside of typeText
+  updateSFX();
+
   customKeypad.getKeys();
   globalKey = 0;
   for (int i=0; i<LIST_MAX; i++) {
@@ -137,10 +137,7 @@ void handleMap() {
       customKeypad.getKeys(); 
 
       currentState = DIALOGUE;
-      
-      if (battleCompleted) {
-         currentDialogueState = D_POST_BATTLE;
-      } 
+      if (battleCompleted) currentDialogueState = D_POST_BATTLE;
       else if (storyProgress == 0) currentDialogueState = D_INTRO_1; 
       else if (storyProgress == 1) currentDialogueState = D_REQUEST_FOOD_PART1; 
       else currentDialogueState = D_REQUEST_FOOD; 
@@ -177,13 +174,12 @@ void handleDialogue() {
       if (canProceed()) { currentDialogueState = D_INTRO_6; isStateFirstFrame = true; }
       break;
     case D_INTRO_6:
-      if (isStateFirstFrame) { clearText(); typeText("* Are you a human?", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 250; }
+      if (isStateFirstFrame) { clearText(); typeText("* Are you a human?", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 500; }
       if (canProceed()) { currentDialogueState = D_HUMAN_CHOICE; menuSelection = 0; lastDrawnSelection = -1; isStateFirstFrame = true; }
       break;
     case D_HUMAN_CHOICE:
       if (isStateFirstFrame) {
-        clearText();
-        tft.setCursor(30, textY + 10); tft.print("YES"); tft.setCursor(100, textY + 10); tft.print("NO");
+        clearText(); tft.setCursor(30, textY + 10); tft.print("YES"); tft.setCursor(100, textY + 10); tft.print("NO");
         isStateFirstFrame = false; inputIgnoreTimer = millis() + 300;
       }
       if (millis() > menuMoveTimer) {
@@ -297,58 +293,58 @@ void handleDialogue() {
     case D_COFFEE_EVENT:
       if (isStateFirstFrame) {
         tft.fillScreen(ST7735_BLACK); tft.setTextColor(ST7735_WHITE); tft.setTextSize(1);
-        tft.setCursor(10, 30); typeText("THANKS! SLURP...", 50); delay(300);
-        tft.setCursor(10, 50); typeText("Analyzing...", 50); delay(1000);
-        tft.setCursor(10, 70); typeText("Is this C8H10N4O2?", 50); delay(1000);
+        tft.setCursor(10, 30); typeText("THANKS! SLURP...", 50); waitAndPump(300);
+        tft.setCursor(10, 50); typeText("Analyzing...", 50); waitAndPump(1000);
+        tft.setCursor(10, 70); typeText("Is this C8H10N4O2?", 50); waitAndPump(1000);
         tft.setTextColor(ST7735_RED);
-        tft.setCursor(10, 90); typeText("Was that... COFFEE?", 100, true); delay(1000);
+        tft.setCursor(10, 90); typeText("Was that... COFFEE?", 100, true); waitAndPump(1000);
         tft.fillScreen(ST7735_BLACK);
         tft.setTextColor(ST7735_WHITE);
         
-        // --- FIXED AUDIO LOGIC HERE ---
-        playSFX("/dialup0.wav"); // Play SFX fully BEFORE text
-        tft.setCursor(10, 30); typeText("Oh no.", 50); delay(300);
+        // --- ASYNC AUDIO STARTS HERE ---
+        startSFX("/dialup0.wav"); // Starts but DOES NOT BLOCK
+        tft.setCursor(10, 30); 
+        typeText("Oh no.", 50); // Audio pumps during this
+        waitAndPump(300);       // Audio pumps during this too
         
-        tft.setCursor(10, 50); typeText("Oh no no no.", 50); delay(500);
-        tft.setCursor(10, 70); typeText("Doctor explicitly said:", 50); delay(1000);
+        tft.setCursor(10, 50); typeText("Oh no no no.", 50); waitAndPump(500);
+        tft.setCursor(10, 70); typeText("Doctor explicitly said:", 50); waitAndPump(1000);
         
-        playSFX("/dialup1.wav");
-        tft.setCursor(10, 90); typeText("NO. OVERCLOCKING.", 70); delay(1000);
+        startSFX("/dialup1.wav");
+        tft.setCursor(10, 90); typeText("NO. OVERCLOCKING.", 70); waitAndPump(1000);
         
         tft.fillScreen(ST7735_BLACK);
         tft.setCursor(10, 15); typeText("My Clock Frequency is", 30); 
         
-        playSFX("/dialup2.wav");
+        startSFX("/dialup2.wav");
         tft.setCursor(10, 26); typeText("reaching 800 MHz.", 30); 
-        delay(800);
+        waitAndPump(800);
         
         tft.setCursor(10, 46); typeText("I can see sounds.", 30); 
         tft.setCursor(10, 66); typeText("I can taste math.", 30); 
-        delay(500);
+        waitAndPump(500);
         
-        playSFX("/dialup3.wav");
-        tft.setCursor(10, 86); typeText("My CPU hurts... ", 60, true); delay(1000);
-        tft.setCursor(10, 106); typeText("The fan... it stopped...",60, true); delay(1000);
+        startSFX("/dialup3.wav");
+        tft.setCursor(10, 86); typeText("My CPU hurts... ", 60, true); waitAndPump(1000);
+        tft.setCursor(10, 106); typeText("The fan... it stopped...",60, true); waitAndPump(1000);
         
         tft.fillScreen(ST7735_BLACK);
         tft.setTextColor(ST7735_RED);
         
-        playSFX("/dialup4.wav");
+        startSFX("/dialup4.wav");
         tft.setCursor(52, 30); typeText("W H A T", 100, true); 
-        playSFX("/dialup4.wav");
         tft.setCursor(52, 50); typeText("H A V E", 100, true); 
-        playSFX("/dialup4.wav");
+        startSFX("/dialup4.wav");
         tft.setCursor(57, 70); typeText("Y O U", 100, true); 
-        playSFX("/dialup4.wav");
         tft.setCursor(52, 90); typeText("D O N E?", 100, true); 
-        delay(1000);
+        waitAndPump(1000);
         
-        tft.setCursor(20, 40); typeText("I CANNOT CONTROL THE OUTPUT!", 10, true); delay(1000);
-        tft.setCursor(20, 80); typeText("P L E A S E", 10, true); delay(1000);
-        tft.fillScreen(ST7735_RED); delay(100); tft.fillScreen(ST7735_BLACK);
+        tft.setCursor(20, 40); typeText("I CANNOT CONTROL THE OUTPUT!", 10, true); waitAndPump(1000);
+        tft.setCursor(20, 80); typeText("P L E A S E", 10, true); waitAndPump(1000);
+        tft.fillScreen(ST7735_RED); waitAndPump(100); tft.fillScreen(ST7735_BLACK);
         
-        playSFX("/dialup5.wav");
-        tft.setCursor(20, 60); typeText("CTRL+ALT+DELETE ME!", 10, true); delay(1000);
+        startSFX("/dialup5.wav");
+        tft.setCursor(20, 60); typeText("CTRL+ALT+DELETE ME!", 10, true); waitAndPump(1000);
         
         preBattleX = player.x;
         preBattleY = player.y;
