@@ -443,7 +443,7 @@ void updateBattle() {
                 if (isCorrect){
                     currentQ = "Then what stock\nwill go up tmrw?";
                 }else {
-                    currentQ = "Thanks I will all in $TSLA.";
+                    currentQ = "Thanks I will all\nin $TSLA.";
                     isCorrect = true;
                 }
                 battleRedrawNeeded = true; // Ensure transition updates screen
@@ -496,7 +496,7 @@ void updateBattle() {
 
         case B_Q7_WAIT:
             if (millis() - battleTimer > QUESTION_TIME) {
-                setupBox(player.x, player.y, 13, 13); 
+                setupBox(player.x, player.y, 11, 11); 
                 player.hp = 1;
                 battleTimer = millis();
                 battlePhase = B_Q7_RESULT;

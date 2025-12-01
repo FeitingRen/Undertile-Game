@@ -1,5 +1,5 @@
 #include "Utils.h"
-#include "AudioSys.h" // Needed for playTextSound inside typeText
+#include "AudioSys.h" 
 
 // --- GRAPHICS HELPER ---
 void drawSpriteMixed(int x, int y, const uint16_t* sprite, int w, int h, const uint16_t* bgMap) {
@@ -26,10 +26,15 @@ void typeText(const char* text, int delaySpeed, bool shake) {
   for (int i = 0; i < strlen(text); i++) {
     if(text[i] == '\n') { startY += 10; startX = originalX; tft.setCursor(startX, startY); continue; }
     
+    // --- TIMING FIX ---
+    unsigned long timeBeforeAudio = millis();
+    
     if (text[i] != ' ') { 
-        playTextSound();
+        playVoice(); // Now optimized and uses the dedicated voice buffer
     }
-
+    
+    unsigned long timeTaken = millis() - timeBeforeAudio;
+    
     if (shake) {
        int ox = random(-1, 2); int oy = random(-1, 2);
        tft.setCursor(startX + ox, startY + oy); tft.print(text[i]);
@@ -39,20 +44,19 @@ void typeText(const char* text, int delaySpeed, bool shake) {
        startX = tft.getCursorX(); startY = tft.getCursorY();
     }
     
-    // Note: We need to access customKeypad here. 
-    // Since Globals.h is included in Utils.h, and Utils.cpp includes Utils.h, 
-    // customKeypad is visible here!
     customKeypad.getKeys(); 
     for (int k=0; k<LIST_MAX; k++) {
        if (customKeypad.key[k].kstate == PRESSED && customKeypad.key[k].kchar == 'E') {
            delaySpeed = 0; hasSkipped = true;
        }
     }
-    delay(delaySpeed);
+    
+    // --- COMPENSATE FOR AUDIO LATENCY ---
+    // Subtract the time it took to queue audio from the visual delay
+    // This creates a consistent rhythm regardless of audio glitches
+    int remainingDelay = delaySpeed - timeTaken;
+    if (remainingDelay > 0) delay(remainingDelay);
   }
   
   if (hasSkipped) delay(200);
-  // Note: globalKey is in main.cpp. 
-  // It's better to just ignore it here or make globalKey extern in Globals.h if needed.
-  // For now, this is safe.
 }

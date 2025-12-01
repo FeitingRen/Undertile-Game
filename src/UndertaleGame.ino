@@ -29,7 +29,7 @@ float preBattleX = 25;
 float preBattleY = 60;
 bool battleCompleted = false;
 
-// Global Map Zones (Moved from handleMenu so handleMap can restore them)
+// Global Map Zones
 Rect walkableFloors[] = {
     { 21, 48, 122, 2 }, { 21, 51, 109, 43 }, { 10, 82, 11, 2 },
     { 11, 79, 9, 2 }, { 13, 74, 8, 4 }, { 14, 71, 7, 2 },
@@ -73,7 +73,7 @@ void setup() {
   
   #if DEBUG_SKIP_INTRO
     currentState = BATTLE;
-    initBattle(); // Initialize the NEW battle system immediately
+    initBattle(); 
   #else
     player.init(15, 60); 
   #endif
@@ -115,7 +115,6 @@ void handleMenu() {
   if (isEnterPressed()) {
     currentState = MAP_WALK; isStateFirstFrame = true;
     player.x = 25; player.y = 60; 
-    // Use Global walkableFloors now
     player.setZones(walkableFloors, 13);
   }
 }
@@ -123,7 +122,6 @@ void handleMenu() {
 void handleMap() {
   if (isStateFirstFrame) {
     tft.drawRGBBitmap(0, 0, bg_map, 160, 128);
-    // CRITICAL FIX: Restore map movement zones when returning from battle
     player.setZones(walkableFloors, 13);
     player.forceDraw(bg_map); 
     isStateFirstFrame = false;
@@ -133,13 +131,13 @@ void handleMap() {
   player.draw(bg_map);
 
   float dist = sqrt(pow(player.x - enemy.x, 2) + pow(player.y - enemy.y, 2));
+
   if (dist < 20 && isEnterPressed() && millis() > interactionCooldown) {
-      // This ensures the 'E' press doesn't accidentally trigger the "skip typing" 
-      delay(200);
+      delay(300); 
+      customKeypad.getKeys(); 
 
       currentState = DIALOGUE;
       
-      // LOGIC UPDATE: Check if battle is done
       if (battleCompleted) {
          currentDialogueState = D_POST_BATTLE;
       } 
@@ -179,7 +177,7 @@ void handleDialogue() {
       if (canProceed()) { currentDialogueState = D_INTRO_6; isStateFirstFrame = true; }
       break;
     case D_INTRO_6:
-      if (isStateFirstFrame) { clearText(); typeText("* Are you a human?", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 500; }
+      if (isStateFirstFrame) { clearText(); typeText("* Are you a human?", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 250; }
       if (canProceed()) { currentDialogueState = D_HUMAN_CHOICE; menuSelection = 0; lastDrawnSelection = -1; isStateFirstFrame = true; }
       break;
     case D_HUMAN_CHOICE:
@@ -297,7 +295,7 @@ void handleDialogue() {
       if (canProceed()) { currentState = MAP_WALK; isStateFirstFrame = true; interactionCooldown = millis() + 1000; }
       break;
     case D_COFFEE_EVENT:
-       if (isStateFirstFrame) {
+      if (isStateFirstFrame) {
         tft.fillScreen(ST7735_BLACK); tft.setTextColor(ST7735_WHITE); tft.setTextSize(1);
         tft.setCursor(10, 30); typeText("THANKS! SLURP...", 50); delay(300);
         tft.setCursor(10, 50); typeText("Analyzing...", 50); delay(1000);
@@ -306,47 +304,66 @@ void handleDialogue() {
         tft.setCursor(10, 90); typeText("Was that... COFFEE?", 100, true); delay(1000);
         tft.fillScreen(ST7735_BLACK);
         tft.setTextColor(ST7735_WHITE);
-        tft.setCursor(10, 30); typeText("Oh no.", 50); delay(300); //dialup0.wav, length 00:01
+        
+        // --- FIXED AUDIO LOGIC HERE ---
+        playSFX("/dialup0.wav"); // Play SFX fully BEFORE text
+        tft.setCursor(10, 30); typeText("Oh no.", 50); delay(300);
+        
         tft.setCursor(10, 50); typeText("Oh no no no.", 50); delay(500);
         tft.setCursor(10, 70); typeText("Doctor explicitly said:", 50); delay(1000);
-        tft.setCursor(10, 90); typeText("NO. OVERCLOCKING.", 70); delay(1000);//dialup1.wav, length 00:01
+        
+        playSFX("/dialup1.wav");
+        tft.setCursor(10, 90); typeText("NO. OVERCLOCKING.", 70); delay(1000);
+        
         tft.fillScreen(ST7735_BLACK);
         tft.setCursor(10, 15); typeText("My Clock Frequency is", 30); 
-        tft.setCursor(10, 26); typeText("reaching 800 MHz.", 30); //dialup2.wav, length 00:02
+        
+        playSFX("/dialup2.wav");
+        tft.setCursor(10, 26); typeText("reaching 800 MHz.", 30); 
         delay(800);
+        
         tft.setCursor(10, 46); typeText("I can see sounds.", 30); 
         tft.setCursor(10, 66); typeText("I can taste math.", 30); 
         delay(500);
-        tft.setCursor(10, 86); typeText("My CPU hurts... ", 60, true); delay(1000);//dialup3.wav, length 00:01
+        
+        playSFX("/dialup3.wav");
+        tft.setCursor(10, 86); typeText("My CPU hurts... ", 60, true); delay(1000);
         tft.setCursor(10, 106); typeText("The fan... it stopped...",60, true); delay(1000);
+        
         tft.fillScreen(ST7735_BLACK);
         tft.setTextColor(ST7735_RED);
-        tft.setCursor(52, 30); typeText("W H A T", 100, true); //dialup4.wav, length 00:01
-        tft.setCursor(52, 50); typeText("H A V E", 100, true); //dialup4.wav, length 00:01
-        tft.setCursor(57, 70); typeText("Y O U", 100, true); //dialup4.wav, length 00:01
-        tft.setCursor(52, 90); typeText("D O N E?", 100, true); //dialup4.wav, length 00:01
+        
+        playSFX("/dialup4.wav");
+        tft.setCursor(52, 30); typeText("W H A T", 100, true); 
+        playSFX("/dialup4.wav");
+        tft.setCursor(52, 50); typeText("H A V E", 100, true); 
+        playSFX("/dialup4.wav");
+        tft.setCursor(57, 70); typeText("Y O U", 100, true); 
+        playSFX("/dialup4.wav");
+        tft.setCursor(52, 90); typeText("D O N E?", 100, true); 
         delay(1000);
+        
         tft.setCursor(20, 40); typeText("I CANNOT CONTROL THE OUTPUT!", 10, true); delay(1000);
         tft.setCursor(20, 80); typeText("P L E A S E", 10, true); delay(1000);
         tft.fillScreen(ST7735_RED); delay(100); tft.fillScreen(ST7735_BLACK);
-        tft.setCursor(20, 60); typeText("CTRL+ALT+DELETE ME!", 10, true); delay(1000);//dialup5.wav, length 00:01
         
-        // --- START BATTLE HERE ---
-        // Save current position before entering battle
+        playSFX("/dialup5.wav");
+        tft.setCursor(20, 60); typeText("CTRL+ALT+DELETE ME!", 10, true); delay(1000);
+        
         preBattleX = player.x;
         preBattleY = player.y;
 
         currentState = BATTLE; 
         isStateFirstFrame = true; 
-        initBattle(); // Initialize new Battle System
+        initBattle(); 
        }
        break;
   }
 }
 
 void handleBattle() {
-  updateBattle(); // Uses the new logic from Battle.cpp
-  drawBattle();   // Uses the new visuals from Battle.cpp
+  updateBattle(); 
+  drawBattle();   
 }
 
 void handleGameOver() {
@@ -359,13 +376,12 @@ void handleGameOver() {
         tft.setTextSize(1);
         tft.setCursor(30, 80);
         tft.setTextColor(ST7735_WHITE);
-        tft.print("Press Enter to Retry"); // Updated Text
+        tft.print("Press Enter to Retry"); 
         isStateFirstFrame = false;
     }
-    // Retry Logic
     if (isEnterPressed()) {
         currentState = BATTLE;
-        initBattle(); // Restart battle (goes to hate coffee dialogue)
+        initBattle(); 
         isStateFirstFrame = true;
     }
 }
