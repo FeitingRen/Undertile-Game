@@ -4,6 +4,12 @@
 #include "Utils.h"
 #include "characters.h" 
 
+// --- EXTERNAL VARIABLES ---
+// These are defined in UndertaleGame.ino
+extern float preBattleX;
+extern float preBattleY;
+extern bool battleCompleted;
+
 // --- BATTLE VARIABLES ---
 BattlePhase battlePhase = B_INIT;
 unsigned long battleTimer = 0;
@@ -386,7 +392,7 @@ void updateBattle() {
             if (millis() - battleTimer > 800) {
                 battlePhase = B_Q5_DIALOGUE;
                 if (isCorrect){
-                    currentQ = "Just double checking.";
+                    currentQ = "Just double check-\ning.";
                 }else {
                     currentQ = "Haha, I know I can't\ntrust Internet.";
                     isCorrect = true;
@@ -519,7 +525,15 @@ void updateBattle() {
                 else if (dialogueIndex == 4) currentQ = "OMG! Are you okay?";
                 else if (dialogueIndex == 5) currentQ = "Sorry I was high on\ncaffeine.";
                 else if (dialogueIndex > 5) {
+                     // RESTORE MAP STATE
                      currentState = MAP_WALK;
+                     battleCompleted = true; // Flag victory
+
+                     // Restore Position
+                     player.x = preBattleX;
+                     player.y = preBattleY;
+                     player.oldX = player.x;
+                     player.oldY = player.y;
                 }
              }
              break;

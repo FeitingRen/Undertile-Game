@@ -58,7 +58,8 @@ enum DialogueState {
   D_SELECT_ITEM,     
   D_EATING,          
   D_REFUSAL,         
-  D_COFFEE_EVENT     
+  D_COFFEE_EVENT,
+  D_POST_BATTLE
 };
 
 // --- DATA STRUCTURES ---

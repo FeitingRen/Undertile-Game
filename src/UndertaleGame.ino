@@ -12,7 +12,7 @@
 
 // --- DEBUG SETTINGS ---
 // Set to true to skip the coffee scene and jump straight to battle
-#define DEBUG_SKIP_INTRO true 
+#define DEBUG_SKIP_INTRO false 
 
 char globalKey = 0;
 unsigned long interactionCooldown = 0; 
@@ -23,6 +23,19 @@ unsigned long menuMoveTimer = 0;
 GameState currentState = MENU;
 DialogueState currentDialogueState = D_INTRO_1;
 Inventory playerInventory = {true, true, true}; 
+
+// --- NEW GLOBALS FOR RESTORING STATE ---
+float preBattleX = 25; 
+float preBattleY = 60;
+bool battleCompleted = false;
+
+// Global Map Zones (Moved from handleMenu so handleMap can restore them)
+Rect walkableFloors[] = {
+    { 21, 48, 122, 2 }, { 21, 51, 109, 43 }, { 10, 82, 11, 2 },
+    { 11, 79, 9, 2 }, { 13, 74, 8, 4 }, { 14, 71, 7, 2 },
+    { 15, 68, 6, 2 }, { 17, 66, 4, 1 }, { 18, 63, 3, 2 },
+    { 18, 61, 2, 1 }, { 19, 58, 1, 2 }, { 130, 69, 7, 25 }, { 137, 82, 6, 12 }
+};
 
 int storyProgress = 0; 
 bool isStateFirstFrame = true;
@@ -102,12 +115,7 @@ void handleMenu() {
   if (isEnterPressed()) {
     currentState = MAP_WALK; isStateFirstFrame = true;
     player.x = 25; player.y = 60; 
-    static Rect walkableFloors[] = {
-      { 21, 48, 122, 2 }, { 21, 51, 109, 43 }, { 10, 82, 11, 2 },
-      { 11, 79, 9, 2 }, { 13, 74, 8, 4 }, { 14, 71, 7, 2 },
-      { 15, 68, 6, 2 }, { 17, 66, 4, 1 }, { 18, 63, 3, 2 },
-      { 18, 61, 2, 1 }, { 19, 58, 1, 2 }, { 130, 69, 7, 25 }, { 137, 82, 6, 12 }
-    };
+    // Use Global walkableFloors now
     player.setZones(walkableFloors, 13);
   }
 }
@@ -115,7 +123,10 @@ void handleMenu() {
 void handleMap() {
   if (isStateFirstFrame) {
     tft.drawRGBBitmap(0, 0, bg_map, 160, 128);
-    player.forceDraw(bg_map); isStateFirstFrame = false;
+    // CRITICAL FIX: Restore map movement zones when returning from battle
+    player.setZones(walkableFloors, 13);
+    player.forceDraw(bg_map); 
+    isStateFirstFrame = false;
   }
   player.update(&enemy); 
   drawSpriteMixed(enemy.x, enemy.y, robot_npc, 16, 16, bg_map);
@@ -123,10 +134,19 @@ void handleMap() {
 
   float dist = sqrt(pow(player.x - enemy.x, 2) + pow(player.y - enemy.y, 2));
   if (dist < 20 && isEnterPressed() && millis() > interactionCooldown) {
+      // This ensures the 'E' press doesn't accidentally trigger the "skip typing" 
+      delay(200);
+
       currentState = DIALOGUE;
-      if (storyProgress == 0) currentDialogueState = D_INTRO_1; 
+      
+      // LOGIC UPDATE: Check if battle is done
+      if (battleCompleted) {
+         currentDialogueState = D_POST_BATTLE;
+      } 
+      else if (storyProgress == 0) currentDialogueState = D_INTRO_1; 
       else if (storyProgress == 1) currentDialogueState = D_REQUEST_FOOD_PART1; 
       else currentDialogueState = D_REQUEST_FOOD; 
+      
       isStateFirstFrame = true;
   } 
 }
@@ -272,6 +292,10 @@ void handleDialogue() {
       if (isStateFirstFrame) { clearText(); typeText("* Oh... okay.\n* I'll just go into Sleep\n* Mode FOREVER.", 40); isStateFirstFrame = false; inputIgnoreTimer = millis() + 300; }
       if (canProceed()) { currentState = MAP_WALK; isStateFirstFrame = true; interactionCooldown = millis() + 1000; }
       break;
+    case D_POST_BATTLE:
+      if (isStateFirstFrame) { clearText(); typeText("* I am sorry about what\n* just happened.", 30); isStateFirstFrame = false; inputIgnoreTimer = millis() + 300; }
+      if (canProceed()) { currentState = MAP_WALK; isStateFirstFrame = true; interactionCooldown = millis() + 1000; }
+      break;
     case D_COFFEE_EVENT:
        if (isStateFirstFrame) {
         tft.fillScreen(ST7735_BLACK); tft.setTextColor(ST7735_WHITE); tft.setTextSize(1);
@@ -279,14 +303,39 @@ void handleDialogue() {
         tft.setCursor(10, 50); typeText("Analyzing...", 50); delay(1000);
         tft.setCursor(10, 70); typeText("Is this C8H10N4O2?", 50); delay(1000);
         tft.setTextColor(ST7735_RED);
-        tft.setCursor(10, 90); typeText("Was that... COFFEE?", 100, true); delay(1500);
+        tft.setCursor(10, 90); typeText("Was that... COFFEE?", 100, true); delay(1000);
         tft.fillScreen(ST7735_BLACK);
-        tft.setCursor(5, 50); typeText("NO OVERCLOCKING!!!", 30, true); delay(1000);
-        tft.setCursor(5, 70); typeText("I CAN TASTE MATH!", 20, true); delay(1000);
+        tft.setTextColor(ST7735_WHITE);
+        tft.setCursor(10, 30); typeText("Oh no.", 50); delay(300); //dialup0.wav, length 00:01
+        tft.setCursor(10, 50); typeText("Oh no no no.", 50); delay(500);
+        tft.setCursor(10, 70); typeText("Doctor explicitly said:", 50); delay(1000);
+        tft.setCursor(10, 90); typeText("NO. OVERCLOCKING.", 70); delay(1000);//dialup1.wav, length 00:01
+        tft.fillScreen(ST7735_BLACK);
+        tft.setCursor(10, 15); typeText("My Clock Frequency is", 30); 
+        tft.setCursor(10, 26); typeText("reaching 800 MHz.", 30); //dialup2.wav, length 00:02
+        delay(800);
+        tft.setCursor(10, 46); typeText("I can see sounds.", 30); 
+        tft.setCursor(10, 66); typeText("I can taste math.", 30); 
+        delay(500);
+        tft.setCursor(10, 86); typeText("My CPU hurts... ", 60, true); delay(1000);//dialup3.wav, length 00:01
+        tft.setCursor(10, 106); typeText("The fan... it stopped...",60, true); delay(1000);
+        tft.fillScreen(ST7735_BLACK);
+        tft.setTextColor(ST7735_RED);
+        tft.setCursor(52, 30); typeText("W H A T", 100, true); //dialup4.wav, length 00:01
+        tft.setCursor(52, 50); typeText("H A V E", 100, true); //dialup4.wav, length 00:01
+        tft.setCursor(57, 70); typeText("Y O U", 100, true); //dialup4.wav, length 00:01
+        tft.setCursor(52, 90); typeText("D O N E?", 100, true); //dialup4.wav, length 00:01
+        delay(1000);
+        tft.setCursor(20, 40); typeText("I CANNOT CONTROL THE OUTPUT!", 10, true); delay(1000);
+        tft.setCursor(20, 80); typeText("P L E A S E", 10, true); delay(1000);
         tft.fillScreen(ST7735_RED); delay(100); tft.fillScreen(ST7735_BLACK);
-        tft.setCursor(20, 60); typeText("CTRL+ALT+DELETE ME!", 10, true); delay(1000);
+        tft.setCursor(20, 60); typeText("CTRL+ALT+DELETE ME!", 10, true); delay(1000);//dialup5.wav, length 00:01
         
         // --- START BATTLE HERE ---
+        // Save current position before entering battle
+        preBattleX = player.x;
+        preBattleY = player.y;
+
         currentState = BATTLE; 
         isStateFirstFrame = true; 
         initBattle(); // Initialize new Battle System
@@ -310,12 +359,13 @@ void handleGameOver() {
         tft.setTextSize(1);
         tft.setCursor(30, 80);
         tft.setTextColor(ST7735_WHITE);
-        tft.print("Don't give up!");
+        tft.print("Press Enter to Retry"); // Updated Text
         isStateFirstFrame = false;
     }
-    // Simple reset if enter is pressed
+    // Retry Logic
     if (isEnterPressed()) {
-        currentState = MENU;
+        currentState = BATTLE;
+        initBattle(); // Restart battle (goes to hate coffee dialogue)
         isStateFirstFrame = true;
     }
 }
