@@ -229,6 +229,9 @@ void updateBattle() {
 
                 // Check Damage
                 if (player.x < (currentBox.x)) {
+                    // FIX BUG 2: Ghost Sprite
+                    tft.fillRect((int)player.x -1, (int)player.y-1, PLAYER_W +2, PLAYER_H+2, ST7735_BLACK);
+                    
                     player.hp -= 8;
                     isCorrect = false;
                     player.x = 108; player.y = 71; 
@@ -277,6 +280,9 @@ void updateBattle() {
                 setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); 
 
                 if (player.y > currentBox.y + currentBox.h) {
+                    // FIX BUG 2: Ghost Sprite
+                    tft.fillRect((int)player.x -1, (int)player.y-1, PLAYER_W +2, PLAYER_H+2, ST7735_BLACK);
+                    
                     player.hp -= 8;
                     isCorrect = false;
                     player.x = 108; player.y = 53; 
@@ -326,6 +332,9 @@ void updateBattle() {
                 setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); 
 
                 if (player.x > currentBox.x + currentBox.w) {
+                    // FIX BUG 2: Ghost Sprite
+                    tft.fillRect((int)player.x -1, (int)player.y-1, PLAYER_W +2, PLAYER_H+2, ST7735_BLACK);
+                    
                     player.hp -= 8;
                     isCorrect = false;
                     player.x = 90; player.y = 53;  
@@ -376,6 +385,9 @@ void updateBattle() {
                 setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); 
 
                 if (player.y < currentBox.y) {
+                    // FIX BUG 2: Ghost Sprite
+                    tft.fillRect((int)player.x -1, (int)player.y-1, PLAYER_W +2, PLAYER_H+2, ST7735_BLACK);
+                    
                     player.hp -= 8;
                     isCorrect = false;
                     player.x = 90; player.y = 62; 
@@ -425,6 +437,9 @@ void updateBattle() {
                 setupBox(currentBox.x, currentBox.y, currentBox.w, currentBox.h); 
 
                 if (player.x > currentBox.x + currentBox.w) {
+                    // FIX BUG 2: Ghost Sprite
+                    tft.fillRect((int)player.x -1, (int)player.y-1, PLAYER_W +2, PLAYER_H+2, ST7735_BLACK);
+                    
                     player.hp -= 8;
                     isCorrect = false;
                     player.x = 81; player.y = 62; 
@@ -596,11 +611,27 @@ void drawBattle() {
     // Only perform restoration if the player actually moved (to save performance)
     if ((int)player.x != (int)player.oldX || (int)player.y != (int)player.oldY) {
         
+        // FIX BUG 1: Text Erasure
+        // The player continues to move during the transition from WAIT to RESULT.
+        // We must continue to restore the UI even if we are in the RESULT phase, 
+        // otherwise the text will get erased and not redrawn during that 800ms gap.
+        
+        bool isWaitOrResult = (battlePhase == B_Q1_WAIT || battlePhase == B_Q1_RESULT ||
+                               battlePhase == B_Q2_WAIT || battlePhase == B_Q2_RESULT ||
+                               battlePhase == B_Q3_WAIT || battlePhase == B_Q3_RESULT ||
+                               battlePhase == B_Q4_WAIT || battlePhase == B_Q4_RESULT ||
+                               battlePhase == B_Q5_WAIT || battlePhase == B_Q5_RESULT);
+
         // Only restore during relevant phases where UI exists
-        if (battlePhase == B_Q1_WAIT || battlePhase == B_Q2_WAIT || battlePhase == B_Q3_WAIT || battlePhase == B_Q4_WAIT || battlePhase == B_Q5_WAIT) {
+        if (isWaitOrResult) {
             
             // Restore Divider Lines (Draw full line unconditionally to fill any erased gaps)
-            if (battlePhase == B_Q1_WAIT || battlePhase == B_Q3_WAIT || battlePhase == B_Q5_WAIT) { 
+            // Note: We check specifically for the phases that use Vertical vs Horizontal lines.
+            bool isVerticalPhase = (battlePhase == B_Q1_WAIT || battlePhase == B_Q1_RESULT ||
+                                    battlePhase == B_Q3_WAIT || battlePhase == B_Q3_RESULT ||
+                                    battlePhase == B_Q5_WAIT || battlePhase == B_Q5_RESULT);
+
+            if (isVerticalPhase) { 
                  tft.drawFastVLine(currentBox.x + (currentBox.w/2), currentBox.y, currentBox.h, 0x5555); 
             } else { 
                  tft.drawFastHLine(currentBox.x, currentBox.y + (currentBox.h/2), currentBox.w, 0x5555);
