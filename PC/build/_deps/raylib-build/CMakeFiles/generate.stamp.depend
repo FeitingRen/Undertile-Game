@@ -1,0 +1,14 @@
+# CMake generation dependency list for this directory.
+C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake
+C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDependentOption.cmake
+C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCCompilerFlag.cmake
+C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCSourceCompiles.cmake
+C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckCompilerFlag.cmake
+C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckFlagCommonConfig.cmake
+C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake
+C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/CMakeLists.txt
+C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/CMakeOptions.txt
+C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/cmake/AddIfFlagCompiles.cmake
+C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/cmake/CompilerFlags.cmake
+C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/cmake/EnumOption.cmake
+C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/cmake/ParseConfigHeader.cmake

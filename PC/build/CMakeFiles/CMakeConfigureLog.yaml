@@ -1,0 +1,522 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:4 (project)"
+    message: |
+      The system is: Windows - 10.0.26200 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:4 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.14.23+b0019275e for .NET Framework
+      Build started 12/2/2025 8:13:07 PM.
+      
+      Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+        Creating directory "Debug\\CompilerIdC.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdC.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /Oy- /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TC /analyze- /FC /errorReport:queue CMakeCCompilerId.c
+        CMakeCCompilerId.c
+      Link:
+        C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdC.lib" /MACHINE:X86 /SAFESEH Debug\\CMakeCCompilerId.obj
+        CompilerIdC.vcxproj -> C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdC\\CompilerIdC.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_C_COMPILER=C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x86\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdC.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdC.tlog\\CompilerIdC.lastbuildstate".
+      Done Building Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdC\\CompilerIdC.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:01.09
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+      
+      The C compiler identification is MSVC, found in:
+        C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/3.31.6-msvc6/CompilerIdC/CompilerIdC.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:4 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.14.23+b0019275e for .NET Framework
+      Build started 12/2/2025 8:13:09 PM.
+      
+      Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+        Creating directory "Debug\\CompilerIdCXX.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        Touching "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+      ClCompile:
+        C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /Oy- /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TP /analyze- /FC /errorReport:queue CMakeCXXCompilerId.cpp
+        CMakeCXXCompilerId.cpp
+      Link:
+        C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X86 /SAFESEH Debug\\CMakeCXXCompilerId.obj
+        CompilerIdCXX.vcxproj -> C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdCXX\\CompilerIdCXX.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_CXX_COMPILER=C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x86\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate".
+      Done Building Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdCXX\\CompilerIdCXX.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:00.65
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+      
+      The CXX compiler identification is MSVC, found in:
+        C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/3.31.6-msvc6/CompilerIdCXX/CompilerIdCXX.exe
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:4 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-wulmja"
+      binary: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-wulmja"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:X86"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-wulmja'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_f55e7.vcxproj /p:Configuration=Debug /p:Platform=win32 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.23+b0019275e for .NET Framework
+        Build started 12/2/2025 8:13:10 PM.
+        
+        Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wulmja\\cmTC_f55e7.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_f55e7.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wulmja\\Debug\\".
+          Creating directory "cmTC_f55e7.dir\\Debug\\cmTC_f55e7.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_f55e7.dir\\Debug\\cmTC_f55e7.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_f55e7.dir\\Debug\\cmTC_f55e7.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f55e7.dir\\Debug\\\\" /Fd"cmTC_f55e7.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /analyze- /errorReport:queue "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35219 for x86
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f55e7.dir\\Debug\\\\" /Fd"cmTC_f55e7.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /analyze- /errorReport:queue "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
+          CMakeCCompilerABI.c
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wulmja\\Debug\\cmTC_f55e7.exe" /INCREMENTAL /ILK:"cmTC_f55e7.dir\\Debug\\cmTC_f55e7.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-wulmja/Debug/cmTC_f55e7.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-wulmja/Debug/cmTC_f55e7.lib" /MACHINE:X86  /machine:X86 cmTC_f55e7.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_f55e7.vcxproj -> C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wulmja\\Debug\\cmTC_f55e7.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_f55e7.dir\\Debug\\cmTC_f55e7.tlog\\unsuccessfulbuild".
+          Touching "cmTC_f55e7.dir\\Debug\\cmTC_f55e7.tlog\\cmTC_f55e7.lastbuildstate".
+        Done Building Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-wulmja\\cmTC_f55e7.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.58
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:4 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
+        linker tool for 'C': C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/HostX64/x86/link.exe
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:4 (project)"
+    message: |
+      Running the C compiler's linker: "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/HostX64/x86/link.exe" "-v"
+      Microsoft (R) Incremental Linker Version 14.44.35219.0
+      Copyright (C) Microsoft Corporation.  All rights reserved.
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:4 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-en2fng"
+      binary: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-en2fng"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:X86"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-en2fng'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_3663c.vcxproj /p:Configuration=Debug /p:Platform=win32 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.23+b0019275e for .NET Framework
+        Build started 12/2/2025 8:13:12 PM.
+        
+        Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-en2fng\\cmTC_3663c.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_3663c.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-en2fng\\Debug\\".
+          Creating directory "cmTC_3663c.dir\\Debug\\cmTC_3663c.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_3663c.dir\\Debug\\cmTC_3663c.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_3663c.dir\\Debug\\cmTC_3663c.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_3663c.dir\\Debug\\\\" /Fd"cmTC_3663c.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /analyze- /errorReport:queue "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCXXCompilerABI.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35219 for x86
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_3663c.dir\\Debug\\\\" /Fd"cmTC_3663c.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /analyze- /errorReport:queue "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCXXCompilerABI.cpp"
+          CMakeCXXCompilerABI.cpp
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-en2fng\\Debug\\cmTC_3663c.exe" /INCREMENTAL /ILK:"cmTC_3663c.dir\\Debug\\cmTC_3663c.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-en2fng/Debug/cmTC_3663c.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-en2fng/Debug/cmTC_3663c.lib" /MACHINE:X86  /machine:X86 cmTC_3663c.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_3663c.vcxproj -> C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-en2fng\\Debug\\cmTC_3663c.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_3663c.dir\\Debug\\cmTC_3663c.tlog\\unsuccessfulbuild".
+          Touching "cmTC_3663c.dir\\Debug\\cmTC_3663c.tlog\\cmTC_3663c.lastbuildstate".
+        Done Building Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-en2fng\\cmTC_3663c.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:00.56
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:4 (project)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
+        linker tool for 'CXX': C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/HostX64/x86/link.exe
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:4 (project)"
+    message: |
+      Running the CXX compiler's linker: "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/HostX64/x86/link.exe" "-v"
+      Microsoft (R) Incremental Linker Version 14.44.35219.0
+      Copyright (C) Microsoft Corporation.  All rights reserved.
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCCompilerFlag.cmake:56 (cmake_check_compiler_flag)"
+      - "build/_deps/raylib-src/cmake/AddIfFlagCompiles.cmake:3 (CHECK_C_COMPILER_FLAG)"
+      - "build/_deps/raylib-src/cmake/CompilerFlags.cmake:5 (add_if_flag_compiles)"
+      - "build/_deps/raylib-src/CMakeLists.txt:27 (include)"
+    checks:
+      - "Performing Test COMPILER_HAS_THOSE_TOGGLES"
+    directories:
+      source: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-43uza5"
+      binary: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-43uza5"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:X86"
+      CMAKE_MODULE_PATH: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/cmake"
+    buildResult:
+      variable: "COMPILER_HAS_THOSE_TOGGLES"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-43uza5'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_41510.vcxproj /p:Configuration=Debug /p:Platform=win32 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.23+b0019275e for .NET Framework
+        Build started 12/2/2025 8:16:35 PM.
+        
+        Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-43uza5\\cmTC_41510.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_41510.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-43uza5\\Debug\\".
+          Creating directory "cmTC_41510.dir\\Debug\\cmTC_41510.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_41510.dir\\Debug\\cmTC_41510.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_41510.dir\\Debug\\cmTC_41510.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D COMPILER_HAS_THOSE_TOGGLES /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_41510.dir\\Debug\\\\" /Fd"cmTC_41510.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /analyze- /errorReport:queue  -Werror=pointer-arith "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-43uza5\\src.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35219 for x86
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D COMPILER_HAS_THOSE_TOGGLES /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_41510.dir\\Debug\\\\" /Fd"cmTC_41510.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /analyze- /errorReport:queue  -Werror=pointer-arith "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-43uza5\\src.c"
+        cl : command line  error D8021: invalid numeric argument '/Werror=pointer-arith' [C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-43uza5\\cmTC_41510.vcxproj]
+        Done Building Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-43uza5\\cmTC_41510.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-43uza5\\cmTC_41510.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          cl : command line  error D8021: invalid numeric argument '/Werror=pointer-arith' [C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-43uza5\\cmTC_41510.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.32
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "build/_deps/raylib-src/src/external/glfw/CMakeLists.txt:60 (find_package)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-o4nhb6"
+      binary: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-o4nhb6"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:X86"
+      CMAKE_MODULE_PATH: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/cmake;C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/src/external/glfw/CMake/modules"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-o4nhb6'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_1b76f.vcxproj /p:Configuration=Debug /p:Platform=win32 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.23+b0019275e for .NET Framework
+        Build started 12/2/2025 8:16:36 PM.
+        
+        Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-o4nhb6\\cmTC_1b76f.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_1b76f.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-o4nhb6\\Debug\\".
+          Creating directory "cmTC_1b76f.dir\\Debug\\cmTC_1b76f.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_1b76f.dir\\Debug\\cmTC_1b76f.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_1b76f.dir\\Debug\\cmTC_1b76f.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1b76f.dir\\Debug\\\\" /Fd"cmTC_1b76f.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /analyze- /errorReport:queue "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-o4nhb6\\src.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35219 for x86
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1b76f.dir\\Debug\\\\" /Fd"cmTC_1b76f.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /analyze- /errorReport:queue "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-o4nhb6\\src.c"
+          src.c
+        C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-o4nhb6\\src.c(1,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-o4nhb6\\cmTC_1b76f.vcxproj]
+        Done Building Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-o4nhb6\\cmTC_1b76f.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-o4nhb6\\cmTC_1b76f.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-o4nhb6\\src.c(1,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-o4nhb6\\cmTC_1b76f.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.41
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckLibraryExists.cmake:78 (try_compile)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:175 (_threads_check_lib)"
+      - "build/_deps/raylib-src/src/external/glfw/CMakeLists.txt:60 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthreads"
+    directories:
+      source: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-at6pf3"
+      binary: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-at6pf3"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:X86"
+      CMAKE_MODULE_PATH: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/cmake;C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/src/external/glfw/CMake/modules"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREADS_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-at6pf3'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_7b8f4.vcxproj /p:Configuration=Debug /p:Platform=win32 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.23+b0019275e for .NET Framework
+        Build started 12/2/2025 8:16:37 PM.
+        
+        Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-at6pf3\\cmTC_7b8f4.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_7b8f4.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-at6pf3\\Debug\\".
+          Creating directory "cmTC_7b8f4.dir\\Debug\\cmTC_7b8f4.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_7b8f4.dir\\Debug\\cmTC_7b8f4.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_7b8f4.dir\\Debug\\cmTC_7b8f4.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_7b8f4.dir\\Debug\\\\" /Fd"cmTC_7b8f4.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /analyze- /errorReport:queue "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-at6pf3\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35219 for x86
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_7b8f4.dir\\Debug\\\\" /Fd"cmTC_7b8f4.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /analyze- /errorReport:queue "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-at6pf3\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-at6pf3\\Debug\\cmTC_7b8f4.exe" /INCREMENTAL /ILK:"cmTC_7b8f4.dir\\Debug\\cmTC_7b8f4.ilk" /NOLOGO pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-at6pf3/Debug/cmTC_7b8f4.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-at6pf3/Debug/cmTC_7b8f4.lib" /MACHINE:X86  /machine:X86 cmTC_7b8f4.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-at6pf3\\cmTC_7b8f4.vcxproj]
+        Done Building Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-at6pf3\\cmTC_7b8f4.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-at6pf3\\cmTC_7b8f4.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-at6pf3\\cmTC_7b8f4.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.44
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckLibraryExists.cmake:78 (try_compile)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:176 (_threads_check_lib)"
+      - "build/_deps/raylib-src/src/external/glfw/CMakeLists.txt:60 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-jzvt9o"
+      binary: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-jzvt9o"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_C_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:X86"
+      CMAKE_MODULE_PATH: "C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/cmake;C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-src/src/external/glfw/CMake/modules"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-jzvt9o'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_db55e.vcxproj /p:Configuration=Debug /p:Platform=win32 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.14.23+b0019275e for .NET Framework
+        Build started 12/2/2025 8:16:38 PM.
+        
+        Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jzvt9o\\cmTC_db55e.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_db55e.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jzvt9o\\Debug\\".
+          Creating directory "cmTC_db55e.dir\\Debug\\cmTC_db55e.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_db55e.dir\\Debug\\cmTC_db55e.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_db55e.dir\\Debug\\cmTC_db55e.tlog\\unsuccessfulbuild".
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_db55e.dir\\Debug\\\\" /Fd"cmTC_db55e.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /analyze- /errorReport:queue "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jzvt9o\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35219 for x86
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /Oy- /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_db55e.dir\\Debug\\\\" /Fd"cmTC_db55e.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /analyze- /errorReport:queue "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jzvt9o\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x86\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jzvt9o\\Debug\\cmTC_db55e.exe" /INCREMENTAL /ILK:"cmTC_db55e.dir\\Debug\\cmTC_db55e.ilk" /NOLOGO pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-jzvt9o/Debug/cmTC_db55e.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/CMakeFiles/CMakeScratch/TryCompile-jzvt9o/Debug/cmTC_db55e.lib" /MACHINE:X86  /machine:X86 cmTC_db55e.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jzvt9o\\cmTC_db55e.vcxproj]
+        Done Building Project "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jzvt9o\\cmTC_db55e.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jzvt9o\\cmTC_db55e.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\Users\\woaml\\OneDrive\\Desktop\\Personal\\Electronics_Undertale\\PC\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jzvt9o\\cmTC_db55e.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.43
+        
+      exitCode: 1
+...

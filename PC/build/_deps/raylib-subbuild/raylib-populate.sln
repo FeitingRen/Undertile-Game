@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CMakePredefinedTargets", "CMakePredefinedTargets", "{6646CACB-80AD-30B9-A752-8B03EF238DAF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ExternalProjectTargets", "ExternalProjectTargets", "{BEA6555B-3802-3D40-8FB4-0CC4D384F72F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "raylib-populate", "ExternalProjectTargets\raylib-populate", "{F3E2E9F2-C1E8-3464-AB1A-ED5C02938CED}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ALL_BUILD", "ALL_BUILD.vcxproj", "{B1B0540D-10E4-3C3E-92BD-86FFA54F418B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9785EACA-88B7-30AA-8848-57D11ACE0651} = {9785EACA-88B7-30AA-8848-57D11ACE0651}
+		{7FFBEEF2-2959-3A6E-A54C-53873B110AE0} = {7FFBEEF2-2959-3A6E-A54C-53873B110AE0}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZERO_CHECK", "ZERO_CHECK.vcxproj", "{9785EACA-88B7-30AA-8848-57D11ACE0651}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raylib-populate", "raylib-populate.vcxproj", "{7FFBEEF2-2959-3A6E-A54C-53873B110AE0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9785EACA-88B7-30AA-8848-57D11ACE0651} = {9785EACA-88B7-30AA-8848-57D11ACE0651}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|win32 = Debug|win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1B0540D-10E4-3C3E-92BD-86FFA54F418B}.Debug|win32.ActiveCfg = Debug|win32
+		{9785EACA-88B7-30AA-8848-57D11ACE0651}.Debug|win32.ActiveCfg = Debug|win32
+		{9785EACA-88B7-30AA-8848-57D11ACE0651}.Debug|win32.Build.0 = Debug|win32
+		{7FFBEEF2-2959-3A6E-A54C-53873B110AE0}.Debug|win32.ActiveCfg = Debug|win32
+		{7FFBEEF2-2959-3A6E-A54C-53873B110AE0}.Debug|win32.Build.0 = Debug|win32
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B1B0540D-10E4-3C3E-92BD-86FFA54F418B} = {6646CACB-80AD-30B9-A752-8B03EF238DAF}
+		{9785EACA-88B7-30AA-8848-57D11ACE0651} = {6646CACB-80AD-30B9-A752-8B03EF238DAF}
+		{F3E2E9F2-C1E8-3464-AB1A-ED5C02938CED} = {BEA6555B-3802-3D40-8FB4-0CC4D384F72F}
+		{7FFBEEF2-2959-3A6E-A54C-53873B110AE0} = {F3E2E9F2-C1E8-3464-AB1A-ED5C02938CED}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1C61C7C2-ADA4-36CE-8F06-CD19D1FD3BD7}
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

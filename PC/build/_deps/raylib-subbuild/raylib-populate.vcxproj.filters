@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\bd11634e589f648d05ecc0353f78ce43\raylib-populate-mkdir.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\bd11634e589f648d05ecc0353f78ce43\raylib-populate-download.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\bd11634e589f648d05ecc0353f78ce43\raylib-populate-update.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\bd11634e589f648d05ecc0353f78ce43\raylib-populate-patch.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\bd11634e589f648d05ecc0353f78ce43\raylib-populate-configure.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\bd11634e589f648d05ecc0353f78ce43\raylib-populate-build.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\bd11634e589f648d05ecc0353f78ce43\raylib-populate-install.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\bd11634e589f648d05ecc0353f78ce43\raylib-populate-test.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\32745e18c1466e367e758fd62e9e8645\raylib-populate-complete.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\20c12ab6ad435e614e4f1d1d0aaf384a\raylib-populate.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-subbuild\CMakeFiles\raylib-populate" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{A43312E0-6D98-3D56-8BAD-6FEF3316CC16}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
