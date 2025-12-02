@@ -367,11 +367,13 @@ void handleGameOver() {
         tft.fillScreen(ST7735_BLACK);
         tft.setTextColor(ST7735_RED);
         tft.setTextSize(2);
-        tft.setCursor(25, 50);
+        tft.setCursor(25, 25);
         tft.print("GAME OVER");
         tft.setTextSize(1);
-        tft.setCursor(30, 80);
         tft.setTextColor(ST7735_WHITE);
+        tft.setCursor(28, 60);
+        tft.print("Stay determined..."); 
+        tft.setCursor(20, 80);
         tft.print("Press Enter to Retry"); 
         isStateFirstFrame = false;
     }

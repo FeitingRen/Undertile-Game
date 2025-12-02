@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Utils.h"
 #include "characters.h" 
+#include "AudioSys.h"
 
 // --- EXTERNAL VARIABLES ---
 // These are defined in UndertaleGame.ino
@@ -14,7 +15,6 @@ extern bool battleCompleted;
 BattlePhase battlePhase = B_INIT;
 unsigned long battleTimer = 0;
 const int QUESTION_TIME = 3000; // 3 seconds
-//const int AUTO_DIALOGUE_TIME = 2000; // 2 seconds for in-battle text
 
 // DIALOGUE TRACKER
 int dialogueIndex = 0; 
@@ -22,6 +22,7 @@ int dialogueIndex = 0;
 // Rects for the box
 Rect currentBox = {9, 41, 141, 72}; 
 Rect hpBarRect = {25, 118, 50, 6};   // Position of the HP Bar
+Rect timerBarRect = {30, 37, 120, 3}; // Timer Bar Position (Between bubble and box)
 
 // Questions Data
 bool isCorrect = true;
@@ -175,7 +176,7 @@ void updateBattle() {
 
                 if (dialogueIndex == 1) {
                     currentQ = "Its existence is\neven more meaning-\nless than humans.";
-                }/* Commenting it out for now to debug faster
+                }
                 else if (dialogueIndex == 2) {
                     currentQ = "Drink it so your\nbody can stay over-\nloaded longer?";
                 }
@@ -190,7 +191,7 @@ void updateBattle() {
                 }
                 else if (dialogueIndex == 6) {
                     currentQ = "I've been through\nthis, and now it\nis your turn!";
-                }*/
+                }
                 else if (dialogueIndex > 1) {
                     // End of conversation, START BATTLE
                     battlePhase = B_Q1_SETUP; 
@@ -232,6 +233,7 @@ void updateBattle() {
                     // FIX BUG 2: Ghost Sprite
                     tft.fillRect((int)player.x -1, (int)player.y-1, PLAYER_W +2, PLAYER_H+2, ST7735_BLACK);
                     
+                    startSFX("/hurt.wav"); 
                     player.hp -= 8;
                     isCorrect = false;
                     player.x = 108; player.y = 71; 
@@ -282,7 +284,7 @@ void updateBattle() {
                 if (player.y > currentBox.y + currentBox.h) {
                     // FIX BUG 2: Ghost Sprite
                     tft.fillRect((int)player.x -1, (int)player.y-1, PLAYER_W +2, PLAYER_H+2, ST7735_BLACK);
-                    
+                    startSFX("/hurt.wav");
                     player.hp -= 8;
                     isCorrect = false;
                     player.x = 108; player.y = 53; 
@@ -334,7 +336,7 @@ void updateBattle() {
                 if (player.x > currentBox.x + currentBox.w) {
                     // FIX BUG 2: Ghost Sprite
                     tft.fillRect((int)player.x -1, (int)player.y-1, PLAYER_W +2, PLAYER_H+2, ST7735_BLACK);
-                    
+                    startSFX("/hurt.wav");
                     player.hp -= 8;
                     isCorrect = false;
                     player.x = 90; player.y = 53;  
@@ -387,7 +389,7 @@ void updateBattle() {
                 if (player.y < currentBox.y) {
                     // FIX BUG 2: Ghost Sprite
                     tft.fillRect((int)player.x -1, (int)player.y-1, PLAYER_W +2, PLAYER_H+2, ST7735_BLACK);
-                    
+                    startSFX("/hurt.wav");
                     player.hp -= 8;
                     isCorrect = false;
                     player.x = 90; player.y = 62; 
@@ -439,7 +441,7 @@ void updateBattle() {
                 if (player.x > currentBox.x + currentBox.w) {
                     // FIX BUG 2: Ghost Sprite
                     tft.fillRect((int)player.x -1, (int)player.y-1, PLAYER_W +2, PLAYER_H+2, ST7735_BLACK);
-                    
+                    startSFX("/hurt.wav");
                     player.hp -= 8;
                     isCorrect = false;
                     player.x = 81; player.y = 62; 
@@ -481,6 +483,7 @@ void updateBattle() {
         case B_Q6_WAIT:
             if (millis() - battleTimer > QUESTION_TIME) {
                 setupBox(player.x, player.y, 13, 13); 
+                startSFX("/hurt.wav");
                 player.hp = 1;
                 battleTimer = millis();
                 battlePhase = B_Q6_RESULT;
@@ -511,8 +514,7 @@ void updateBattle() {
 
         case B_Q7_WAIT:
             if (millis() - battleTimer > QUESTION_TIME) {
-                setupBox(player.x, player.y, 11, 11); 
-                player.hp = 1;
+                setupBox(player.x-1, player.y-1, 12, 12); 
                 battleTimer = millis();
                 battlePhase = B_Q7_RESULT;
                 //battleRedrawNeeded = true;
@@ -605,6 +607,42 @@ void drawBattle() {
     }
 
     // 2. DYNAMIC DRAWING (Every frame)
+    
+    // --- DRAW COUNTDOWN TIMER ---
+    bool isTimedPhase = (battlePhase == B_Q1_WAIT || battlePhase == B_Q2_WAIT || 
+                         battlePhase == B_Q3_WAIT || battlePhase == B_Q4_WAIT || 
+                         battlePhase == B_Q5_WAIT || battlePhase == B_Q6_WAIT || 
+                         battlePhase == B_Q7_WAIT);
+
+    if (isTimedPhase) {
+        // Calculate width based on time remaining
+        unsigned long elapsed = millis() - battleTimer;
+        if (elapsed > QUESTION_TIME) elapsed = QUESTION_TIME;
+        
+        // Map remaining time to full width of the bar
+        int currentBarW = map(QUESTION_TIME - elapsed, 0, QUESTION_TIME, 0, timerBarRect.w);
+        
+        // 1. Draw the filled part (Yellow)
+        if (currentBarW > 0) {
+            tft.fillRect(timerBarRect.x, timerBarRect.y, currentBarW, timerBarRect.h, ST7735_YELLOW);
+        }
+        
+        // 2. Erase the empty part (Right side)
+        if (currentBarW < timerBarRect.w) {
+            tft.fillRect(timerBarRect.x + currentBarW, timerBarRect.y, timerBarRect.w - currentBarW, timerBarRect.h, ST7735_BLACK);
+        }
+    } else {
+        // Ensure the bar is fully erased during result phases
+        bool isResultPhase = (battlePhase == B_Q1_RESULT || battlePhase == B_Q2_RESULT || 
+                              battlePhase == B_Q3_RESULT || battlePhase == B_Q4_RESULT || 
+                              battlePhase == B_Q5_RESULT || battlePhase == B_Q6_RESULT || 
+                              battlePhase == B_Q7_RESULT);
+                              
+        if (isResultPhase) {
+             tft.fillRect(timerBarRect.x, timerBarRect.y, timerBarRect.w, timerBarRect.h, ST7735_BLACK);
+        }
+    }
+
     player.draw();
 
     // 3. RESTORE UI ELEMENTS (Fixes erasing issues)
