@@ -15,7 +15,10 @@ public:
 
     void Start(const char* text, int speed);
     void Update();
-    void Draw(int x, int y, Color color = WHITE);
+    
+    // UPDATED: Function signature matches Utils.cpp
+    void Draw(Font font, int x, int y, float fontSize, float spacing, Color color);
+    
     bool IsFinished();
     void Skip();
 };

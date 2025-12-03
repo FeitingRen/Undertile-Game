@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "Player.h"
 #include "Battle.h"
+#include "TextAlignment.h"
 #include <vector>
 #include <string>
 #include <cmath>
@@ -20,11 +21,11 @@ Inventory playerInventory = {true, true, true};
 // Map Data
 std::vector<Rect> walkableFloors = {
     // top section
-    {135,201,611,38}, {135,259,558,43}, 
+    {135,221,611,38}, {135,259,558,43}, 
     // middle 
     {134,302,510,29},{125,331,528,30},{114,361,579,25},
     // bottom section 
-    {104,386,642,34},{147,420,599,51}
+    {104,386,652,34},{147,420,609,51}
 };
 
 NPC mapEnemy = {425, 280};
@@ -32,8 +33,7 @@ NPC mapEnemy = {425, 280};
 // Game Logic Globals
 int storyProgress = 0;
 
-// These are defined in Battle.cpp (according to your previous linker error), 
-// so we declare them as extern here to access them without creating duplicates.
+// These are defined in Battle.cpp
 extern bool battleCompleted;
 extern float preBattleX;
 extern float preBattleY;
@@ -51,6 +51,9 @@ int coffeeScriptStep = 0;
 float coffeeTimer = 0.0f;
 Color bgColor = BLACK; 
 
+// Font needs to be declared here, but initialized in main()
+Font myCustomFont;
+
 // --- INPUT HELPERS ---
 
 // IsInteractPressed() is in Utils.cpp
@@ -66,8 +69,17 @@ bool IsRightPressed() {
 // --- STATE HANDLERS ---
 
 void HandleMenu() {
-    DrawText("UNDERTALE ESP32 PORT", 150, 200, 40, WHITE);
-    DrawText("Press Z to Start", 150, 400, 30, GRAY);
+    TextMetrics titleM = GetCenteredTextPosition(myCustomFont, "UNDERTALE ESP32 PORT", 40, 2);
+    Vector2 titlePos = { titleM.x, 250 }; // Use calculated X, keep Y fixed
+    DrawTextEx(myCustomFont, "UNDERTALE ESP32 PORT", titlePos, 40, 2, WHITE);
+    
+    TextMetrics enterM = GetCenteredTextPosition(myCustomFont, "Press Z to Enter", 30, 2);
+    Vector2 enterPos = { enterM.x, 350 }; 
+    DrawTextEx(myCustomFont, "Press Z to Enter", enterPos, 30, 2, GRAY);
+    
+    TextMetrics creditM = GetCenteredTextPosition(myCustomFont, "By Molly", 20, 2);
+    Vector2 creditPos = { creditM.x, 600 }; 
+    DrawTextEx(myCustomFont, "By Molly", creditPos, 20, 2, DARKGRAY);
 
     if (IsInteractPressed()) {
         currentState = MAP_WALK;
@@ -121,7 +133,9 @@ void HandleCoffeeEvent() {
     int cursorY = 150;
 
     globalTypewriter.Update();
-    globalTypewriter.Draw(cursorX, cursorY); 
+    
+    // UPDATED: Passing font, size (30), spacing (2), and color
+    globalTypewriter.Draw(myCustomFont, cursorX, cursorY, 30.0f, 2.0f, WHITE); 
 
     switch(coffeeScriptStep) {
         case 0: 
@@ -264,7 +278,9 @@ void HandleDialogue() {
     DrawRectangleLinesEx(box, 4, WHITE);
 
     globalTypewriter.Update();
-    globalTypewriter.Draw((int)(box.x + 25), (int)(box.y + 25));
+    
+    // UPDATED: Passing font, size, spacing, and color
+    globalTypewriter.Draw(myCustomFont, (int)(box.x + 25), (int)(box.y + 25), 30.0f, 2.0f, WHITE);
 
     bool canProceed = IsInteractPressed() && dialogTimer <= 0 && globalTypewriter.IsFinished();
 
@@ -305,8 +321,9 @@ void HandleDialogue() {
                 dialogTimer = 0.3f;
             }
             
-            DrawText("YES", (int)(box.x + 100), (int)(box.y + 80), 30, WHITE);
-            DrawText("NO", (int)(box.x + 400), (int)(box.y + 80), 30, WHITE);
+            // UPDATED: Using DrawTextEx for YES/NO choices
+            DrawTextEx(myCustomFont, "YES", {(float)(box.x + 100), (float)(box.y + 80)}, 30, 2, WHITE);
+            DrawTextEx(myCustomFont, "NO", {(float)(box.x + 400), (float)(box.y + 80)}, 30, 2, WHITE);
             
             if (dialogTimer <= 0) {
                 if (IsRightPressed()) menuSelection = 1;
@@ -359,8 +376,9 @@ void HandleDialogue() {
             }
 
             if (globalTypewriter.IsFinished()) {
-                DrawText("GIVE", (int)(box.x + 100), (int)(box.y + 100), 30, WHITE);
-                DrawText("REFUSE", (int)(box.x + 400), (int)(box.y + 100), 30, WHITE);
+                // UPDATED: Using DrawTextEx for GIVE/REFUSE
+                DrawTextEx(myCustomFont, "GIVE", {(float)(box.x + 100), (float)(box.y + 100)}, 30, 2, WHITE);
+                DrawTextEx(myCustomFont, "REFUSE", {(float)(box.x + 400), (float)(box.y + 100)}, 30, 2, WHITE);
 
                 if (dialogTimer <= 0) {
                     if (IsRightPressed()) menuSelection = 1;
@@ -399,7 +417,8 @@ void HandleDialogue() {
                     if (opts[i] == 1) label = "Gas";
                     if (opts[i] == 2) label = "Bat.";
                     
-                    DrawText(label, startX, (int)(box.y + 100), 30, WHITE);
+                    // UPDATED: Using DrawTextEx for item names
+                    DrawTextEx(myCustomFont, label, {(float)startX, (float)(box.y + 100)}, 30, 2, WHITE);
                     
                     if (menuSelection == (int)i) {
                         DrawTexture(texPlayer, startX - 40, (int)(box.y + 100), WHITE);
@@ -461,9 +480,10 @@ void HandleDialogue() {
 }
 
 void HandleGameOver() {
-    DrawText("GAME OVER", 50, 50, 40, RED);
-    DrawText("Stay determined...", 50, 100, 30, WHITE);
-    DrawText("Press Z to Retry", 50, 150, 30, GRAY);
+    // UPDATED: Using DrawTextEx for Game Over screen
+    DrawTextEx(myCustomFont, "GAME OVER", {50, 50}, 40, 2, RED);
+    DrawTextEx(myCustomFont, "Stay determined...", {50, 100}, 30, 2, WHITE);
+    DrawTextEx(myCustomFont, "Press Z to Retry", {50, 150}, 30, 2, GRAY);
     
     if (IsInteractPressed()) {
         currentState = BATTLE;
@@ -477,11 +497,15 @@ int main() {
     SetTargetFPS(60);
 
     LoadGameAssets();
+    
+    // UPDATED: Load the font AFTER InitWindow to prevent crashes
+    myCustomFont = LoadFontEx("../assets/determination-mono.otf", 64, 0, 0);
+    SetTextureFilter(myCustomFont.texture, TEXTURE_FILTER_BILINEAR); 
 
     RenderTexture2D target = LoadRenderTexture(GAME_WIDTH, GAME_HEIGHT);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
 
-    player.Init(25, 60); 
+    player.Init(125, 300);
     player.SetZones(walkableFloors);
 
     while (!WindowShouldClose()) {
@@ -509,6 +533,9 @@ int main() {
             DrawTexturePro(target.texture, srcRec, dstRec, origin, 0.0f, WHITE);
         EndDrawing();
     }
+    
+    // UPDATED: Unload font
+    UnloadFont(myCustomFont);
 
     UnloadRenderTexture(target);
     UnloadGameAssets();

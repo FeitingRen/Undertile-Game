@@ -45,10 +45,15 @@ void Typewriter::Skip() {
     finished = true;
 }
 
-void Typewriter::Draw(int x, int y, Color color) {
+// UPDATED: Now accepts a Font, fontSize, and spacing
+void Typewriter::Draw(Font font, int x, int y, float fontSize, float spacing, Color color) {
     if (!active) return;
+    
     std::string sub = fullText.substr(0, charCount);
-    DrawText(sub.c_str(), x, y, 10, color); // Font size 10 matches typical low-res
+    Vector2 position = { (float)x, (float)y };
+    
+    // Uses the custom font provided
+    DrawTextEx(font, sub.c_str(), position, fontSize, spacing, color); 
 }
 
 bool Typewriter::IsFinished() {

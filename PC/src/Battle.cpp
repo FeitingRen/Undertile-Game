@@ -4,6 +4,9 @@
 #include "Utils.h"
 #include <string>
 
+// Access the font defined in main.cpp
+extern Font myCustomFont; 
+
 // External State
 bool battleCompleted = false;
 float preBattleX = 0;
@@ -164,9 +167,12 @@ void DrawBattle() {
     
     // Draw Text inside bubble
     if (battlePhase == B_WAIT_ANSWER) {
-        DrawText(questions[questionIndex].text.c_str(), bubble.x + 5, bubble.y + 5, 10, BLACK);
+        // Use custom font for question text for consistency
+        Vector2 pos = {bubble.x + 5, bubble.y + 5};
+        DrawTextEx(myCustomFont, questions[questionIndex].text.c_str(), pos, 20.0f, 1.0f, BLACK);
     } else {
-        globalTypewriter.Draw(bubble.x + 5, bubble.y + 5, BLACK);
+        // Updated: Pass font, size, spacing, color
+        globalTypewriter.Draw(myCustomFont, bubble.x + 5, bubble.y + 5, 20.0f, 1.0f, BLACK);
     }
 
     // 3. Draw Box
