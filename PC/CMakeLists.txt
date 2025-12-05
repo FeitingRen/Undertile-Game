@@ -21,7 +21,7 @@ endif()
 
 # --- Assets Folder ---
 # Copy the assets folder to the build directory so the game can find them
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # --- Sources ---
 # This was the missing part causing LNK2019 errors
