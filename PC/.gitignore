@@ -1,0 +1,17 @@
+# Ignore everything by default
+*
+
+# But allow:
+!src/
+!CMakeLists.txt
+!.gitignore
+
+# Ignore build artifacts inside src if any show up
+src/**/build/
+src/**/CMakeFiles/
+
+# Ignore system/editor stuff
+.vscode/
+build/
+cmake-build*/
+.DS_Store
