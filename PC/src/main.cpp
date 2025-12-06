@@ -49,6 +49,7 @@ bool isStateFirstFrame = true;
 float dialogTimer = 0.0f;
 int menuSelection = 0;
 int playerChoiceYesNo = 0;
+int itemUsedIndex = 0;
 
 // --- COFFEE EVENT DATA ---
 struct LogEntry
@@ -134,6 +135,13 @@ void HandleMap()
     {
         currentState = DIALOGUE;
 
+        // --- FIX START: RESET TYPEWRITER ---
+        // We ensure the typewriter is empty and inactive before the first Draw frame.
+        globalTypewriter.fullText = "";
+        globalTypewriter.charCount = 0;
+        globalTypewriter.active = false;
+        // --- FIX END ---
+
         if (battleCompleted)
             currentDialogueState = D_POST_BATTLE;
         else if (storyProgress == 0)
@@ -176,56 +184,47 @@ void HandleCoffeeEvent()
 
     // --- DRAWING LOGIC ---
     float startX = 50.0f;
-    float currentY = 150.0f;
+    float currentY = 125.0f;
     float baseFontSize = 40.0f;
-    float fontSpacing = 2.0f;
+    float fontSpacing = 1.5f;
 
     // 1. Draw History
     for (size_t i = 0; i < coffeeLog.size(); i++)
     {
         float drawX = startX;
         float fontSize = baseFontSize;
+        float drawY = currentY; // Default Y position
 
-        // --- CALCULATE POSITION ---
+        // --- OVERLAY HACK START ---
+        // If this is the specific "Control" line, force it to the middle of the screen
+        // to cover the previous "W H A T H A V E Y O U D O N E" text.
+        if (coffeeLog[i].text == "I CANNOT CONTROL THE OUTPUT!")
+        {
+            drawY = 260.0f;
+        }
+        // --- OVERLAY HACK END ---
+
         if (coffeeLog[i].centered)
         {
             Vector2 size = MeasureTextEx(myCustomFont, coffeeLog[i].text.c_str(), fontSize, fontSpacing);
             drawX = (GAME_WIDTH - size.x) / 2.0f;
         }
-        float drawY = currentY;
 
-        // --- APPLY EFFECTS ---
-        // 1. Standard Shake
-        int intensity = coffeeLog[i].shakeIntensity;
-        if (intensity > 0)
-        {
-            drawX += GetRandomValue(-intensity, intensity);
-            drawY += GetRandomValue(-intensity, intensity);
-        }
-
-        // 2. CHAOS MODE (Glitch Effect)
         if (coffeeLog[i].isChaotic)
         {
-
-            // Draw RGB Split (Chromatic Aberration)
-            // Blue Layer
-            DrawTextEx(myCustomFont, coffeeLog[i].text.c_str(),
-                       {drawX - 2, drawY + 1}, fontSize, fontSpacing, BLUE);
-            // Green Layer
-            DrawTextEx(myCustomFont, coffeeLog[i].text.c_str(),
-                       {drawX + 2, drawY - 1}, fontSize, fontSpacing, GREEN);
-            // Red Layer (Main)
-            DrawTextEx(myCustomFont, coffeeLog[i].text.c_str(),
-                       {drawX, drawY}, fontSize, fontSpacing, RED);
+            DrawTextJitter(myCustomFont, coffeeLog[i].text.c_str(), {drawX - 2, drawY + 1}, fontSize, fontSpacing, BLUE);
+            DrawTextJitter(myCustomFont, coffeeLog[i].text.c_str(), {drawX + 2, drawY - 1}, fontSize, fontSpacing, GREEN);
+            DrawTextJitter(myCustomFont, coffeeLog[i].text.c_str(), {drawX, drawY}, fontSize, fontSpacing, RED);
+        }
+        else if (coffeeLog[i].shakeIntensity > 0)
+        {
+            DrawTextJitter(myCustomFont, coffeeLog[i].text.c_str(), {drawX, drawY}, fontSize, fontSpacing, coffeeLog[i].color);
         }
         else
         {
-            // Standard Draw
-            DrawTextEx(myCustomFont, coffeeLog[i].text.c_str(),
-                       {drawX, drawY}, fontSize, fontSpacing, coffeeLog[i].color);
+            DrawTextEx(myCustomFont, coffeeLog[i].text.c_str(), {drawX, drawY}, fontSize, fontSpacing, coffeeLog[i].color);
         }
 
-        // Add height + custom spacing
         Vector2 size = MeasureTextEx(myCustomFont, coffeeLog[i].text.c_str(), fontSize, fontSpacing);
         currentY += size.y + coffeeLog[i].spacing;
     }
@@ -235,87 +234,120 @@ void HandleCoffeeEvent()
 
     if (globalTypewriter.active)
     {
-        float activeX = startX;
-        float fontSize = baseFontSize;
-
-        // Check alignment
-        if (currentCentered)
+        // --- CHAOS MODE: CTRL+ALT+DELETE ME! ---
+        if (globalTypewriter.fullText == "CTRL+ALT+DELETE ME!")
         {
-            Vector2 size = MeasureTextEx(myCustomFont, globalTypewriter.fullText.substr(0, globalTypewriter.charCount).c_str(), fontSize, fontSpacing);
-            activeX = (GAME_WIDTH - size.x) / 2.0f;
+            for (int k = 0; k < 50; k++)
+            {
+                // STATIC CHAOS LOGIC (UPDATED):
+
+                // 1. Calculate a raw pseudo-random number based on K
+                // We use distinct large primes for X and Y to avoid diagonal patterns
+                int rawX = (k * 314159 + 12345);
+                int rawY = (k * 271828 + 67890);
+
+                // 2. Map X to the FULL screen width (plus some overlap)
+                // Range: -50 to (GAME_WIDTH - 100)
+                // This allows the text to start slightly off-screen to the left (-50),
+                // filling that empty gap.
+                int rangeX = (GAME_WIDTH - 150);
+                int px = (rawX % rangeX) - 150;
+
+                // 3. Map Y to the screen height
+                int rangeY = (GAME_HEIGHT - 50);
+                int py = (rawY % rangeY);
+
+                // Ensure py is positive (modulo of negative can be negative in C++)
+                if (py < 0)
+                    py += rangeY;
+
+                // Note: We do NOT force px to be positive anymore!
+                // We want px to be negative sometimes.
+
+                float rx = (float)px;
+                float ry = (float)py;
+
+                // Static size variation
+                float rSize = 30.0f + ((k * 13) % 25);
+
+                std::string sub = globalTypewriter.fullText.substr(0, globalTypewriter.charCount);
+
+                DrawTextJitter(myCustomFont, sub.c_str(), {rx, ry}, rSize, fontSpacing, RED);
+            }
         }
-        float activeY = currentY;
-
-        // Apply Shake
-        if (currentShakeIntensity > 0)
-        {
-            activeX += GetRandomValue(-currentShakeIntensity, currentShakeIntensity);
-            activeY += GetRandomValue(-currentShakeIntensity, currentShakeIntensity);
-        }
-
-        // Apply Active Chaos
-        if (currentChaotic)
-        {
-            fontSize += GetRandomValue(-0.5, 0.5); // size changes
-
-            // Draw partial string with glitch
-            std::string sub = globalTypewriter.fullText.substr(0, globalTypewriter.charCount);
-
-            // RGB Split
-            DrawTextEx(myCustomFont, sub.c_str(), {activeX - 6, activeY + 3}, fontSize, fontSpacing, BLUE);
-            DrawTextEx(myCustomFont, sub.c_str(), {activeX + 6, activeY - 3}, fontSize, fontSpacing, GREEN);
-            DrawTextEx(myCustomFont, sub.c_str(), {activeX, activeY}, fontSize, fontSpacing, RED);
-        }
+        // --- NORMAL DRAWING ---
         else
         {
-            globalTypewriter.Draw(myCustomFont, (int)activeX, (int)activeY, fontSize, fontSpacing, currentTextColor);
+            // ... (Keep the rest of your normal drawing logic exactly the same) ...
+            float activeX = startX;
+            float fontSize = baseFontSize;
+            float activeY = currentY;
+
+            if (globalTypewriter.fullText == "I CANNOT CONTROL THE OUTPUT!")
+            {
+                activeY = 260.0f;
+            }
+
+            if (currentCentered)
+            {
+                Vector2 size = MeasureTextEx(myCustomFont, globalTypewriter.fullText.substr(0, globalTypewriter.charCount).c_str(), fontSize, fontSpacing);
+                activeX = (GAME_WIDTH - size.x) / 2.0f;
+            }
+
+            if (currentChaotic)
+            {
+                fontSize += GetRandomValue(-0.5, 0.5);
+                std::string sub = globalTypewriter.fullText.substr(0, globalTypewriter.charCount);
+                DrawTextJitter(myCustomFont, sub.c_str(), {activeX - 6, activeY + 3}, fontSize, fontSpacing, BLUE);
+                DrawTextJitter(myCustomFont, sub.c_str(), {activeX + 6, activeY - 3}, fontSize, fontSpacing, GREEN);
+                DrawTextJitter(myCustomFont, sub.c_str(), {activeX, activeY}, fontSize, fontSpacing, RED);
+            }
+            else if (currentShakeIntensity > 0)
+            {
+                std::string sub = globalTypewriter.fullText.substr(0, globalTypewriter.charCount);
+                DrawTextJitter(myCustomFont, sub.c_str(), {activeX, activeY}, fontSize, fontSpacing, currentTextColor);
+            }
+            else
+            {
+                globalTypewriter.Draw(myCustomFont, (int)activeX, (int)activeY, fontSize, fontSpacing, currentTextColor);
+            }
         }
     }
 
-    // --- HELPER: ADVANCE STEP ---
-    // UPDATED: Now accepts 'nextChaotic'
     auto AdvanceStep = [&](const char *nextText, int speed, float wait,
                            Color nextColor, int nextShake, bool nextCentered, float nextSpacing, bool nextChaotic)
     {
-        // 1. Archive OLD text
         if (globalTypewriter.fullText.length() > 0)
         {
-            coffeeLog.push_back({
-                globalTypewriter.fullText,
-                currentTextColor,
-                currentShakeIntensity,
-                currentCentered,
-                currentSpacing,
-                currentChaotic // Save chaos state
-            });
+            coffeeLog.push_back({globalTypewriter.fullText,
+                                 currentTextColor,
+                                 currentShakeIntensity,
+                                 currentCentered,
+                                 currentSpacing,
+                                 currentChaotic});
         }
 
-        // 2. Set NEW styles
         currentTextColor = nextColor;
         currentShakeIntensity = nextShake;
         currentCentered = nextCentered;
         currentSpacing = nextSpacing;
-        currentChaotic = nextChaotic; // Set new chaos state
+        currentChaotic = nextChaotic;
 
-        // 3. Start NEW text
         globalTypewriter.Start(nextText, speed);
         coffeeTimer = wait;
         coffeeScriptStep++;
     };
 
-    // --- SCRIPT ---
     switch (coffeeScriptStep)
     {
     case 0:
         if (coffeeLog.empty() && !globalTypewriter.active)
         {
-            // Reset Defaults
             currentTextColor = WHITE;
             currentShakeIntensity = 0;
             currentCentered = false;
-            currentSpacing = 10.0f;
+            currentSpacing = 23.0f;
             currentChaotic = false;
-
             globalTypewriter.Start("THANKS! SLURP...", 50);
             coffeeScriptStep++;
         }
@@ -329,146 +361,147 @@ void HandleCoffeeEvent()
         break;
     case 2:
         if (coffeeTimer <= 0)
-            AdvanceStep("Analyzing...", 50, 1.0f, WHITE, 0, false, 20.0f, false);
+            AdvanceStep("Analyzing...", 50, 1.0f, WHITE, 0, false, 23.0f, false);
         break;
     case 3:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("Is this C8H10N4O2?", 50, 1.0f, WHITE, 0, false, 20.0f, false);
+            AdvanceStep("Is this C8H10N4O2?", 50, 1.0f, WHITE, 0, false, 23.0f, false);
         break;
-
-    // --- GRADUAL SHAKE START ---
     case 4:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("Was that... COFFEE?", 60, 1.75f, WHITE, 1, false, 20.0f, false);
+            AdvanceStep("Was that... COFFEE?", 70, 1.75f, WHITE, 1, false, 23.0f, false);
         break;
-
     case 5:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
         {
-            AdvanceStep("Oh no.", 50, 1.0f, WHITE, 1, false, 20.0f, false);
+            AdvanceStep("Oh no.", 50, 1.0f, WHITE, 1, false, 23.0f, false);
             coffeeLog.clear();
         }
         break;
-
     case 6:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("Oh no no no.", 50, 1.0f, WHITE, 1, false, 20.0f, false);
+        {
+            PlaySound(sndDialup[0]);
+            AdvanceStep("Oh no no no.", 50, 1.0f, WHITE, 1, false, 23.0f, false);
+        }
         break;
     case 7:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("Doctor explicitly said:", 50, 1.75f, WHITE, 1, false, 20.0f, false);
+            AdvanceStep("Doctor explicitly said:", 50, 1.75f, WHITE, 1, false, 23.0f, false);
         break;
-
     case 8:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
         {
-            AdvanceStep("NO. OVERCLOCKING.", 40, 2.0f, RED, 1, false, 20.0f, false);
+            PlaySound(sndDialup[1]);
+            AdvanceStep("NO. OVERCLOCKING.", 70, 2.0f, RED, 1, false, 23.0f, false);
         }
         break;
-
     case 9:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
         {
-            AdvanceStep("My Clock Frequency is\nreaching 800 MHz.", 30, 0.8f, WHITE, 2, false, 20.0f, false);
+            PlaySound(sndDialup[2]);
+            AdvanceStep("My Clock Frequency is\nreaching 800 MHz.", 40, 0.8f, WHITE, 2, false, 23.0f, false);
             coffeeLog.clear();
         }
         break;
-
-    // --- SPLIT: SOUNDS & MATH ---
     case 10:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("I can see sounds.", 30, 0.5f, WHITE, 2, false, 20.0f, false);
+            AdvanceStep("I can see sounds.", 40, 0.5f, WHITE, 2, false, 23.0f, false);
         break;
-
     case 11:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("I can taste math.", 30, 1.0f, WHITE, 2, false, 20.0f, false);
+            AdvanceStep("I can taste math.", 40, 1.0f, WHITE, 2, false, 23.0f, false);
         break;
-
-    // --- SPLIT: CPU & FAN ---
     case 12:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
         {
-            AdvanceStep("My CPU hurts...", 60, 1.0f, WHITE, 3, false, 20.0f, false);
-            coffeeLog.clear();
+            PlaySound(sndDialup[3]);
+            AdvanceStep("My CPU hurts...", 60, 1.0f, WHITE, 3, false, 23.0f, false);
+            // coffeeLog.clear();
         }
         break;
-
     case 13:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("The fan... it stopped...", 60, 2.0f, WHITE, 3, false, 20.0f, false);
+            AdvanceStep("The fan... it stopped...", 70, 2.0f, WHITE, 3, false, 23.0f, false);
         break;
-
-    // --- SPLIT & CENTERED "WHAT HAVE YOU DONE" ---
     case 14:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
         {
-            AdvanceStep("W H A T", 80, 0.6f, RED, 3, true, 20.0f, false);
+            PlaySound(sndDialup[4]);
+            AdvanceStep("W H A T", 80, 0.6f, RED, 3, true, 23.0f, false);
             coffeeLog.clear();
         }
         break;
-
     case 15:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("H A V E", 80, 0.6f, RED, 3, true, 20.0f, false);
-        break;
-
-    case 16:
-        if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("Y O U", 80, 0.6f, RED, 3, true, 20.0f, false);
-        break;
-
-    case 17:
-        if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("D O N E ?", 80, 2.25f, RED, 3, true, 20.0f, false);
-        break;
-
-    // --- CHAOTIC GLITCH STEP ---
-    case 18:
-        if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
         {
-            // ENABLE CHAOS: true at the end
-            AdvanceStep("I CANNOT CONTROL THE OUTPUT!", 10, 1.0f, RED, 2, false, 20.0f, true);
+            PlaySound(sndDialup[4]);
+            AdvanceStep("H A V E", 80, 0.6f, RED, 3, true, 23.0f, false);
         }
         break;
-
+    case 16:
+        if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
+        {
+            PlaySound(sndDialup[4]);
+            AdvanceStep("Y O U", 80, 0.6f, RED, 3, true, 23.0f, false);
+        }
+        break;
+    case 17:
+        if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
+        {
+            PlaySound(sndDialup[4]);
+            AdvanceStep("D O N E ?", 80, 2.0f, RED, 3, true, 23.0f, false);
+        }
+        break;
+    case 18:
+        if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
+            AdvanceStep("I CANNOT CONTROL THE OUTPUT!", 30, 1.0f, RED, 3, true, 23.0f, false);
+        break;
     case 19:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            // KEEP CHAOS: true
-            AdvanceStep("P L E A S E", 10, 1.5f, RED, 3, false, 20.0f, true);
+            AdvanceStep("P L E A S E", 30, 1.5f, RED, 3, true, 23.0f, true);
         break;
-
     case 20:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
         {
-            // Push final line with Chaos=true
-            coffeeLog.push_back({globalTypewriter.fullText, RED, 3, false, 20.0f, true});
+            coffeeLog.push_back({globalTypewriter.fullText, RED, 3, false, 23.0f, true});
             globalTypewriter.active = false;
-
             bgColor = RED;
             coffeeTimer = 0.2f;
             coffeeScriptStep++;
         }
         break;
-    case 21:
+    case 21: // flash twice
+        if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
+        {
+            coffeeLog.push_back({globalTypewriter.fullText, RED, 3, false, 23.0f, true});
+            globalTypewriter.active = false;
+            bgColor = RED;
+            coffeeTimer = 0.2f;
+            coffeeScriptStep++;
+        }
+        break;
+    case 22:
         if (coffeeTimer <= 0)
         {
             bgColor = BLACK;
             coffeeLog.clear();
+            PlaySound(sndDialup[5]);
 
-            globalTypewriter.Start("CTRL+ALT+DELETE ME!", 10);
+            // Speed 20 is fast typing
+            globalTypewriter.Start("CTRL+ALT+DELETE ME!", 20);
 
             currentTextColor = RED;
             currentShakeIntensity = 0;
-            currentCentered = true;
+            currentCentered = false; // Doesn't matter, we override it in drawing
             currentSpacing = 10.0f;
-            currentChaotic = false; // Turn off chaos for final message
+            currentChaotic = false; // False, because we handle the chaos manually above
 
             coffeeTimer = 2.0f;
             coffeeScriptStep++;
         }
         break;
-    case 22:
+    case 23:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
         {
             coffeeLog.clear();
@@ -476,7 +509,6 @@ void HandleCoffeeEvent()
             preBattleY = player.pos.y;
             currentState = BATTLE;
             InitBattle();
-
             bgColor = BLACK;
             currentTextColor = WHITE;
             currentShakeIntensity = 0;
@@ -571,14 +603,15 @@ void HandleDialogue()
     case D_HUMAN_CHOICE:
         if (isStateFirstFrame)
         {
-            globalTypewriter.Start("", 0);
+            // REMOVED: globalTypewriter.Start("", 0);
+            // We want the text "* Are you a human?" to stay on screen!
             isStateFirstFrame = false;
             dialogTimer = 0.3f;
         }
 
-        // UPDATED: Using DrawTextEx for YES/NO choices
-        DrawTextEx(myCustomFont, "YES", {(float)(box.x + 200), (float)(box.y + 80)}, 30, 2, WHITE);
-        DrawTextEx(myCustomFont, "NO", {(float)(box.x + 400), (float)(box.y + 80)}, 30, 2, WHITE);
+        // UPDATED: Coordinates matched to D_REQUEST_FOOD (Y + 103)
+        DrawTextEx(myCustomFont, "YES", {(float)(box.x + 200), (float)(box.y + 100)}, 30, 2, WHITE);
+        DrawTextEx(myCustomFont, "NO", {(float)(box.x + 450), (float)(box.y + 100)}, 30, 2, WHITE);
 
         if (dialogTimer <= 0)
         {
@@ -588,14 +621,14 @@ void HandleDialogue()
                 menuSelection = 0;
         }
 
+        // UPDATED: Heart Y position matched to D_REQUEST_FOOD (Y + 95)
         if (menuSelection == 0)
         {
-            // Syntax: Texture, Vector2 Position, Rotation, Scale, Tint
-            DrawTextureEx(texPlayer, {(float)(box.x + 140), (float)(box.y + 85)}, 0.0f, 0.4f, WHITE);
+            DrawTextureEx(texPlayer, {(float)(box.x + 160), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
         }
         else
         {
-            DrawTextureEx(texPlayer, {(float)(box.x + 360), (float)(box.y + 85)}, 0.0f, 0.4f, WHITE);
+            DrawTextureEx(texPlayer, {(float)(box.x + 410), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
         }
 
         if (canProceed)
@@ -612,7 +645,7 @@ void HandleDialogue()
             if (playerChoiceYesNo == 0)
                 StartDialogue("* First human friend!", 30, 0.3f);
             else
-                StartDialogue("Then you are the 1,025th rock I've met\n* today.", 30, 0.3f);
+                StartDialogue("* Then you are the 1,025th rock I've\n* met today.", 30, 0.3f);
         }
         if (canProceed)
         {
@@ -627,7 +660,7 @@ void HandleDialogue()
             if (playerChoiceYesNo == 0)
                 StartDialogue("* I mean. Cool. Whatever.", 30, 0.3f);
             else
-                StartDialogue("* The other rocks were less\n* talkative.", 30, 0.3f);
+                StartDialogue("* The other rocks were less talkative.", 30, 0.3f);
             storyProgress = 1;
         }
         if (canProceed)
@@ -682,11 +715,11 @@ void HandleDialogue()
             if (menuSelection == 0)
             {
                 // Syntax: Texture, Vector2 Position, Rotation, Scale, Tint
-                DrawTextureEx(texPlayer, {(float)(box.x + 160), (float)(box.y + 100)}, 0.0f, 0.4f, WHITE);
+                DrawTextureEx(texPlayer, {(float)(box.x + 160), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
             }
             else
             {
-                DrawTextureEx(texPlayer, {(float)(box.x + 410), (float)(box.y + 100)}, 0.0f, 0.4f, WHITE);
+                DrawTextureEx(texPlayer, {(float)(box.x + 410), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
             }
 
             if (IsInteractPressed() && dialogTimer <= 0)
@@ -741,7 +774,7 @@ void HandleDialogue()
                 if (menuSelection == (int)i)
                 {
                     // Heart position is still relative to the start of the word
-                    DrawTextureEx(texPlayer, {(float)(startX - 40), (float)(box.y + 105)}, 0.0f, 0.4f, WHITE);
+                    DrawTextureEx(texPlayer, {(float)(startX - 40), (float)(box.y + 97)}, 0.0f, 0.4f, WHITE);
                 }
 
                 // 3. Increment startX by the text width PLUS the gap
@@ -774,9 +807,15 @@ void HandleDialogue()
                     else
                     {
                         if (chosen == 1)
+                        {
                             playerInventory.hasGas = false;
+                            itemUsedIndex = 1; // <--- Mark as Gas
+                        }
                         if (chosen == 2)
+                        {
                             playerInventory.hasBattery = false;
+                            itemUsedIndex = 2; // <--- Mark as Battery
+                        }
                         currentDialogueState = D_EATING;
                     }
                     isStateFirstFrame = true;
@@ -787,7 +826,18 @@ void HandleDialogue()
 
     case D_EATING:
         if (isStateFirstFrame)
-            StartDialogue("* CRUNCH CRUNCH.\n* That flavor!", 30, 0.3f);
+        {
+            if (itemUsedIndex == 1)
+            {
+                // GAS LOGIC
+                StartDialogue("* GLUG GLUG...\n* Premium Octane!", 30, 0.3f);
+            }
+            else
+            {
+                // BATTERY LOGIC
+                StartDialogue("* CRUNCH CRUNCH.\n* That flavor!", 30, 0.3f);
+            }
+        }
         if (canProceed)
         {
             storyProgress++;
@@ -800,11 +850,11 @@ void HandleDialogue()
 
     case D_REFUSAL:
         if (isStateFirstFrame)
-            StartDialogue("* Oh... okay.\n* I'll just go into Sleep Mode\n* FOREVER.", 40, 0.3f);
+            StartDialogue("* Oh... okay.\n* I'll just go into Sleep Mode\n* FOREVER.", 30, 0.3f);
         if (canProceed)
         {
             currentState = MAP_WALK;
-            interactionCooldown = 1.0f;
+            interactionCooldown = 0.2f;
             isStateFirstFrame = true;
         }
         break;
@@ -812,10 +862,24 @@ void HandleDialogue()
     case D_POST_BATTLE:
         if (isStateFirstFrame)
             StartDialogue("* I am sorry about what just happened.", 30, 0.3f);
+
         if (canProceed)
         {
+            // Instead of exiting, we go to the next line of dialogue
+            currentDialogueState = D_POST_BATTLE_2;
+            isStateFirstFrame = true;
+        }
+        break;
+
+    case D_POST_BATTLE_2:
+        if (isStateFirstFrame)
+            StartDialogue("* And by the way you just finished\n* the game.", 30, 0.3f);
+
+        if (canProceed)
+        {
+            // NOW we exit to the map
             currentState = MAP_WALK;
-            interactionCooldown = 1.0f;
+            interactionCooldown = 0.2f; // Short cooldown to prevent accidental re-trigger
             isStateFirstFrame = true;
         }
         break;
@@ -843,11 +907,30 @@ int main()
     InitAudioDevice();
     SetTargetFPS(60);
 
+    // 1. Get the directory where the .exe is running
+    const char *dir = GetApplicationDirectory();
+
+    // 2. Change the current working directory to the .exe's location
+    //    This ensures that "assets/file.png" always looks next to the .exe
+    ChangeDirectory(dir);
+
+    // Optional: Debug log to see where the game is looking
+    // TraceLog(LOG_INFO, "Target Working Directory: %s", dir);
+
     LoadGameAssets();
 
-    // UPDATED: Load the font AFTER InitWindow to prevent crashes
-    myCustomFont = LoadFontEx("assets/determination-mono.otf", 64, 0, 0);
-    SetTextureFilter(myCustomFont.texture, TEXTURE_FILTER_BILINEAR);
+    // NOW you can use a relative path safely.
+    // Ensure the "assets" folder is inside the "Debug" or "Release" folder
+    // where your .exe is generated.
+    myCustomFont = LoadFontEx("../assets/determination-mono.otf", 64, 0, 0);
+    if (myCustomFont.texture.id == 0)
+    {
+        TraceLog(LOG_WARNING, "FONT FAILED TO LOAD! Check assets folder location.");
+    }
+    else
+    {
+        SetTextureFilter(myCustomFont.texture, TEXTURE_FILTER_BILINEAR);
+    }
 
     RenderTexture2D target = LoadRenderTexture(GAME_WIDTH, GAME_HEIGHT);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);

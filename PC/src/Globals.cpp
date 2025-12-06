@@ -18,25 +18,25 @@ Font gameFont;
 void LoadGameAssets()
 {
     // Graphics
-    texBackground = LoadTexture("assets/background.png");
-    texPlayer = LoadTexture("assets/heart.png");
-    texRobot = LoadTexture("assets/robot.png");
+    texBackground = LoadTexture("../assets/background.png");
+    texPlayer = LoadTexture("../assets/heart.png");
+    texRobot = LoadTexture("../assets/robot.png");
 
     // Audio
-    sndText = LoadSound("assets/text.wav");
-    sndHurt = LoadSound("assets/hurt.wav");
+    sndText = LoadSound("../assets/text.wav");
+    sndHurt = LoadSound("../assets/hurt.wav");
 
     char buffer[64];
     for (int i = 0; i < 6; i++)
     {
-        sprintf(buffer, "assets/dialup%d.wav", i);
+        sprintf(buffer, "../assets/dialup%d.wav", i);
         sndDialup[i] = LoadSound(buffer);
     }
 
     gameFont = GetFontDefault(); // Uses default raylib font
 
-    battleBGMusic = LoadMusicStream("assets/battleBGMusic.ogg");
-    gameOver = LoadMusicStream("assets/gameOver.ogg");
+    battleBGMusic = LoadMusicStream("../assets/battleBGMusic.ogg");
+    gameOver = LoadMusicStream("../assets/gameOver.ogg");
 
     // This tells Raylib to automatically loop it when it reaches the end
     battleBGMusic.looping = true;
