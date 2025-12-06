@@ -564,8 +564,29 @@ void drawBattle() {
     if (battleRedrawNeeded) {
         tft.fillScreen(ST7735_BLACK);
         
-        // Draw Robot
-        tft.drawRGBBitmap(5, 15, robot_npc_blk, 16, 16);
+        // --- NEW SPRITE LOGIC START ---
+        const unsigned short* currentSprite = robot_npc_100; // Default: Fight Mode
+
+        // 1. Pre-fight Dialogue (Normal Robot)
+        if (battlePhase == B_Q1_DIALOGUE) {
+            currentSprite = robot_npc_100; 
+        }
+        // 2. Specific Request: Q6 Result ("Why you're not answering?")
+        else if (battlePhase == B_Q6_RESULT) {
+            currentSprite = robot_npc_50;
+        }
+        // 3. Victory / Ending Phase
+        else if (battlePhase == B_VICTORY) {
+            // Index 4 is "OMG! Are you okay?" -> Return to Normal
+            if (dialogueIndex >= 4) {
+                currentSprite = robot_npc_0; 
+            } else {
+                // Before index 4 (Glitchy text) -> Damaged Robot
+                currentSprite = robot_npc_50; 
+            }
+        }
+        tft.drawRGBBitmap(5, 15, currentSprite, 16, 16);
+        // --- NEW SPRITE LOGIC END ---
         
         // LOGIC UPDATE:
         // You want Dialogues to be Interactive (Typing effect + Red Arrow).
