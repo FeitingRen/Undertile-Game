@@ -190,7 +190,7 @@ void UpdateBattle()
             dialogueIndex++;
 
             // Script
-            /*if (dialogueIndex == 1)
+            if (dialogueIndex == 1)
                 globalTypewriter.Start("Its existence is even more\nmeaningless than humans.", 30);
             else if (dialogueIndex == 2)
                 globalTypewriter.Start("Drink it so your body can\nstay overloaded longer?", 30);
@@ -202,8 +202,7 @@ void UpdateBattle()
                 globalTypewriter.Start("After that, I got diagnosed\nwith Schizophrenia.", 30);
             else if (dialogueIndex == 6)
                 globalTypewriter.Start("I've been through this, and\nnow it is your turn!", 30);
-            else */
-            if (dialogueIndex > 0)
+            else if (dialogueIndex > 0)
             {
                 battlePhase = B_Q1_SETUP;
             }

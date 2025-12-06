@@ -70,13 +70,6 @@ void Typewriter::Update()
     if (!active || finished)
         return;
 
-    // Handle Skip
-    if (IsInteractPressed() && charCount > 1)
-    {
-        Skip();
-        return;
-    }
-
     timer += GetFrameTime();
     if (timer >= speedMs)
     {

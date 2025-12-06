@@ -422,7 +422,7 @@ void HandleCoffeeEvent()
         break;
     case 13:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
-            AdvanceStep("The fan... it stopped...", 70, 2.0f, WHITE, 3, false, 23.0f, false);
+            AdvanceStep("The fan... it stopped...", 80, 2.0f, WHITE, 3, false, 23.0f, false);
         break;
     case 14:
         if (globalTypewriter.IsFinished() && coffeeTimer <= 0)
@@ -527,7 +527,21 @@ void HandleDialogue()
 
     if (currentDialogueState == D_COFFEE_EVENT)
     {
+        // Note: We typically don't allow pausing/closing the coffee cutscene
+        // because it relies on precise timers.
         HandleCoffeeEvent();
+        return;
+    }
+
+    // --- GOAL 2: PRESS X TO CLOSE ---
+    if (IsCancelPressed())
+    {
+        currentState = MAP_WALK;
+        interactionCooldown = 0.2f;
+
+        // IMPORTANT: We set this to true so that when the player talks again,
+        // the current line restarts from the beginning (re-typing it).
+        isStateFirstFrame = true;
         return;
     }
 
@@ -541,12 +555,32 @@ void HandleDialogue()
     DrawRectangleLinesEx(box, 4, WHITE);
 
     globalTypewriter.Update();
-
-    // UPDATED: Passing font, size, spacing, and color
     globalTypewriter.Draw(myCustomFont, (int)(box.x + 25), (int)(box.y + 25), 30.0f, 2.0f, WHITE);
 
-    bool canProceed = IsInteractPressed() && dialogTimer <= 0 && globalTypewriter.IsFinished();
+    // --- GOAL 1: Z BUTTON LOGIC (SKIP vs NEXT) ---
+    bool canProceed = false;
 
+    if (IsInteractPressed())
+    {
+        // Check if text is still typing
+        if (!globalTypewriter.IsFinished())
+        {
+            // Case 1.1: Text is still typing -> Finish it INSTANTLY.
+            // We do NOT check dialogTimer here. We let the player skip
+            // the effect immediately even if the line just started.
+            globalTypewriter.Skip();
+        }
+        else if (dialogTimer <= 0)
+        {
+            // Case 1.2: Text is finished -> Proceed to next step.
+            // We DO check dialogTimer here. This ensures that if the player
+            // mashed Z to skip the text, they don't accidentally skip
+            // to the next dialogue state in the same split second.
+            canProceed = true;
+        }
+    }
+
+    // [The Switch Statement remains exactly the same, using the new canProceed logic]
     switch (currentDialogueState)
     {
     case D_INTRO_1:
@@ -603,15 +637,12 @@ void HandleDialogue()
     case D_HUMAN_CHOICE:
         if (isStateFirstFrame)
         {
-            // REMOVED: globalTypewriter.Start("", 0);
-            // We want the text "* Are you a human?" to stay on screen!
             isStateFirstFrame = false;
             dialogTimer = 0.3f;
         }
 
-        // UPDATED: Coordinates matched to D_REQUEST_FOOD (Y + 103)
         DrawTextEx(myCustomFont, "YES", {(float)(box.x + 200), (float)(box.y + 100)}, 30, 2, WHITE);
-        DrawTextEx(myCustomFont, "NO", {(float)(box.x + 450), (float)(box.y + 100)}, 30, 2, WHITE);
+        DrawTextEx(myCustomFont, "NO", {(float)(box.x + 400), (float)(box.y + 100)}, 30, 2, WHITE);
 
         if (dialogTimer <= 0)
         {
@@ -621,16 +652,16 @@ void HandleDialogue()
                 menuSelection = 0;
         }
 
-        // UPDATED: Heart Y position matched to D_REQUEST_FOOD (Y + 95)
         if (menuSelection == 0)
         {
             DrawTextureEx(texPlayer, {(float)(box.x + 160), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
         }
         else
         {
-            DrawTextureEx(texPlayer, {(float)(box.x + 410), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
+            DrawTextureEx(texPlayer, {(float)(box.x + 360), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
         }
 
+        // Only proceed if a selection is made AND text is fully visible (which it is here)
         if (canProceed)
         {
             playerChoiceYesNo = menuSelection;
@@ -699,8 +730,6 @@ void HandleDialogue()
 
         if (globalTypewriter.IsFinished())
         {
-            // UPDATED: Using DrawTextEx for GIVE/REFUSE
-
             DrawTextEx(myCustomFont, "GIVE", {(float)(box.x + 200), (float)(box.y + 100)}, 30, 2, WHITE);
             DrawTextEx(myCustomFont, "REFUSE", {(float)(box.x + 450), (float)(box.y + 100)}, 30, 2, WHITE);
 
@@ -713,15 +742,12 @@ void HandleDialogue()
             }
 
             if (menuSelection == 0)
-            {
-                // Syntax: Texture, Vector2 Position, Rotation, Scale, Tint
                 DrawTextureEx(texPlayer, {(float)(box.x + 160), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
-            }
             else
-            {
                 DrawTextureEx(texPlayer, {(float)(box.x + 410), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
-            }
 
+            // Note: We use IsInteractPressed directly here because this is a choice menu
+            // and we don't want "canProceed" logic to auto-confirm choices.
             if (IsInteractPressed() && dialogTimer <= 0)
             {
                 if (menuSelection == 0)
@@ -752,7 +778,7 @@ void HandleDialogue()
                 opts.push_back(2);
 
             int startX = (int)box.x + 100;
-            int gap = 120; // The fixed space between the end of one word and start of next
+            int gap = 120;
 
             for (size_t i = 0; i < opts.size(); i++)
             {
@@ -764,21 +790,13 @@ void HandleDialogue()
                 if (opts[i] == 2)
                     label = "Battery";
 
-                // 1. Measure the width of the current label
-                // Arguments: Font, Text, FontSize, Spacing (Must match DrawTextEx)
                 Vector2 textSize = MeasureTextEx(myCustomFont, label, 30, 2);
-
-                // 2. Draw the text at the current startX
                 DrawTextEx(myCustomFont, label, {(float)startX, (float)(box.y + 100)}, 30, 2, WHITE);
 
                 if (menuSelection == (int)i)
                 {
-                    // Heart position is still relative to the start of the word
                     DrawTextureEx(texPlayer, {(float)(startX - 40), (float)(box.y + 97)}, 0.0f, 0.4f, WHITE);
                 }
-
-                // 3. Increment startX by the text width PLUS the gap
-                // This ensures the next word starts 'gap' pixels after this word ends
                 startX += (int)textSize.x + gap;
             }
 
@@ -800,8 +818,6 @@ void HandleDialogue()
                         coffeeTimer = 0.0f;
                         coffeeLog.clear();
                         bgColor = BLACK;
-
-                        // Force the typewriter to stop so case 0 in CoffeeEvent can start.
                         globalTypewriter.active = false;
                     }
                     else
@@ -809,12 +825,12 @@ void HandleDialogue()
                         if (chosen == 1)
                         {
                             playerInventory.hasGas = false;
-                            itemUsedIndex = 1; // <--- Mark as Gas
+                            itemUsedIndex = 1;
                         }
                         if (chosen == 2)
                         {
                             playerInventory.hasBattery = false;
-                            itemUsedIndex = 2; // <--- Mark as Battery
+                            itemUsedIndex = 2;
                         }
                         currentDialogueState = D_EATING;
                     }
@@ -828,15 +844,9 @@ void HandleDialogue()
         if (isStateFirstFrame)
         {
             if (itemUsedIndex == 1)
-            {
-                // GAS LOGIC
                 StartDialogue("* GLUG GLUG...\n* Premium Octane!", 30, 0.3f);
-            }
             else
-            {
-                // BATTERY LOGIC
                 StartDialogue("* CRUNCH CRUNCH.\n* That flavor!", 30, 0.3f);
-            }
         }
         if (canProceed)
         {
@@ -850,7 +860,7 @@ void HandleDialogue()
 
     case D_REFUSAL:
         if (isStateFirstFrame)
-            StartDialogue("* Oh... okay.\n* I'll just go into Sleep Mode\n* FOREVER.", 30, 0.3f);
+            StartDialogue("* Oh... okay.\n* I'll just go into Sleep Mode\n* FOREVER.", 40, 0.3f);
         if (canProceed)
         {
             currentState = MAP_WALK;
@@ -862,10 +872,8 @@ void HandleDialogue()
     case D_POST_BATTLE:
         if (isStateFirstFrame)
             StartDialogue("* I am sorry about what just happened.", 30, 0.3f);
-
         if (canProceed)
         {
-            // Instead of exiting, we go to the next line of dialogue
             currentDialogueState = D_POST_BATTLE_2;
             isStateFirstFrame = true;
         }
@@ -874,12 +882,10 @@ void HandleDialogue()
     case D_POST_BATTLE_2:
         if (isStateFirstFrame)
             StartDialogue("* And by the way you just finished\n* the game.", 30, 0.3f);
-
         if (canProceed)
         {
-            // NOW we exit to the map
             currentState = MAP_WALK;
-            interactionCooldown = 0.2f; // Short cooldown to prevent accidental re-trigger
+            interactionCooldown = 0.2f;
             isStateFirstFrame = true;
         }
         break;
@@ -890,7 +896,7 @@ void HandleGameOver()
 {
     UpdateMusicStream(gameOver);
     DrawTextEx(myCustomFont, "GAME OVER", {250, 200}, 60, 2, RED);
-    DrawTextEx(myCustomFont, "Whoever you are... Stay determined!", {85, 350}, 30, 2, WHITE);
+    DrawTextEx(myCustomFont, "Whoever you are... stay determined!", {85, 275}, 30, 2, WHITE);
     DrawTextEx(myCustomFont, "Press Z to Retry", {250, 400}, 30, 2, GRAY);
 
     if (IsInteractPressed())
@@ -943,7 +949,7 @@ int main()
     if (DEBUG_SKIP_TO_BATTLE)
     {
         // 1. Force the state
-        currentState = BATTLE;
+        currentState = GAME_OVER;
 
         // 2. Save current position so the battle system has a return coordinate
         // (Even if we don't return, the variables need to be set to avoid trash values)
