@@ -9,7 +9,7 @@
 #include <string>
 #include <cmath>
 
-const bool DEBUG_SKIP_TO_BATTLE = true;
+const bool DEBUG_SKIP_TO_BATTLE = false;
 
 // --- GLOBAL VARIABLES ---
 // 1. currentState is defined in Globals.cpp, so we don't define it here.
@@ -237,7 +237,7 @@ void HandleCoffeeEvent()
         // --- CHAOS MODE: CTRL+ALT+DELETE ME! ---
         if (globalTypewriter.fullText == "CTRL+ALT+DELETE ME!")
         {
-            for (int k = 0; k < 50; k++)
+            for (int k = 0; k < 20; k++)
             {
                 // STATIC CHAOS LOGIC (UPDATED):
 
@@ -642,7 +642,7 @@ void HandleDialogue()
         }
 
         DrawTextEx(myCustomFont, "YES", {(float)(box.x + 200), (float)(box.y + 100)}, 30, 2, WHITE);
-        DrawTextEx(myCustomFont, "NO", {(float)(box.x + 400), (float)(box.y + 100)}, 30, 2, WHITE);
+        DrawTextEx(myCustomFont, "NO", {(float)(box.x + 450), (float)(box.y + 100)}, 30, 2, WHITE);
 
         if (dialogTimer <= 0)
         {
@@ -658,7 +658,7 @@ void HandleDialogue()
         }
         else
         {
-            DrawTextureEx(texPlayer, {(float)(box.x + 360), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
+            DrawTextureEx(texPlayer, {(float)(box.x + 410), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
         }
 
         // Only proceed if a selection is made AND text is fully visible (which it is here)
@@ -725,37 +725,53 @@ void HandleDialogue()
             globalTypewriter.Start(txt.c_str(), 30);
             isStateFirstFrame = false;
             dialogTimer = 0.3f;
-            menuSelection = 0;
         }
 
-        if (globalTypewriter.IsFinished())
+        // Behavior Change: We wait for the player to press Z (canProceed)
+        // BEFORE showing the options.
+        if (canProceed)
         {
-            DrawTextEx(myCustomFont, "GIVE", {(float)(box.x + 200), (float)(box.y + 100)}, 30, 2, WHITE);
-            DrawTextEx(myCustomFont, "REFUSE", {(float)(box.x + 450), (float)(box.y + 100)}, 30, 2, WHITE);
+            currentDialogueState = D_REQUEST_FOOD_CHOICE;
+            menuSelection = 0;        // Default to Left option (GIVE)
+            isStateFirstFrame = true; // Initialize the next state
+        }
+        break;
 
-            if (dialogTimer <= 0)
-            {
-                if (IsRightPressed())
-                    menuSelection = 1;
-                if (IsLeftPressed())
-                    menuSelection = 0;
-            }
+    case D_REQUEST_FOOD_CHOICE:
+        // logic matches D_HUMAN_CHOICE pattern
+        if (isStateFirstFrame)
+        {
+            isStateFirstFrame = false;
+            dialogTimer = 0.3f; // Buffer to prevent accidental double-press
+        }
 
+        // Draw Options
+        DrawTextEx(myCustomFont, "GIVE", {(float)(box.x + 200), (float)(box.y + 100)}, 30, 2, WHITE);
+        DrawTextEx(myCustomFont, "REFUSE", {(float)(box.x + 430), (float)(box.y + 100)}, 30, 2, WHITE);
+
+        // Handle Navigation
+        if (dialogTimer <= 0)
+        {
+            if (IsRightPressed())
+                menuSelection = 1;
+            if (IsLeftPressed())
+                menuSelection = 0;
+        }
+
+        // Draw Heart Cursor
+        if (menuSelection == 0)
+            DrawTextureEx(texPlayer, {(float)(box.x + 160), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
+        else
+            DrawTextureEx(texPlayer, {(float)(box.x + 390), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
+
+        // Handle Selection
+        if (IsInteractPressed() && dialogTimer <= 0)
+        {
             if (menuSelection == 0)
-                DrawTextureEx(texPlayer, {(float)(box.x + 160), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
+                currentDialogueState = D_SELECT_ITEM;
             else
-                DrawTextureEx(texPlayer, {(float)(box.x + 410), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
-
-            // Note: We use IsInteractPressed directly here because this is a choice menu
-            // and we don't want "canProceed" logic to auto-confirm choices.
-            if (IsInteractPressed() && dialogTimer <= 0)
-            {
-                if (menuSelection == 0)
-                    currentDialogueState = D_SELECT_ITEM;
-                else
-                    currentDialogueState = D_REFUSAL;
-                isStateFirstFrame = true;
-            }
+                currentDialogueState = D_REFUSAL;
+            isStateFirstFrame = true;
         }
         break;
 
