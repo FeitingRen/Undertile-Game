@@ -9,7 +9,7 @@
 #include <string>
 #include <cmath>
 
-const bool DEBUG_SKIP_TO_BATTLE = false;
+const bool DEBUG_SKIP_TO_BATTLE = true;
 
 // --- GLOBAL VARIABLES ---
 // 1. currentState is defined in Globals.cpp, so we don't define it here.
@@ -22,15 +22,16 @@ Inventory playerInventory = {true, true, true};
 // Map Data
 std::vector<Rect> walkableFloors = {
     // top section
-    {135, 221, 611, 38},
+    {135, 227, 627, 48},
     {135, 259, 558, 43},
     // middle
     {134, 302, 510, 29},
     {125, 331, 528, 30},
     {114, 361, 579, 25},
     // bottom section
-    {104, 386, 652, 34},
-    {137, 420, 619, 51}};
+    {104, 386, 589, 50},
+    {693, 402, 63, 18},
+    {137, 420, 619, 67}};
 
 NPC mapEnemy = {425, 280};
 
@@ -654,11 +655,11 @@ void HandleDialogue()
 
         if (menuSelection == 0)
         {
-            DrawTextureEx(texPlayer, {(float)(box.x + 160), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
+            DrawTextureEx(texPlayer, {(float)(box.x + 150), (float)(box.y + 97)}, 0.0f, 0.5f, WHITE);
         }
         else
         {
-            DrawTextureEx(texPlayer, {(float)(box.x + 410), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
+            DrawTextureEx(texPlayer, {(float)(box.x + 400), (float)(box.y + 97)}, 0.0f, 0.5f, WHITE);
         }
 
         // Only proceed if a selection is made AND text is fully visible (which it is here)
@@ -760,9 +761,9 @@ void HandleDialogue()
 
         // Draw Heart Cursor
         if (menuSelection == 0)
-            DrawTextureEx(texPlayer, {(float)(box.x + 160), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
+            DrawTextureEx(texPlayer, {(float)(box.x + 150), (float)(box.y + 97)}, 0.0f, 0.5f, WHITE);
         else
-            DrawTextureEx(texPlayer, {(float)(box.x + 390), (float)(box.y + 95)}, 0.0f, 0.4f, WHITE);
+            DrawTextureEx(texPlayer, {(float)(box.x + 380), (float)(box.y + 97)}, 0.0f, 0.5f, WHITE);
 
         // Handle Selection
         if (IsInteractPressed() && dialogTimer <= 0)
@@ -811,7 +812,7 @@ void HandleDialogue()
 
                 if (menuSelection == (int)i)
                 {
-                    DrawTextureEx(texPlayer, {(float)(startX - 40), (float)(box.y + 97)}, 0.0f, 0.4f, WHITE);
+                    DrawTextureEx(texPlayer, {(float)(startX - 40), (float)(box.y + 97)}, 0.0f, 0.5f, WHITE);
                 }
                 startX += (int)textSize.x + gap;
             }
@@ -965,7 +966,7 @@ int main()
     if (DEBUG_SKIP_TO_BATTLE)
     {
         // 1. Force the state
-        currentState = GAME_OVER;
+        currentState = BATTLE;
 
         // 2. Save current position so the battle system has a return coordinate
         // (Even if we don't return, the variables need to be set to avoid trash values)

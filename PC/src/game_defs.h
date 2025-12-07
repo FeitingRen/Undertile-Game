@@ -10,8 +10,8 @@
 #define GAME_WIDTH 800
 #define GAME_HEIGHT 640
 
-#define PLAYER_W 80
-#define PLAYER_H 80
+#define PLAYER_W 64
+#define PLAYER_H 64
 #define NPC_SIZE 80
 
 #define PLAYER_MAX_HP 20
