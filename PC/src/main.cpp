@@ -945,7 +945,8 @@ int main()
     // NOW you can use a relative path safely.
     // Ensure the "assets" folder is inside the "Debug" or "Release" folder
     // where your .exe is generated.
-    myCustomFont = LoadFontEx("../assets/determination-mono.otf", 64, 0, 0);
+    // myCustomFont = LoadFontEx("../assets/determination-mono.otf", 64, 0, 0); // English Font
+    myCustomFont = LoadFontEx("../assets/ark-pixel-12px-proportional-zh_hk.otf", 64, 0, 0); // Chinese Font
     if (myCustomFont.texture.id == 0)
     {
         TraceLog(LOG_WARNING, "FONT FAILED TO LOAD! Check assets folder location.");
