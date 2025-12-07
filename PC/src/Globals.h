@@ -11,6 +11,7 @@ extern Texture2D texRobot;  // NPC
 // Audio
 extern Sound sndText;
 extern Sound sndHurt;
+extern Sound sndSelect;
 extern Sound sndDialup[6]; // 0-5
 extern Music battleBGMusic;
 extern Music gameOver;

@@ -9,7 +9,7 @@
 #include <string>
 #include <cmath>
 
-const bool DEBUG_SKIP_TO_BATTLE = true;
+const bool DEBUG_SKIP_TO_BATTLE = false;
 
 // --- GLOBAL VARIABLES ---
 // 1. currentState is defined in Globals.cpp, so we don't define it here.
@@ -648,9 +648,15 @@ void HandleDialogue()
         if (dialogTimer <= 0)
         {
             if (IsRightPressed())
+            {
+                PlaySound(sndSelect);
                 menuSelection = 1;
+            }
             if (IsLeftPressed())
+            {
+                PlaySound(sndSelect);
                 menuSelection = 0;
+            }
         }
 
         if (menuSelection == 0)
@@ -754,9 +760,15 @@ void HandleDialogue()
         if (dialogTimer <= 0)
         {
             if (IsRightPressed())
+            {
+                PlaySound(sndSelect);
                 menuSelection = 1;
+            }
             if (IsLeftPressed())
+            {
+                PlaySound(sndSelect);
                 menuSelection = 0;
+            }
         }
 
         // Draw Heart Cursor
@@ -812,7 +824,7 @@ void HandleDialogue()
 
                 if (menuSelection == (int)i)
                 {
-                    DrawTextureEx(texPlayer, {(float)(startX - 40), (float)(box.y + 97)}, 0.0f, 0.5f, WHITE);
+                    DrawTextureEx(texPlayer, {(float)(startX - 50), (float)(box.y + 97)}, 0.0f, 0.5f, WHITE);
                 }
                 startX += (int)textSize.x + gap;
             }
@@ -820,10 +832,15 @@ void HandleDialogue()
             if (dialogTimer <= 0 && opts.size() > 0)
             {
                 if (IsRightPressed() && menuSelection < (int)opts.size() - 1)
+                {
+                    PlaySound(sndSelect);
                     menuSelection++;
+                }
                 if (IsLeftPressed() && menuSelection > 0)
+                {
+                    PlaySound(sndSelect);
                     menuSelection--;
-
+                }
                 if (IsInteractPressed())
                 {
                     int chosen = opts[menuSelection];
@@ -945,16 +962,7 @@ int main()
     // NOW you can use a relative path safely.
     // Ensure the "assets" folder is inside the "Debug" or "Release" folder
     // where your .exe is generated.
-    // myCustomFont = LoadFontEx("../assets/determination-mono.otf", 64, 0, 0); // English Font
-    myCustomFont = LoadFontEx("../assets/ark-pixel-12px-proportional-zh_hk.otf", 64, 0, 0); // Chinese Font
-    if (myCustomFont.texture.id == 0)
-    {
-        TraceLog(LOG_WARNING, "FONT FAILED TO LOAD! Check assets folder location.");
-    }
-    else
-    {
-        SetTextureFilter(myCustomFont.texture, TEXTURE_FILTER_BILINEAR);
-    }
+    myCustomFont = LoadFontEx("../assets/determination-mono.otf", 64, 0, 0); // English Font
 
     RenderTexture2D target = LoadRenderTexture(GAME_WIDTH, GAME_HEIGHT);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);

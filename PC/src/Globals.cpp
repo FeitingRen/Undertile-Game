@@ -7,6 +7,7 @@ Texture2D texRobot;
 
 Sound sndText;
 Sound sndHurt;
+Sound sndSelect;
 Sound sndDialup[6];
 
 Music battleBGMusic;
@@ -25,6 +26,7 @@ void LoadGameAssets()
     // Audio
     sndText = LoadSound("../assets/text.wav");
     sndHurt = LoadSound("../assets/hurt.wav");
+    sndSelect = LoadSound("../assets/select.wav");
 
     char buffer[64];
     for (int i = 0; i < 6; i++)
@@ -51,6 +53,7 @@ void UnloadGameAssets()
 
     UnloadSound(sndText);
     UnloadSound(sndHurt);
+    UnloadSound(sndSelect);
     for (int i = 0; i < 6; i++)
         UnloadSound(sndDialup[i]);
 
