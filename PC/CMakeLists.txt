@@ -1,3 +1,4 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 cmake_minimum_required(VERSION 3.11)
 
 set(PROJECT_NAME Undertale_PC)
@@ -42,4 +43,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 # Windows specific: Hide console window in Release builds
 if(MSVC)
     target_link_options(${PROJECT_NAME} PRIVATE "/ENTRY:mainCRTStartup")
+    target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
 endif()

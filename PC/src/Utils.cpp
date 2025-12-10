@@ -6,52 +6,65 @@ Typewriter globalTypewriter;
 // --- HELPER FUNCTION: Draw Text with Static Random Jitter ---
 // Replaces the "Sine Wave" look with a "Messy/Chaotic" look
 // matching the ESP32 random(-1, 2) logic, but deterministic (static).
+// --- HELPER FUNCTION: Draw Text with Static Random Jitter ---
+// Updated to support Multi-byte UTF-8 Characters (Chinese)
 void DrawTextJitter(Font font, const char *text, Vector2 pos, float fontSize, float spacing, Color color)
 {
     float startX = pos.x;
     float currentX = pos.x;
     float currentY = pos.y;
 
-    for (int i = 0; text[i] != '\0'; i++)
-    {
-        char c = text[i];
+    int i = 0; // Byte index
+    int k = 0; // Character count (for random seed)
 
-        if (c == '\n')
+    while (text[i] != '\0')
+    {
+        // 1. Get the codepoint and how many bytes it uses (1 for English, 3 for Chinese)
+        int bytesProcessed = 0;
+        int codepoint = GetCodepointNext(&text[i], &bytesProcessed);
+
+        // 2. Handle Newlines
+        if (codepoint == '\n')
         {
             currentX = startX;
             currentY += fontSize;
+            i += bytesProcessed;
+            k++;
             continue;
         }
 
-        // --- NEW LOGIC: Deterministic Random ---
-        // mimics ESP32's random(-1, 2) which produces -1, 0, or 1.
-        // We use the index 'i' multiplied by large primes to create a pseudo-random pattern.
-        // This ensures the text looks "messy" but DOES NOT shake (it is static).
+        // 3. Extract the full Multi-byte character into a temp string
+        // Max UTF-8 length is 4 bytes, plus null terminator = 5
+        char tempStr[5] = {0};
+        for (int b = 0; b < bytesProcessed; b++)
+        {
+            tempStr[b] = text[i + b];
+        }
 
-        int hashX = i * 43758 + 293;
-        int hashY = i * 91238 + 582;
+        // 4. Deterministic Random Jitter Logic (Using 'k' instead of 'i')
+        // We use 'k' (character index) so the jitter stays consistent regardless of byte length
+        int hashX = k * 43758 + 293;
+        int hashY = k * 91238 + 582;
 
-        // (hash % 3) -> 0, 1, 2
-        // Subtract 1 -> -1, 0, 1
-        int rawOx = (hashX % 3) - 1;
-        int rawOy = (hashY % 3) - 1;
+        int rawOx = (hashX % 3) - 1; // -1, 0, 1
+        int rawOy = (hashY % 3) - 1; // -1, 0, 1
 
-        // Scale up by 2.0f because PC resolution (800x640) is much higher than ESP32 (160x128).
-        // On ESP32, 1 pixel is huge. On PC, 1 pixel is barely visible.
         float ox = (float)rawOx * 2.0f;
         float oy = (float)rawOy * 2.0f;
 
-        char tempStr[2] = {c, '\0'};
-
-        // Apply offset to drawing position
+        // Apply offset
         Vector2 charPos = {currentX + ox, currentY + oy};
 
+        // Draw the full character (1-4 bytes)
         DrawTextEx(font, tempStr, charPos, fontSize, spacing, color);
 
-        // Advance X by the REAL width (ignoring jitter) so spacing stays consistent
-        // This matches your ESP32 logic: "startX = tft.getCursorX() - ox"
+        // 5. Advance position by the REAL width of this specific character
         Vector2 size = MeasureTextEx(font, tempStr, fontSize, spacing);
-        currentX += size.x + spacing;
+        currentX += size.x + spacing; // Add spacing only between chars, not inside
+
+        // Advance to next character in the string
+        i += bytesProcessed;
+        k++;
     }
 }
 
@@ -74,11 +87,43 @@ void Typewriter::Update()
     if (timer >= speedMs)
     {
         timer = 0;
-        charCount++;
 
-        if (charCount <= fullText.length())
+        // --- FIX START ---
+        // Instead of charCount++, we calculate how many bytes the NEXT character needs.
+
+        // Safety check to prevent reading past the end
+        if (charCount < fullText.length())
         {
-            if (fullText[charCount - 1] != ' ' && fullText[charCount - 1] != '\n')
+            int bytesProcessed = 0;
+            // Raylib helper: Peeks at the text and tells us if next char is 1, 2, 3, or 4 bytes
+            GetCodepointNext(&fullText[charCount], &bytesProcessed);
+
+            // Advance by the FULL character length
+            charCount += bytesProcessed;
+        }
+        else
+        {
+            // Just in case we are somehow at the end
+            charCount++;
+        }
+        // --- FIX END ---
+
+        // Clamp to length
+        if (charCount > fullText.length())
+        {
+            charCount = fullText.length();
+        }
+
+        // Sound Logic (Checks the character *before* the current cursor)
+        if (charCount <= fullText.length() && charCount > 0)
+        {
+            // We look back at the previous character.
+            // Note: This naive check [charCount - 1] is risky with UTF-8,
+            // but since we only care about Space (' ') and Newline ('\n')
+            // which are ALWAYS 1 byte in UTF-8, this specific line is actually safe!
+            char prevChar = fullText[charCount - 1];
+
+            if (prevChar != ' ' && prevChar != '\n')
             {
                 if (!IsSoundPlaying(sndText))
                     PlaySound(sndText);

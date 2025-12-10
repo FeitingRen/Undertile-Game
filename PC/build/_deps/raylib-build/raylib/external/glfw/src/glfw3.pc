@@ -1,7 +1,7 @@
-prefix=C:/Program Files (x86)/UndertalePC
+prefix=C:/Program Files (x86)/Undertale_PC
 exec_prefix=${prefix}
-includedir=C:/Program Files (x86)/UndertalePC/include
-libdir=C:/Program Files (x86)/UndertalePC/lib
+includedir=C:/Program Files (x86)/Undertale_PC/include
+libdir=C:/Program Files (x86)/Undertale_PC/lib
 
 Name: GLFW
 Description: A multi-platform library for OpenGL, window and input

@@ -7,7 +7,7 @@ class Player
 {
 public:
     Vector2 pos;
-    float speed = 350.0f; // Pixels per second
+    float speed = 375.0f; // Pixels per second
     int hp;
 
     // Collision zones

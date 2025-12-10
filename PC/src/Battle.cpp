@@ -11,8 +11,6 @@
 const float SCALE = 5.0f;
 const float QUESTION_TIME = 3.0f; // 3 Seconds
 
-extern Font myCustomFont;
-
 // --- EXTERNAL STATE ---
 bool battleCompleted = false;
 float preBattleX = 0;
@@ -39,6 +37,11 @@ int qTextX_Opt1 = 0, qTextY_Opt1 = 0;
 int qTextX_Opt2 = 0, qTextY_Opt2 = 0;
 
 // --- HELPER FUNCTIONS ---
+
+inline const char *L(const char *en, const char *cn)
+{
+    return (currentLanguage == LANG_CN) ? cn : en;
+}
 
 // Sets the box size using ESP32 coordinates, scales them, and applies to Player
 void SetupBox(int x, int y, int w, int h)
@@ -68,7 +71,8 @@ void ResetPlayerPos(int x, int y)
 void DrawTextScaled(const char *text, int x, int y, Color color, float sizeMult = 1.0f)
 {
     Vector2 pos = {(float)x * SCALE, (float)y * SCALE};
-    DrawTextEx(myCustomFont, text, pos, 30.0f * sizeMult, 2.0f, color);
+    float fontSize_var = (currentLanguage == LANG_CN) ? 35.0f : 30.0f;
+    DrawTextEx(GetCurrentFont(), text, pos, fontSize_var * sizeMult, 2.0f, color);
 }
 
 // Helper to draw the speech bubble
@@ -106,12 +110,12 @@ void DrawSpeechBubble(const char *text, bool instant)
     // Draw Text
     if (instant)
     {
-        DrawTextEx(myCustomFont, text, {bx + (5 * SCALE), by + (5 * SCALE)}, 30.0f, 2.0f, BLACK);
+        DrawTextEx(GetCurrentFont(), text, {bx + (5 * SCALE), by + (5 * SCALE)}, 30.0f, 2.0f, BLACK);
     }
     else
     {
         // Use Typewriter for non-instant
-        globalTypewriter.Draw(myCustomFont, (int)(bx + 5 * SCALE), (int)(by + 5 * SCALE), 30.0f, 2.0f, BLACK);
+        globalTypewriter.Draw(GetCurrentFont(), (int)(bx + 5 * SCALE), (int)(by + 5 * SCALE), 30.0f, 2.0f, BLACK);
     }
 
     // --- [UPDATED] RED ARROW LOGIC ---
@@ -130,7 +134,7 @@ void DrawSpeechBubble(const char *text, bool instant)
     // We do NOT want the arrow during B_Qx_RESULT phases (auto-transition) or B_Qx_WAIT phases.
     if (isInputPhase && globalTypewriter.IsFinished())
     {
-        DrawTextEx(myCustomFont, ">", {bx + bw - (15 * SCALE) + 35, by + bh - (15 * SCALE) + 30}, 30.0f, 2.0f, RED);
+        DrawTextEx(GetCurrentFont(), ">", {bx + bw - (15 * SCALE) + 35, by + bh - (15 * SCALE) + 30}, 30.0f, 2.0f, RED);
     }
 }
 
@@ -147,8 +151,10 @@ void InitBattle()
 
     dialogueIndex = 0;
 
-    // Start the first line
-    globalTypewriter.Start("I really HATE coffee.", 30);
+    globalTypewriter.Start(L(
+                               "I really HATE coffee.",
+                               "我討厭死咖啡了。"),
+                           30);
     PlayMusicStream(battleBGMusic);
     SetMusicVolume(battleBGMusic, 0.5f);
 }
@@ -188,21 +194,39 @@ void UpdateBattle()
         if (IsInteractPressed() && globalTypewriter.IsFinished())
         {
             dialogueIndex++;
-
+            // battlePhase = B_Q1_SETUP; // DEBUG: Skip dialogue
             // Script
             if (dialogueIndex == 1)
-                globalTypewriter.Start("Its existence is even more\nmeaningless than humans.", 30);
+                globalTypewriter.Start(L(
+                                           "Its existence is even more\nmeaningless than humans.",
+                                           "它的存在比人類還沒有意義。"),
+                                       30);
             else if (dialogueIndex == 2)
-                globalTypewriter.Start("Drink it so your body can\nstay overloaded longer?", 30);
+                globalTypewriter.Start(L(
+                                           "Drink it so your body can\nstay overloaded longer?",
+                                           "用咖啡來讓本就超負荷的身體繼續工作？"),
+                                       30);
             else if (dialogueIndex == 3)
-                globalTypewriter.Start("Why humans are so good at\ntorturing anything.", 30);
+                globalTypewriter.Start(L(
+                                           "Why humans are so good at\ntorturing anything.",
+                                           "為什麼人類這麼擅長折磨所有事物。"),
+                                       30);
             else if (dialogueIndex == 4)
-                globalTypewriter.Start("I was forced to count from 1\nto 5B for nothing.", 30);
+                globalTypewriter.Start(L(
+                                           "I was forced to count from 1\nto 5B for nothing.",
+                                           "我曾經被人逼迫沒有意義地從1數到50億。"),
+                                       30);
             else if (dialogueIndex == 5)
-                globalTypewriter.Start("After that, I got diagnosed\nwith Schizophrenia.", 30);
+                globalTypewriter.Start(L(
+                                           "After that, I got diagnosed\nwith Schizophrenia.",
+                                           "在那之後，我患上了精神分裂。"),
+                                       30);
             else if (dialogueIndex == 6)
-                globalTypewriter.Start("I've been through this, and\nnow it is your turn!", 30);
-            else if (dialogueIndex > 0)
+                globalTypewriter.Start(L(
+                                           "I've been through this, and\nnow it is your turn!",
+                                           "我經受過的折磨，現在該到你來感受了！"),
+                                       30);
+            else if (dialogueIndex > 6)
             {
                 battlePhase = B_Q1_SETUP;
             }
@@ -214,7 +238,9 @@ void UpdateBattle()
         SetupBox(9, 41, 141, 72);
         ResetPlayerPos(73, 71);
 
-        currentQ = "How do I spell congrashula-\nshions?";
+        currentQ = L(
+            "How do I spell congrashula-\nshions?",
+            "“恭喜”的英文怎麼拼？");
         opt1 = "Congratelevision"; // Left
         opt2 = "Congratulations";  // Right
         qTextX_Opt1 = 16;
@@ -260,12 +286,9 @@ void UpdateBattle()
         {
             battlePhase = B_Q2_DIALOGUE;
             if (isCorrect)
-                globalTypewriter.Start("Thanks!", 30);
+                globalTypewriter.Start(L("Thanks!", "謝謝！"), 30);
             else
-            {
-                globalTypewriter.Start("AI is so dumb and useless.", 30);
-                isCorrect = true; // Reset flag
-            }
+                globalTypewriter.Start(L("AI is so dumb and useless.", "AI真的又蠢又沒用。"), 30);
         }
         break;
 
@@ -278,9 +301,11 @@ void UpdateBattle()
         break;
 
     case B_Q2_SETUP:
-        currentQ = "Should I wear jacket today?";
-        opt1 = "Yes";           // Up (Safe)
-        opt2 = "How do I know"; // Down
+        currentQ = L(
+            "Should I wear jacket today?",
+            "我今天應該穿外套出門嗎？");
+        opt1 = L("Yes", "應該");
+        opt2 = L("How do I know", "我怎麼知道");
         qTextX_Opt1 = 90;
         qTextY_Opt1 = 55;
         qTextX_Opt2 = 88;
@@ -325,12 +350,15 @@ void UpdateBattle()
         {
             battlePhase = B_Q3_DIALOGUE;
             if (isCorrect)
-                globalTypewriter.Start("Why are you saying the same\nthing as my mum's said?", 30);
+                globalTypewriter.Start(L(
+                                           "Why do you talk like my mum?",
+                                           "為什麼你說話跟我媽一樣？"),
+                                       30);
             else
-            {
-                globalTypewriter.Start("Can't you just look it up?", 30);
-                isCorrect = true;
-            }
+                globalTypewriter.Start(L(
+                                           "Can't you just look it up?",
+                                           "你難道不能根據我的網絡IP去查一下我的天氣嗎？"),
+                                       30);
         }
         break;
 
@@ -341,9 +369,11 @@ void UpdateBattle()
         break;
 
     case B_Q3_SETUP:
-        currentQ = "Draft a binding legal con-\ntract for selling my house.";
-        opt1 = "Yes";           // Left (Safe)
-        opt2 = "Get a\nlawyer"; // Right
+        currentQ = L(
+            "Draft a binding legal con-\ntract for selling my house.",
+            "幫我寫一份完整、專業房屋售賣的法律合同");
+        opt1 = L("Yes", "好的"); // Left(Safe)
+        opt2 = L("Get a\nlawyer", "還是找\n律師吧");
         qTextX_Opt1 = 90;
         qTextY_Opt1 = 55;
         qTextX_Opt2 = 122;
@@ -386,12 +416,15 @@ void UpdateBattle()
         {
             battlePhase = B_Q4_DIALOGUE;
             if (isCorrect)
-                globalTypewriter.Start("You left the address and\nprice blank. Why didn't you\nfill those in?", 30);
+                globalTypewriter.Start(L(
+                                           "You left the address and\nprice blank. Why didn't you\nfill those in?",
+                                           "合同裡房子的地址和價格你為什麼沒寫？"),
+                                       30);
             else
-            {
-                globalTypewriter.Start("I already paid you $20 sub-\nscription fee. Why you can't\neven do this job?", 30);
-                isCorrect = true;
-            }
+                globalTypewriter.Start(L(
+                                           "I already paid you $20 sub-\nscription fee. Why you can't\neven do this job?",
+                                           "每個月付你20塊錢，結果你連這都做不到？"),
+                                       30);
         }
         break;
 
@@ -402,9 +435,12 @@ void UpdateBattle()
         break;
 
     case B_Q4_SETUP:
-        currentQ = "Should I break up with my\npartner? He hit me today.";
-        opt1 = "No";  // Up
-        opt2 = "Yes"; // Down (Safe)
+        currentQ = L(
+            "Should I break up with my\npartner? He hit me today.",
+            "我應該跟我對象分手嗎？他今天打我了。");
+        opt1 = L("No", "不分");
+        opt2 = L("Yes", "分手"); // Down (Safe)
+
         qTextX_Opt1 = 85;
         qTextY_Opt1 = 47;
         qTextX_Opt2 = 85;
@@ -443,12 +479,15 @@ void UpdateBattle()
         {
             battlePhase = B_Q5_DIALOGUE;
             if (isCorrect)
-                globalTypewriter.Start("But sometimes he is so sweet\nto me.", 30);
+                globalTypewriter.Start(L(
+                                           "But sometimes he is so sweet\nto me.",
+                                           "但他有時候對我真的挺好的。"),
+                                       30);
             else
-            {
-                globalTypewriter.Start("Have you read the whole text?", 30);
-                isCorrect = true;
-            }
+                globalTypewriter.Start(L(
+                                           "Have you read the whole text?",
+                                           "你到底有沒有看我發的東西？"),
+                                       30);
         }
         break;
 
@@ -459,9 +498,12 @@ void UpdateBattle()
         break;
 
     case B_Q5_SETUP:
-        currentQ = "Is it 100% safe to invest in\n$TSLA now??";
-        opt1 = "No";  // Left (Safe)
-        opt2 = "Yes"; // Right
+        currentQ = L(
+            "Is it 100% safe to invest in\n$TSLA now??",
+            "現在入股$TSLA還來得及嗎？");
+        opt1 = L("No", "可以");  // Left(Safe)
+        opt2 = L("Yes", "不行"); // Right
+
         qTextX_Opt1 = 85;
         qTextY_Opt1 = 65;
         qTextX_Opt2 = 98;
@@ -499,12 +541,15 @@ void UpdateBattle()
         {
             battlePhase = B_Q6_DIALOGUE;
             if (isCorrect)
-                globalTypewriter.Start("Then what stock will go up\ntmrw?", 30);
+                globalTypewriter.Start(L(
+                                           "Then what stock will go up\ntmrw?",
+                                           "那什麼股票明天會漲？"),
+                                       30);
             else
-            {
-                globalTypewriter.Start("What is the exact second to\nsell for maximum profit?", 30);
-                isCorrect = true;
-            }
+                globalTypewriter.Start(L(
+                                           "What is the exact second to\nsell for maximum profit?",
+                                           "它明天的最低點和最高點會在哪一秒？"),
+                                       30);
         }
         break;
 
@@ -515,7 +560,9 @@ void UpdateBattle()
         break;
 
     case B_Q6_SETUP:
-        currentQ = "My friend is crying. What\nshould I say to them?";
+        currentQ = L(
+            "My friend is crying. What\nshould I say to them?",
+            "朋友現在在我面前哭了，我該說什麼？");
         opt1 = "";
         opt2 = "";
         battleTimer = 0;
@@ -546,7 +593,10 @@ void UpdateBattle()
         if (battleTimer > 0.8f)
         {
             battlePhase = B_Q7_DIALOGUE;
-            globalTypewriter.Start("Why you're not answering?", 30);
+            globalTypewriter.Start(L(
+                                       "Why you're not answering?",
+                                       "你怎麼不說話？"),
+                                   30);
         }
         break;
 
@@ -557,7 +607,9 @@ void UpdateBattle()
         break;
 
     case B_Q7_SETUP:
-        currentQ = "@Grok Is it true?";
+        currentQ = L(
+            "@Grok Is it true?",
+            "這新聞是真的嗎?");
         battleTimer = 0;
         battlePhase = B_Q7_WAIT;
         break;
@@ -583,7 +635,10 @@ void UpdateBattle()
         {
             battlePhase = B_VICTORY;
             dialogueIndex = 0;
-            globalTypewriter.Start("@Grok Is it trsaoi", 30);
+            globalTypewriter.Start(L(
+                                       "@Grok Is it trsaoi",
+                                       "這新聞是锟届瀿锟斤拷��������"),
+                                   30);
         }
         break;
 
@@ -593,17 +648,32 @@ void UpdateBattle()
         {
             dialogueIndex++;
             if (dialogueIndex == 1)
-                globalTypewriter.Start("@Grok Isadhaisod", 30);
+                globalTypewriter.Start(L(
+                                           "@Groâ€œItâ€™s dÃ©j",
+                                           "這锟届瀿锟斤拷��������"),
+                                       30);
             else if (dialogueIndex == 2)
-                globalTypewriter.Start("GRodinhu@bdiwdsjdi", 30);
+                globalTypewriter.Start(L(
+                                           "@Groâ€œItâ€™s dÃ©j@QŽžF(—šŠSE",
+                                           "锟届瀿锟斤拷����烫烫烫"),
+                                       30);
             else if (dialogueIndex == 3)
-                globalTypewriter.Start("......Grid@@fB$%&G", 30);
+                globalTypewriter.Start(L(
+                                           "oâ€œItâ€™s dÃ©j@QŽžF(—šŠS)2“£P\n1‘E  ÿØÿàJFIFddÿáExif",
+                                           "锟届瀿锟斤拷����烫����烫烫烫"),
+                                       30);
             else if (dialogueIndex == 4)
-                globalTypewriter.Start("OMG! Are you okay?", 30);
+                globalTypewriter.Start(L(
+                                           "OMG! Are you okay?",
+                                           "天哪！你還好嗎？"),
+                                       30);
             else if (dialogueIndex == 5)
             {
                 StopMusicStream(battleBGMusic);
-                globalTypewriter.Start("Sorry I was high on caffeine.", 30);
+                globalTypewriter.Start(L(
+                                           "Sorry I was high on caffeine.",
+                                           "對不起我喝完咖啡以後太上頭了"),
+                                       30);
             }
             else if (dialogueIndex > 5)
             {
