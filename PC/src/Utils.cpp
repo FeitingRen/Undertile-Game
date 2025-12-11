@@ -1,11 +1,24 @@
 #include "Utils.h"
 #include "Globals.h"
+#include <vector>
+#include <sstream>
 
 Typewriter globalTypewriter;
 
-// --- HELPER FUNCTION: Draw Text with Static Random Jitter ---
-// Replaces the "Sine Wave" look with a "Messy/Chaotic" look
-// matching the ESP32 random(-1, 2) logic, but deterministic (static).
+// --- HELPER: Manual Line Splitting ---
+// We use this to ensure lines are drawn with consistent spacing on ALL platforms.
+std::vector<std::string> SplitLines(const std::string &text)
+{
+    std::vector<std::string> lines;
+    std::stringstream ss(text);
+    std::string line;
+    while (std::getline(ss, line, '\n'))
+    {
+        lines.push_back(line);
+    }
+    return lines;
+}
+
 // --- HELPER FUNCTION: Draw Text with Static Random Jitter ---
 // Updated to support Multi-byte UTF-8 Characters (Chinese)
 void DrawTextJitter(Font font, const char *text, Vector2 pos, float fontSize, float spacing, Color color)
@@ -14,12 +27,16 @@ void DrawTextJitter(Font font, const char *text, Vector2 pos, float fontSize, fl
     float currentX = pos.x;
     float currentY = pos.y;
 
+    // FIX: Define a consistent line height.
+    // Usually 1.2x or 1.5x the font size looks best for pixel fonts.
+    float lineHeight = fontSize * 1.5f;
+
     int i = 0; // Byte index
     int k = 0; // Character count (for random seed)
 
     while (text[i] != '\0')
     {
-        // 1. Get the codepoint and how many bytes it uses (1 for English, 3 for Chinese)
+        // 1. Get the codepoint and how many bytes it uses
         int bytesProcessed = 0;
         int codepoint = GetCodepointNext(&text[i], &bytesProcessed);
 
@@ -27,42 +44,37 @@ void DrawTextJitter(Font font, const char *text, Vector2 pos, float fontSize, fl
         if (codepoint == '\n')
         {
             currentX = startX;
-            currentY += fontSize;
+            currentY += lineHeight; // FIX: Use explicit line height
             i += bytesProcessed;
             k++;
             continue;
         }
 
-        // 3. Extract the full Multi-byte character into a temp string
-        // Max UTF-8 length is 4 bytes, plus null terminator = 5
+        // 3. Extract the full Multi-byte character
         char tempStr[5] = {0};
         for (int b = 0; b < bytesProcessed; b++)
         {
             tempStr[b] = text[i + b];
         }
 
-        // 4. Deterministic Random Jitter Logic (Using 'k' instead of 'i')
-        // We use 'k' (character index) so the jitter stays consistent regardless of byte length
+        // 4. Deterministic Random Jitter Logic
         int hashX = k * 43758 + 293;
         int hashY = k * 91238 + 582;
 
-        int rawOx = (hashX % 3) - 1; // -1, 0, 1
-        int rawOy = (hashY % 3) - 1; // -1, 0, 1
+        int rawOx = (hashX % 3) - 1;
+        int rawOy = (hashY % 3) - 1;
 
         float ox = (float)rawOx * 2.0f;
         float oy = (float)rawOy * 2.0f;
 
-        // Apply offset
         Vector2 charPos = {currentX + ox, currentY + oy};
 
-        // Draw the full character (1-4 bytes)
         DrawTextEx(font, tempStr, charPos, fontSize, spacing, color);
 
-        // 5. Advance position by the REAL width of this specific character
+        // 5. Advance position
         Vector2 size = MeasureTextEx(font, tempStr, fontSize, spacing);
-        currentX += size.x + spacing; // Add spacing only between chars, not inside
+        currentX += size.x + spacing;
 
-        // Advance to next character in the string
         i += bytesProcessed;
         k++;
     }
@@ -88,41 +100,26 @@ void Typewriter::Update()
     {
         timer = 0;
 
-        // --- FIX START ---
-        // Instead of charCount++, we calculate how many bytes the NEXT character needs.
-
-        // Safety check to prevent reading past the end
         if (charCount < fullText.length())
         {
             int bytesProcessed = 0;
-            // Raylib helper: Peeks at the text and tells us if next char is 1, 2, 3, or 4 bytes
             GetCodepointNext(&fullText[charCount], &bytesProcessed);
-
-            // Advance by the FULL character length
             charCount += bytesProcessed;
         }
         else
         {
-            // Just in case we are somehow at the end
             charCount++;
         }
-        // --- FIX END ---
 
-        // Clamp to length
         if (charCount > fullText.length())
         {
             charCount = fullText.length();
         }
 
-        // Sound Logic (Checks the character *before* the current cursor)
+        // Sound Logic
         if (charCount <= fullText.length() && charCount > 0)
         {
-            // We look back at the previous character.
-            // Note: This naive check [charCount - 1] is risky with UTF-8,
-            // but since we only care about Space (' ') and Newline ('\n')
-            // which are ALWAYS 1 byte in UTF-8, this specific line is actually safe!
             char prevChar = fullText[charCount - 1];
-
             if (prevChar != ' ' && prevChar != '\n')
             {
                 if (!IsSoundPlaying(sndText))
@@ -144,16 +141,44 @@ void Typewriter::Skip()
     finished = true;
 }
 
+// --- FIX: UPDATED DRAW FUNCTION ---
+// Replaces DrawTextEx with a manual loop to control Line Height
 void Typewriter::Draw(Font font, int x, int y, float fontSize, float spacing, Color color)
 {
     if (!active)
         return;
 
+    // 1. Get current visible string
     std::string sub = fullText.substr(0, charCount);
-    Vector2 position = {(float)x, (float)y};
 
-    // Standard straight drawing (Default)
-    DrawTextEx(font, sub.c_str(), position, fontSize, spacing, color);
+    // 2. Set strict line height (Undertale style usually has gaps)
+    // Adjust this multiplier (1.2f to 1.5f) to taste.
+    float lineHeight = fontSize * 1.4f;
+
+    float currentY = (float)y;
+    int startIdx = 0;
+
+    // 3. Loop through string looking for \n
+    for (size_t i = 0; i < sub.length(); i++)
+    {
+        if (sub[i] == '\n')
+        {
+            // Draw the line segment we found so far
+            std::string line = sub.substr(startIdx, i - startIdx);
+            DrawTextEx(font, line.c_str(), {(float)x, currentY}, fontSize, spacing, color);
+
+            // Move cursor down manually
+            currentY += lineHeight;
+            startIdx = i + 1;
+        }
+    }
+
+    // 4. Draw the remaining part (or the only part if no newlines)
+    if (startIdx < sub.length())
+    {
+        std::string line = sub.substr(startIdx);
+        DrawTextEx(font, line.c_str(), {(float)x, currentY}, fontSize, spacing, color);
+    }
 }
 
 bool Typewriter::IsFinished()

@@ -680,7 +680,7 @@ void HandleDialogue()
         if (isStateFirstFrame)
             StartDialogue(
                 L("* AAAaaaaa Something is touching me \n* aaahhhHGGGGAAAAA!!!",
-                  "* 誰啊啊啊啊啊啊aaa有東西碰我AAAA啊啊啊啊aaa！！"),
+                  "* 誰啊啊啊啊啊啊aaa有東西碰我AAAA啊啊\n啊啊aaa！！"),
                 30, 0.3f);
         if (canProceed)
         {
