@@ -928,7 +928,8 @@ void HandleDialogue()
         if (playerInventory.hasBattery)
             opts.push_back(2);
 
-        int startX = (int)box.x + 100;
+        int itemstartX_var = (currentLanguage == LANG_CN) ? 175 : 100;
+        int startX = (int)box.x + itemstartX_var;
         int gap = 120;
         float itemFontSize = (currentLanguage == LANG_CN) ? 35.0f : 30.0f;
         float itemY = (currentLanguage == LANG_CN) ? (box.y + 95.0f) : (box.y + 100.0f);
