@@ -96,7 +96,7 @@ void DrawSpeechBubble(const char *text, bool instant)
     DrawRectangleRounded(bubbleRect, roundness, segments, WHITE);
 
     // 2. Draw Bubble Outline (Rounded)
-    DrawRectangleRoundedLinesEx(bubbleRect, roundness, segments, lineThick, BLACK);
+    DrawRectangleRoundedLines(bubbleRect, roundness, segments, lineThick, BLACK);
 
     // 3. Draw "Tail" pointing to robot (Triangle)
     // Note: We draw this AFTER the outline so it covers the black border line
@@ -684,6 +684,8 @@ void UpdateBattle()
                 player.SetZones(walkableFloors);
             }
         }
+        break;
+    default:
         break;
     }
 }

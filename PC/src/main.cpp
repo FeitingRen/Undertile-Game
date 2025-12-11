@@ -351,7 +351,7 @@ void HandleCoffeeEvent()
 
             if (currentChaotic)
             {
-                fontSize += GetRandomValue(-0.5f, 0.5f);
+                fontSize += GetRandomValue(-5, 5) / 10.0f;
                 std::string sub = globalTypewriter.fullText.substr(0, globalTypewriter.charCount);
                 DrawTextJitter(activeFont, sub.c_str(), {activeX - 6, activeY + 3}, fontSize, fontSpacing, BLUE);
                 DrawTextJitter(activeFont, sub.c_str(), {activeX + 6, activeY - 3}, fontSize, fontSpacing, GREEN);
