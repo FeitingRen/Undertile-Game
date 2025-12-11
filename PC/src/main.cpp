@@ -37,6 +37,7 @@ NPC mapEnemy = {425, 280};
 
 // Game Logic Globals
 int storyProgress = 0;
+bool showTutorialText = true;
 
 // These are defined in Battle.cpp
 extern bool battleCompleted;
@@ -176,6 +177,7 @@ void HandleMap()
 
     if (dist < 100 && IsInteractPressed() && interactionCooldown <= 0)
     {
+        showTutorialText = false;
         currentState = DIALOGUE;
 
         // --- FIX START: RESET TYPEWRITER ---
@@ -200,6 +202,30 @@ void HandleMap()
     DrawTexture(texBackground, 0, 0, WHITE);
     DrawTexture(texRobot, (int)mapEnemy.x, (int)mapEnemy.y, WHITE);
     player.Draw();
+    if (showTutorialText)
+    {
+        Font activeFont = GetCurrentFont();
+        const char *guideText;
+        float fontSize;
+
+        if (currentLanguage == LANG_EN)
+        {
+            guideText = "[Arrow Keys] Move   [Z] Interact";
+            fontSize = 23.0f;
+        }
+        else
+        {
+            guideText = "[方向鍵] 移動   [Z] 互動";
+            fontSize = 30.0f; // Slightly larger for Chinese readability
+        }
+
+        // Use your TextAlignment helper to center it
+        TextMetrics tm = GetCenteredTextPosition(activeFont, guideText, fontSize, 2.0f);
+
+        // Draw at the bottom of the screen (GAME_HEIGHT - 40)
+        // Using GRAY so it looks like a UI hint, not dialogue
+        DrawTextEx(activeFont, guideText, {tm.x, GAME_HEIGHT - 40.0f}, fontSize, 2.0f, WHITE);
+    }
 }
 
 void StartDialogue(const char *text, int speed, float waitTime)
@@ -606,7 +632,7 @@ void HandleDialogue()
     DrawTexture(texBackground, 0, 0, WHITE);
     DrawTexture(texRobot, (int)mapEnemy.x, (int)mapEnemy.y, WHITE);
     player.Draw();
-    float printSpeed = (currentLanguage == LANG_CN) ? 50.0f : 30.0f;
+    int printSpeed = (currentLanguage == LANG_CN) ? 50.0f : 30.0f;
     // Box
     Rectangle box = {25, 450, 750, 200};
     DrawRectangleRec(box, BLACK);
@@ -1218,7 +1244,7 @@ int main()
 
     if (DEBUG_SKIP_TO_BATTLE)
     {
-        currentState = GAME_OVER;
+        currentState = BATTLE;
         preBattleX = player.pos.x;
         preBattleY = player.pos.y;
         InitBattle();

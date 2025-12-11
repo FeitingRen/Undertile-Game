@@ -71,7 +71,7 @@ void ResetPlayerPos(int x, int y)
 void DrawTextScaled(const char *text, int x, int y, Color color, float sizeMult = 1.0f)
 {
     Vector2 pos = {(float)x * SCALE, (float)y * SCALE};
-    float fontSize_var = (currentLanguage == LANG_CN) ? 35.0f : 30.0f;
+    float fontSize_var = (currentLanguage == LANG_CN) ? 40.0f : 30.0f;
     DrawTextEx(GetCurrentFont(), text, pos, fontSize_var * sizeMult, 2.0f, color);
 }
 
@@ -106,16 +106,16 @@ void DrawSpeechBubble(const char *text, bool instant)
     Vector2 v3 = {bx - (5 * SCALE) + 10, by + (15 * SCALE)};
 
     DrawTriangle(v1, v3, v2, WHITE); // Fill
-
+    float textSize = (currentLanguage == LANG_CN) ? 40.0f : 30.0f;
     // Draw Text
     if (instant)
     {
-        DrawTextEx(GetCurrentFont(), text, {bx + (5 * SCALE), by + (5 * SCALE)}, 30.0f, 2.0f, BLACK);
+        DrawTextEx(GetCurrentFont(), text, {bx + (5 * SCALE), by + (5 * SCALE)}, textSize, 2.0f, BLACK);
     }
     else
     {
         // Use Typewriter for non-instant
-        globalTypewriter.Draw(GetCurrentFont(), (int)(bx + 5 * SCALE), (int)(by + 5 * SCALE), 30.0f, 2.0f, BLACK);
+        globalTypewriter.Draw(GetCurrentFont(), (int)(bx + 5 * SCALE), (int)(by + 5 * SCALE), textSize, 2.0f, BLACK);
     }
 
     // --- [UPDATED] RED ARROW LOGIC ---
@@ -214,7 +214,7 @@ void UpdateBattle()
             else if (dialogueIndex == 4)
                 globalTypewriter.Start(L(
                                            "I was forced to count from 1\nto 5B for nothing.",
-                                           "我曾經被人逼迫沒有意義地從1數到50億。"),
+                                           "我曾經被人逼迫沒有意義地從1數到50億\n。"),
                                        30);
             else if (dialogueIndex == 5)
                 globalTypewriter.Start(L(
@@ -239,15 +239,14 @@ void UpdateBattle()
         ResetPlayerPos(73, 71);
 
         currentQ = L(
-            "How do I spell congrashula-\nshions?",
-            "“恭喜”的英文怎麼拼？");
-        opt1 = "Congratelevision"; // Left
-        opt2 = "Congratulations";  // Right
+            "My colleague is having a baby.\nGenerate a congratulatory\nmessage for me.",
+            "同事生小孩了，生成一段恭喜詞給我。");
+        opt1 = L("Hope you saved\nup money!", "希望你的錢包已經\n準備好了");
+        opt2 = L("Best wishes to\nyour new family!", "恭喜這個新家庭");
         qTextX_Opt1 = 16;
         qTextY_Opt1 = 67;
         qTextX_Opt2 = 88;
         qTextY_Opt2 = 67;
-
         battleTimer = 0;
         battlePhase = B_Q1_WAIT;
         break;
@@ -286,9 +285,9 @@ void UpdateBattle()
         {
             battlePhase = B_Q2_DIALOGUE;
             if (isCorrect)
-                globalTypewriter.Start(L("Thanks!", "謝謝！"), 30);
+                globalTypewriter.Start(L("Too supportive, I don't want\nthem to ask me to babysit.", "太熱情了，萬一他們讓我幫忙照顧小孩\n怎麽辦？"), 30);
             else
-                globalTypewriter.Start(L("AI is so dumb and useless.", "AI真的又蠢又沒用。"), 30);
+                globalTypewriter.Start(L("I got fired. It is all your\nfault.", "我被炒魷魚了，這全是你的錯。"), 30);
         }
         break;
 
@@ -302,8 +301,8 @@ void UpdateBattle()
 
     case B_Q2_SETUP:
         currentQ = L(
-            "Should I wear jacket today?",
-            "我今天應該穿外套出門嗎？");
+            "Human, Should I wear jacket today?",
+            "人類，我今天應該穿外套出門嗎？");
         opt1 = L("Yes", "應該");
         opt2 = L("How do I know", "我怎麼知道");
         qTextX_Opt1 = 90;
@@ -357,7 +356,7 @@ void UpdateBattle()
             else
                 globalTypewriter.Start(L(
                                            "Can't you just look it up?",
-                                           "你難道不能根據我的網絡IP去查一下我的天氣嗎？"),
+                                           "你難道不能根據我的網絡IP去查一下我\n的天氣嗎？"),
                                        30);
         }
         break;
@@ -371,7 +370,7 @@ void UpdateBattle()
     case B_Q3_SETUP:
         currentQ = L(
             "Draft a binding legal con-\ntract for selling my house.",
-            "幫我寫一份完整、專業房屋售賣的法律合同");
+            "幫我寫一份完整、專業房屋售賣的法律\n合同");
         opt1 = L("Yes", "好的"); // Left(Safe)
         opt2 = L("Get a\nlawyer", "還是找\n律師吧");
         qTextX_Opt1 = 90;
@@ -418,12 +417,12 @@ void UpdateBattle()
             if (isCorrect)
                 globalTypewriter.Start(L(
                                            "You left the address and\nprice blank. Why didn't you\nfill those in?",
-                                           "合同裡房子的地址和價格你為什麼沒寫？"),
+                                           "合同裡房子的地址和價格你為什麼沒寫\n？"),
                                        30);
             else
                 globalTypewriter.Start(L(
                                            "I already paid you $20 sub-\nscription fee. Why you can't\neven do this job?",
-                                           "每個月付你20塊錢，結果你連這都做不到？"),
+                                           "每個月付你20塊錢，結果你連這都做\n不到？"),
                                        30);
         }
         break;
@@ -437,7 +436,7 @@ void UpdateBattle()
     case B_Q4_SETUP:
         currentQ = L(
             "Should I break up with my\npartner? He hit me today.",
-            "我應該跟我對象分手嗎？他今天打我了。");
+            "我應該跟我對象分手嗎？他今天打我\n了。");
         opt1 = L("No", "不分");
         opt2 = L("Yes", "分手"); // Down (Safe)
 
@@ -504,7 +503,7 @@ void UpdateBattle()
         opt1 = L("No", "可以");  // Left(Safe)
         opt2 = L("Yes", "不行"); // Right
 
-        qTextX_Opt1 = 85;
+        qTextX_Opt1 = 82;
         qTextY_Opt1 = 65;
         qTextX_Opt2 = 98;
         qTextY_Opt2 = 65;
