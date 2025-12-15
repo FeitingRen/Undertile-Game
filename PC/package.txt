@@ -1,0 +1,10 @@
+cd raylib_src/src 
+make clean 
+make PLATFORM=PLATFORM_DESKTOP RAYLIB_LIBTYPE=STATIC CFLAGS="-arch x86_64 -DPLATFORM_DESKTOP" 
+mv libraylib.a libraylib_x86.a 
+make clean 
+make PLATFORM=PLATFORM_DESKTOP RAYLIB_LIBTYPE=STATIC CFLAGS="-arch arm64 -DPLATFORM_DESKTOP" 
+mv libraylib.a libraylib_arm.a
+lipo -create libraylib_x86.a libraylib_arm.a -output libraylib.a
+cd ../.. 
+./build_mac.sh

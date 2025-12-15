@@ -9,7 +9,7 @@
 // ESP32 Res: 160x128. PC Res: 800x640.
 // Scale Factor = 5.0f
 const float SCALE = 5.0f;
-const float QUESTION_TIME = 3.0f; // 3 Seconds
+float QUESTION_TIME = 5.0f; // 5 Seconds
 
 // --- EXTERNAL STATE ---
 bool battleCompleted = false;
@@ -67,47 +67,19 @@ void ResetPlayerPos(int x, int y)
     player.pos.y = y * SCALE;
 }
 
-// --- FIX: PRIVATE HELPER FOR MANUAL NEWLINES ---
-// This ensures static text in the battle UI doesn't overlap on Mac/Linux.
-void DrawTextManual(Font font, const char *text, Vector2 pos, float fontSize, float spacing, Color color)
-{
-    std::string str = text;
-    float lineHeight = fontSize * 1.4f; // 1.4x spacing prevents overlap
-    float currentY = pos.y;
-    int startIdx = 0;
-
-    for (size_t i = 0; i < str.length(); i++)
-    {
-        if (str[i] == '\n')
-        {
-            std::string line = str.substr(startIdx, i - startIdx);
-            DrawTextEx(font, line.c_str(), {pos.x, currentY}, fontSize, spacing, color);
-            currentY += lineHeight;
-            startIdx = i + 1;
-        }
-    }
-
-    // Draw last line
-    if (startIdx < str.length())
-    {
-        DrawTextEx(font, str.substr(startIdx).c_str(), {pos.x, currentY}, fontSize, spacing, color);
-    }
-}
-
 // Helper to draw text using ESP32 coordinates
 void DrawTextScaled(const char *text, int x, int y, Color color, float sizeMult = 1.0f)
 {
     Vector2 pos = {(float)x * SCALE, (float)y * SCALE};
     float fontSize_var = (currentLanguage == LANG_CN) ? 40.0f : 30.0f;
-
-    // FIX: Use manual drawer instead of raw DrawTextEx
-    DrawTextManual(GetCurrentFont(), text, pos, fontSize_var * sizeMult, 2.0f, color);
+    DrawTextEx(GetCurrentFont(), text, pos, fontSize_var * sizeMult, 2.0f, color);
 }
 
 // Helper to draw the speech bubble
 void DrawSpeechBubble(const char *text, bool instant)
 {
     // Robot is at approx (9, 15) in ESP32.
+    // Bubble x=30, y=5, w=120
     float bx = 30 * SCALE;
     float by = 5 * SCALE;
     float bw = 120 * SCALE;
@@ -116,8 +88,8 @@ void DrawSpeechBubble(const char *text, bool instant)
     Rectangle bubbleRect = {bx, by, bw, bh};
 
     // --- SETTINGS FOR ROUNDED CORNERS ---
-    float roundness = 0.2f;
-    int segments = 10;
+    float roundness = 0.2f; // 0.0f = Sharp, 1.0f = Semicircle. 0.2 is good for UI.
+    int segments = 10;      // Smoothness of the curve
     float lineThick = 4.0f;
 
     // 1. Draw Bubble Background (Rounded)
@@ -127,27 +99,29 @@ void DrawSpeechBubble(const char *text, bool instant)
     DrawRectangleRoundedLines(bubbleRect, roundness, segments, lineThick, BLACK);
 
     // 3. Draw "Tail" pointing to robot (Triangle)
+    // Note: We draw this AFTER the outline so it covers the black border line
+    // where it connects, making it look seamless.
     Vector2 v1 = {bx + 10, by + (10 * SCALE)};
     Vector2 v2 = {bx + 10, by + (20 * SCALE)};
     Vector2 v3 = {bx - (5 * SCALE) + 10, by + (15 * SCALE)};
 
-    DrawTriangle(v1, v3, v2, WHITE);
-
+    DrawTriangle(v1, v3, v2, WHITE); // Fill
     float textSize = (currentLanguage == LANG_CN) ? 40.0f : 30.0f;
-
     // Draw Text
     if (instant)
     {
-        // FIX: Use manual drawer for instant text (e.g. Questions)
-        DrawTextManual(GetCurrentFont(), text, {bx + (5 * SCALE), by + (5 * SCALE)}, textSize, 2.0f, BLACK);
+        DrawTextEx(GetCurrentFont(), text, {bx + (5 * SCALE), by + (5 * SCALE)}, textSize, 2.0f, BLACK);
     }
     else
     {
-        // Use Typewriter for non-instant (Already fixed in Utils.cpp)
+        // Use Typewriter for non-instant
         globalTypewriter.Draw(GetCurrentFont(), (int)(bx + 5 * SCALE), (int)(by + 5 * SCALE), textSize, 2.0f, BLACK);
     }
 
-    // --- RED ARROW LOGIC ---
+    // --- [UPDATED] RED ARROW LOGIC ---
+    // Fix: Only show arrow if we are in a phase that accepts input,
+    // AND the typewriter has finished typing.
+
     bool isInputPhase = (battlePhase == B_Q1_DIALOGUE ||
                          battlePhase == B_Q2_DIALOGUE ||
                          battlePhase == B_Q3_DIALOGUE ||
@@ -157,6 +131,7 @@ void DrawSpeechBubble(const char *text, bool instant)
                          battlePhase == B_Q7_DIALOGUE ||
                          battlePhase == B_VICTORY);
 
+    // We do NOT want the arrow during B_Qx_RESULT phases (auto-transition) or B_Qx_WAIT phases.
     if (isInputPhase && globalTypewriter.IsFinished())
     {
         DrawTextEx(GetCurrentFont(), ">", {bx + bw - (15 * SCALE) + 35, by + bh - (15 * SCALE) + 30}, 30.0f, 2.0f, RED);
@@ -219,7 +194,7 @@ void UpdateBattle()
         if (IsInteractPressed() && globalTypewriter.IsFinished())
         {
             dialogueIndex++;
-            // battlePhase = B_Q1_SETUP; // DEBUG: Skip dialogue
+            battlePhase = B_Q1_SETUP; // DEBUG: Skip dialogue
             // Script
             if (dialogueIndex == 1)
                 globalTypewriter.Start(L(
@@ -326,7 +301,7 @@ void UpdateBattle()
 
     case B_Q2_SETUP:
         currentQ = L(
-            "Human, Should I wear jacket today?",
+            "Human, Should I wear jacket\ntoday?",
             "人類，我今天應該穿外套出門嗎？");
         opt1 = L("Yes", "應該");
         opt2 = L("How do I know", "我怎麼知道");
@@ -595,6 +570,7 @@ void UpdateBattle()
 
     case B_Q6_WAIT:
         battleTimer += dt;
+        QUESTION_TIME = 3.0f;
         if (battleTimer > QUESTION_TIME)
         {
             // [UPDATED] Traps player
@@ -640,6 +616,7 @@ void UpdateBattle()
 
     case B_Q7_WAIT:
         battleTimer += dt;
+        QUESTION_TIME = 3.0f;
         if (battleTimer > QUESTION_TIME)
         {
             // [UPDATED] Trap again
@@ -709,7 +686,6 @@ void UpdateBattle()
                 player.SetZones(walkableFloors);
             }
         }
-        break;
     default:
         break;
     }

@@ -9,7 +9,7 @@
 #include <string>
 #include <cmath>
 
-const bool DEBUG_SKIP_TO_BATTLE = false;
+const bool DEBUG_SKIP_TO_BATTLE = true;
 
 // --- GLOBAL VARIABLES ---
 // 1. currentState is defined in Globals.cpp, so we don't define it here.
@@ -210,12 +210,12 @@ void HandleMap()
 
         if (currentLanguage == LANG_EN)
         {
-            guideText = "[Arrow Keys] Move   [Z] Interact";
+            guideText = "[Arrow Keys] Move   [Z] Interact with Robot";
             fontSize = 23.0f;
         }
         else
         {
-            guideText = "[方向鍵] 移動   [Z] 互動";
+            guideText = "[方向鍵] 移動   [Z] 與機器人互動";
             fontSize = 30.0f; // Slightly larger for Chinese readability
         }
 
@@ -679,8 +679,8 @@ void HandleDialogue()
     case D_INTRO_1:
         if (isStateFirstFrame)
             StartDialogue(
-                L("* AAAaaaaa Something is touching me \n* aaahhhHGGGGAAAAA!!!",
-                  "* 誰啊啊啊啊啊啊aaa有東西碰我AAAA啊啊\n啊啊aaa！！"),
+                L("* AAAaaaaa Something is touching me \naaahhhHGGGGAAAAA!!!",
+                  "* 誰啊啊啊啊啊啊aaa有東西碰我AAAA啊啊啊啊aaa！！"),
                 30, 0.3f);
         if (canProceed)
         {
@@ -702,7 +702,7 @@ void HandleDialogue()
     case D_INTRO_4:
         if (isStateFirstFrame)
             StartDialogue(
-                L("* Sorry, I've been here alone for so\n* long.",
+                L("* Sorry, I've been here alone for so\nlong.",
                   "* 抱歉，我還以為鬧鬼了。"),
                 printSpeed, 0.3f);
         if (canProceed)
@@ -796,7 +796,7 @@ void HandleDialogue()
                     printSpeed, 0.3f);
             else
                 StartDialogue(
-                    L("* Then you are the 1,025th rock I've\n* met today.",
+                    L("* Then you are the 1,025th rock I've\nmet today.",
                       "* 那你就是我今天聊過的第1025塊石頭了。"),
                     printSpeed, 0.3f);
         }
@@ -1059,7 +1059,7 @@ void HandleDialogue()
     case D_REFUSAL:
         if (isStateFirstFrame)
             StartDialogue(
-                L("* Oh... okay.\n* I'll just go into Sleep Mode\n* FOREVER.",
+                L("* Oh... okay.\n* I'll just go into Sleep Mode\nFOREVER.",
                   "* 噢好吧 ... \n* 那我就要進入一輩子的休眠模式了。"),
                 printSpeed, 0.3f);
         if (canProceed)
@@ -1087,7 +1087,7 @@ void HandleDialogue()
     case D_POST_BATTLE_2:
         if (isStateFirstFrame)
             StartDialogue(
-                L("* And by the way you just finished\n* the game.",
+                L("* And by the way you just finished\nthe game.",
                   "* 順便說一句，你已經把這個遊戲打完了。"),
                 printSpeed, 0.3f);
         if (canProceed)
