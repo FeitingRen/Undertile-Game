@@ -1,6 +1,6 @@
 /*******************************************************************************************
 *
-*   raylib [core] example - 2D Camera platformer
+*   raylib [core] example - 2d camera platformer
 *
 *   Example originally created with raylib 2.5, last time updated with raylib 3.0
 *
@@ -90,7 +90,7 @@ int main(void)
         "Follow player center",
         "Follow player center, but clamp to map edges",
         "Follow player center; smoothed",
-        "Follow player center horizontally; update player center vertically after landing",
+        "Follow player center horizontally; updateplayer center vertically after landing",
         "Player push camera on getting too close to screen edge"
     };
 

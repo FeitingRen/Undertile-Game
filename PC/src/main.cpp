@@ -9,7 +9,7 @@
 #include <string>
 #include <cmath>
 
-const bool DEBUG_SKIP_TO_BATTLE = true;
+const bool DEBUG_SKIP_TO_BATTLE = false;
 
 // --- GLOBAL VARIABLES ---
 // 1. currentState is defined in Globals.cpp, so we don't define it here.
@@ -1187,7 +1187,7 @@ int main()
     }
 
     // 2. Load Font Data (WITH SAFETY CHECK)
-    int fileSize = 0;
+    unsigned int fileSize = 0;
     unsigned char *fontFileData = LoadFileData("assets/fusion-pixel-12px-proportional-zh_hant.ttf", &fileSize);
 
     if (fontFileData != NULL && codepointCount > 0)

@@ -99,9 +99,6 @@ int main(void)
                 DrawText(TextFormat("Collision Area: %i", (int)boxCollision.width*(int)boxCollision.height), GetScreenWidth()/2 - 100, screenUpperLimit + 10, 20, BLACK);
             }
 
-            // Draw help instructions
-            DrawText("Press SPACE to PAUSE/RESUME", 20, screenHeight - 35, 20, LIGHTGRAY);
-
             DrawFPS(10, 10);
 
         EndDrawing();

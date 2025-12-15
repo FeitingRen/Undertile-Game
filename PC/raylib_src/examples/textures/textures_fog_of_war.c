@@ -134,8 +134,7 @@ int main(void)
                            (Vector2){ 0, 0 }, 0.0f, WHITE);
 
             // Draw player current tile
-            DrawText(TextFormat("Current tile: [%i,%i]", playerTileX, playerTileY), 10, 10, 20, RAYWHITE);
-            DrawText("ARROW KEYS to move", 10, screenHeight-25, 20, RAYWHITE);
+            DrawText(TextFormat("Current tile: [%i,%i]", playerTileX, playerTileY), 10, 10, 20, LIME);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

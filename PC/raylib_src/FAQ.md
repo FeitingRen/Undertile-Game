@@ -14,13 +14,12 @@
 - [What does raylib provide that other engines or libraries don't?](#what-does-raylib-provide-that-other-engines-or-libraries-dont)
 - [How does raylib compare to Unity/Unreal/Godot?](#how-does-raylib-compare-to-unityunrealgodot)
 - [What development tools are required for raylib?](#what-development-tools-are-required-for-raylib)
-- [What are raylib's external dependencies?](#what-are-raylibs-external-dependencies)
+- [Which are raylib external dependencies?](#which-are-raylib-external-dependencies)
 - [Can I use raylib with other technologies or libraries?](#can-i-use-raylib-with-other-technologies-or-libraries)
 - [What file formats are supported by raylib?](#what-file-formats-are-supported-by-raylib)
 - [Does raylib support the Vulkan API?](#does-raylib-support-the-vulkan-api)
 - [What could I expect to see in raylib in the future?](#what-could-i-expect-to-see-in-raylib-in-the-future)
 - [Who are the raylib developers?](#who-are-the-raylib-developers)
-- [MORE QUESTIONS...](https://github.com/raysan5/raylib/wiki/Frequently-Asked-Questions)
 
 ### What is raylib?
 
@@ -120,8 +119,8 @@ raylib can load data from multiple standard file formats:
 
  - Image/Textures: PNG, BMP, TGA, JPG, GIF, QOI, PSD, DDS, HDR, KTX, ASTC, PKM, PVR
  - Fonts: FNT (sprite font), TTF, OTF
- - Models/Meshes: OBJ, IQM, GLTF, VOX, M3D
- - Audio: WAV, OGG, MP3, FLAC, XM, MOD, QOA
+ - Models/Meshes: OBJ, IQM, GLTF, VOX
+ - Audio: WAV, OGG, MP3, FLAC, XM, MOD
  
 ### Does raylib support the Vulkan API?
 

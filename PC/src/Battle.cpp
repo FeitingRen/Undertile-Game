@@ -110,12 +110,12 @@ void DrawSpeechBubble(const char *text, bool instant)
     // Draw Text
     if (instant)
     {
-        DrawTextEx(GetCurrentFont(), text, {bx + (5 * SCALE), by + (5 * SCALE)}, textSize, 2.0f, BLACK);
+        DrawTextEx(GetCurrentFont(), text, {bx + (5 * SCALE), by + (5 * SCALE) - 7}, textSize, 2.0f, BLACK);
     }
     else
     {
         // Use Typewriter for non-instant
-        globalTypewriter.Draw(GetCurrentFont(), (int)(bx + 5 * SCALE), (int)(by + 5 * SCALE), textSize, 2.0f, BLACK);
+        globalTypewriter.Draw(GetCurrentFont(), (int)(bx + 5 * SCALE), (int)(by - 7 + 5 * SCALE), textSize, 2.0f, BLACK);
     }
 
     // --- [UPDATED] RED ARROW LOGIC ---
@@ -194,7 +194,7 @@ void UpdateBattle()
         if (IsInteractPressed() && globalTypewriter.IsFinished())
         {
             dialogueIndex++;
-            battlePhase = B_Q1_SETUP; // DEBUG: Skip dialogue
+            // battlePhase = B_Q1_SETUP; // DEBUG: Skip dialogue
             // Script
             if (dialogueIndex == 1)
                 globalTypewriter.Start(L(

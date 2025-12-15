@@ -39,7 +39,7 @@ static void UpdateDrawFrame(void);          // Update and draw one frame
 //----------------------------------------------------------------------------------
 // Main entry point
 //----------------------------------------------------------------------------------
-int main()
+int main() 
 {
     // Initialization
     //--------------------------------------------------------------------------------------
@@ -53,6 +53,8 @@ int main()
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
     camera.fovy = 60.0f;
     camera.projection = CAMERA_PERSPECTIVE;
+    
+    SetCameraMode(camera, CAMERA_ORBITAL);
 
     //--------------------------------------------------------------------------------------
 
@@ -82,7 +84,7 @@ static void UpdateDrawFrame(void)
 {
     // Update
     //----------------------------------------------------------------------------------
-    UpdateCamera(&camera, CAMERA_ORBITAL);
+    UpdateCamera(&camera);
     //----------------------------------------------------------------------------------
 
     // Draw

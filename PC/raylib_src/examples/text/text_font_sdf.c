@@ -15,7 +15,7 @@
 
 #if defined(PLATFORM_DESKTOP)
     #define GLSL_VERSION            330
-#else   // PLATFORM_ANDROID, PLATFORM_WEB
+#else   // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
     #define GLSL_VERSION            100
 #endif
 
@@ -38,7 +38,7 @@ int main(void)
     const char msg[50] = "Signed Distance Fields";
 
     // Loading file to memory
-    int fileSize = 0;
+    unsigned int fileSize = 0;
     unsigned char *fileData = LoadFileData("resources/anonymous_pro_bold.ttf", &fileSize);
 
     // Default font generation from TTF font

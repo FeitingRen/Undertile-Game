@@ -1,4 +1,4 @@
-/*******************************************************************************************
+﻿/*******************************************************************************************
 *
 *   raylib [shaders] example - Depth buffer writing
 *
@@ -19,7 +19,7 @@
 
 #if defined(PLATFORM_DESKTOP)
 #define GLSL_VERSION            330
-#else   // PLATFORM_ANDROID, PLATFORM_WEB
+#else   // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
 #define GLSL_VERSION            100
 #endif
 
@@ -92,7 +92,7 @@ int main(void)
         BeginDrawing();
             ClearBackground(RAYWHITE);
         
-            DrawTextureRec(target.texture, (Rectangle) { 0, 0, (float)screenWidth, (float)-screenHeight }, (Vector2) { 0, 0 }, WHITE);
+            DrawTextureRec(target.texture, (Rectangle) { 0, 0, screenWidth, -screenHeight }, (Vector2) { 0, 0 }, WHITE);
             DrawFPS(10, 10);
         EndDrawing();
         //----------------------------------------------------------------------------------

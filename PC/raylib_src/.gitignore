@@ -75,9 +75,6 @@ xcschememanagement.plist
 xcuserdata/
 DerivedData/
 
-# VSCode project
-.vscode
-
 # Jetbrains project
 .idea/
 cmake-build-*/
@@ -88,7 +85,6 @@ CMakeFiles
 CMakeScripts
 Testing
 cmake_install.cmake
-cmake_uninstall.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
