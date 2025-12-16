@@ -15,6 +15,7 @@ extern Sound sndSelect;
 extern Sound sndDialup[6]; // 0-5
 extern Music battleBGMusic;
 extern Music gameOver;
+extern Music menuMusic;
 
 // Global State
 extern GameState currentState;

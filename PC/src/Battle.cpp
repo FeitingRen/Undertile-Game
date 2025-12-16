@@ -271,6 +271,7 @@ void UpdateBattle()
             }
             else
             {
+                player.hp -= 2;
                 isCorrect = true;
             }
 
@@ -499,7 +500,7 @@ void UpdateBattle()
     case B_Q5_SETUP:
         currentQ = L(
             "Is it 100% safe to invest in\n$TSLA now??",
-            "現在入股$TSLA還來得及嗎？");
+            "現在入股$TSLA可以100%賺錢嗎？");
         opt1 = L("No", "可以");  // Left(Safe)
         opt2 = L("Yes", "不行"); // Right
 

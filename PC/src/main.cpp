@@ -99,11 +99,23 @@ bool IsRightPressed()
 
 void HandleMenu()
 {
+    if (!IsMusicStreamPlaying(menuMusic))
+    {
+        PlayMusicStream(menuMusic);
+    }
+    UpdateMusicStream(menuMusic);
+
     // --- 1. LANGUAGE SELECTION INPUT ---
     if (IsKeyPressed(KEY_ONE))
+    {
+        PlaySound(sndSelect);
         currentLanguage = LANG_EN;
+    }
     if (IsKeyPressed(KEY_TWO))
+    {
+        PlaySound(sndSelect);
         currentLanguage = LANG_CN;
+    }
 
     // --- 2. GET CURRENT FONT & COLORS ---
     Font activeFont = GetCurrentFont();
@@ -155,6 +167,8 @@ void HandleMenu()
     // --- 7. START GAME ---
     if (IsInteractPressed())
     {
+        PlaySound(sndSelect);
+        StopMusicStream(menuMusic);
         currentState = MAP_WALK;
         player.Init(125, 300);
         player.SetZones(walkableFloors);

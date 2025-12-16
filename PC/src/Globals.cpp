@@ -12,6 +12,7 @@ Sound sndDialup[6];
 
 Music battleBGMusic;
 Music gameOver;
+Music menuMusic;
 
 GameState currentState = MENU;
 Font gameFont;
@@ -44,10 +45,12 @@ void LoadGameAssets()
 
     battleBGMusic = LoadMusicStream("assets/battleBGMusic.ogg");
     gameOver = LoadMusicStream("assets/gameOver.ogg");
+    menuMusic = LoadMusicStream("assets/menu.ogg");
 
     // This tells Raylib to automatically loop it when it reaches the end
     battleBGMusic.looping = true;
     gameOver.looping = true;
+    menuMusic.looping = true;
 }
 
 void UnloadGameAssets()
@@ -64,6 +67,7 @@ void UnloadGameAssets()
 
     UnloadMusicStream(battleBGMusic);
     UnloadMusicStream(gameOver);
+    UnloadMusicStream(menuMusic);
 }
 
 Font GetCurrentFont()
