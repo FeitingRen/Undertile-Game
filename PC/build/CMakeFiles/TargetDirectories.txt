@@ -1,5 +1,0 @@
-/Users/qc/VSCode_Projects/Electronics_Undertale/PC/build/CMakeFiles/Undertale_PC.dir
-/Users/qc/VSCode_Projects/Electronics_Undertale/PC/build/CMakeFiles/package.dir
-/Users/qc/VSCode_Projects/Electronics_Undertale/PC/build/CMakeFiles/package_source.dir
-/Users/qc/VSCode_Projects/Electronics_Undertale/PC/build/CMakeFiles/edit_cache.dir
-/Users/qc/VSCode_Projects/Electronics_Undertale/PC/build/CMakeFiles/rebuild_cache.dir
