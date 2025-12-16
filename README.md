@@ -19,8 +19,8 @@ Built using C++ and [Raylib](https://www.raylib.com/).
 | **Cancel** | X | 
 
 ### Downloads & Source
-* **Windows:** Source code in [`main/PC`](https://github.com/FeitingRen/Undertail/tree/main/PC/). Download executable in [Releases](https://github.com/FeitingRen/Undertail/releases/tag/v1.0).
-* **macOS:** Source code in [`mac/PC`](https://github.com/FeitingRen/Undertail/tree/mac/PC/src). Download executable in [Releases](https://github.com/FeitingRen/Undertail/releases/tag/v1.0).
+* **Windows:** Source code in [`main/PC`](https://github.com/FeitingRen/Undertile/tree/main/PC/). Download executable in [Releases](https://github.com/FeitingRen/Undertile/releases/tag/v1.0).
+* **macOS:** Source code in [`mac/PC`](https://github.com/FeitingRen/Undertile/tree/mac/PC/src). Download executable in [Releases](https://github.com/FeitingRen/Undertile/releases/tag/v1.0).
 
 ### How to Build
 1.  Install a C++ Compiler (Visual Studio, MinGW, or Clang).
