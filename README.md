@@ -12,7 +12,7 @@ This project is available in two versions with slightly different content due to
 Built using C++ and [Raylib](https://www.raylib.com/).
 
 ### Controls
-| Action | Key 1 | 
+| Action | Key | 
 | :--- | :---: | 
 | **Move** | Arrow Keys | 
 | **Interact / Confirm** | Z | 
