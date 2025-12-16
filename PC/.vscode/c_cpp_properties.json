@@ -1,21 +1,19 @@
 {
   "configurations": [
     {
-      "name": "Win32",
-      "includePath": ["${workspaceFolder}/**"],
-      "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
-      "windowsSdkVersion": "10.0.26100.0",
-      "compilerPath": "cl.exe",
+      "name": "MacOS",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "/Users/qc/VSCode_Projects/Electronics_Undertale/PC/raylib_src/src"
+      ],
+      "defines": [],
+      "macFrameworkPath": [
+        "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+      ],
+      "compilerPath": "/usr/bin/clang",
       "cStandard": "c17",
       "cppStandard": "c++17",
-      "intelliSenseMode": "windows-msvc-x64",
-
-      // 🔥 Add this line:
-      "compileCommands": "${workspaceFolder}/build/compile_commands.json",
-
-      // 🔥 Add this:
-      "forcedInclude": [],
-
+      "intelliSenseMode": "macos-clang-x64",
       "configurationProvider": "ms-vscode.cmake-tools"
     }
   ],

@@ -124,7 +124,7 @@ void HandleMenu()
 
     // --- 3. DRAW TITLE (Dynamic Language) ---
     // Uses the Text() helper to pick the string, and activeFont for the style
-    const char *titleStr = Text("UNDERTAIL", "傳說之上下左右");
+    const char *titleStr = Text("UNDERTILE", "傳說之下水道");
     if (currentLanguage == LANG_EN)
     {
         TextMetrics titleM = GetCenteredTextPosition(activeFont, titleStr, 60, 2);
