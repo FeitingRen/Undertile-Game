@@ -11,27 +11,23 @@
 
 const bool DEBUG_SKIP_TO_BATTLE = false;
 
-// --- GLOBAL VARIABLES ---
-// 1. currentState is defined in Globals.cpp, so we don't define it here.
-// 2. currentDialogueState is NOT in Globals.cpp, so we MUST define it here.
+// --- MAIN VARIABLES ---
 DialogueState currentDialogueState = D_INTRO_1;
-
-// 3. playerInventory is NOT in Globals.cpp, so we define it here.
 Inventory playerInventory = {true, true, true};
 
 // Map Data
 std::vector<Rect> walkableFloors = {
-    // top section
-    {135, 227, 627, 48},
-    {135, 259, 558, 43},
+    // top section to the chair top
+    {135, 227, 583, 32}, // {135, 227, 613, 32}, +-30
+    {135, 259, 527, 17},
+    {135, 276, 489, 36}, // {135, 259, 519, 25}
     // middle
-    {134, 302, 510, 29},
-    {125, 331, 528, 30},
-    {114, 361, 579, 25},
+    {125, 312, 503, 29}, // {125, 312, 533, 29}
+    {114, 341, 547, 41}, // {114, 341, 577, 41},
     // bottom section
-    {104, 386, 589, 50},
-    {693, 402, 63, 18},
-    {137, 420, 619, 59}};
+    {104, 382, 615, 39}, // {104, 382, 656, 39}
+    {136, 421, 583, 52}  // {136, 421, 613, 52}
+};
 
 NPC mapEnemy = {425, 280};
 
