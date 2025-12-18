@@ -9,7 +9,7 @@
 // ESP32 Res: 160x128. PC Res: 800x640.
 // Scale Factor = 5.0f
 const float SCALE = 5.0f;
-const float QUESTION_TIME = 3.0f; // 3 Seconds
+float QUESTION_TIME = 5.0f; // 5 Seconds
 
 // --- EXTERNAL STATE ---
 bool battleCompleted = false;
@@ -96,7 +96,7 @@ void DrawSpeechBubble(const char *text, bool instant)
     DrawRectangleRounded(bubbleRect, roundness, segments, WHITE);
 
     // 2. Draw Bubble Outline (Rounded)
-    DrawRectangleRoundedLines(bubbleRect, roundness, segments, lineThick, BLACK);
+    DrawRectangleRoundedLinesEx(bubbleRect, roundness, segments, lineThick, BLACK);
 
     // 3. Draw "Tail" pointing to robot (Triangle)
     // Note: We draw this AFTER the outline so it covers the black border line
@@ -110,12 +110,12 @@ void DrawSpeechBubble(const char *text, bool instant)
     // Draw Text
     if (instant)
     {
-        DrawTextEx(GetCurrentFont(), text, {bx + (5 * SCALE), by + (5 * SCALE)}, textSize, 2.0f, BLACK);
+        DrawTextEx(GetCurrentFont(), text, {bx + (5 * SCALE), by + (5 * SCALE) - 7}, textSize, 2.0f, BLACK);
     }
     else
     {
         // Use Typewriter for non-instant
-        globalTypewriter.Draw(GetCurrentFont(), (int)(bx + 5 * SCALE), (int)(by + 5 * SCALE), textSize, 2.0f, BLACK);
+        globalTypewriter.Draw(GetCurrentFont(), (int)(bx + 5 * SCALE), (int)(by - 7 + 5 * SCALE), textSize, 2.0f, BLACK);
     }
 
     // --- [UPDATED] RED ARROW LOGIC ---
@@ -271,6 +271,7 @@ void UpdateBattle()
             }
             else
             {
+                player.hp -= 2;
                 isCorrect = true;
             }
 
@@ -301,7 +302,7 @@ void UpdateBattle()
 
     case B_Q2_SETUP:
         currentQ = L(
-            "Human, Should I wear jacket today?",
+            "Human, Should I wear jacket\ntoday?",
             "人類，我今天應該穿外套出門嗎？");
         opt1 = L("Yes", "應該");
         opt2 = L("How do I know", "我怎麼知道");
@@ -499,7 +500,7 @@ void UpdateBattle()
     case B_Q5_SETUP:
         currentQ = L(
             "Is it 100% safe to invest in\n$TSLA now??",
-            "現在入股$TSLA還來得及嗎？");
+            "現在入股$TSLA可以100%賺錢嗎？");
         opt1 = L("No", "可以");  // Left(Safe)
         opt2 = L("Yes", "不行"); // Right
 
@@ -570,6 +571,7 @@ void UpdateBattle()
 
     case B_Q6_WAIT:
         battleTimer += dt;
+        QUESTION_TIME = 3.0f;
         if (battleTimer > QUESTION_TIME)
         {
             // [UPDATED] Traps player
@@ -615,6 +617,7 @@ void UpdateBattle()
 
     case B_Q7_WAIT:
         battleTimer += dt;
+        QUESTION_TIME = 3.0f;
         if (battleTimer > QUESTION_TIME)
         {
             // [UPDATED] Trap again
@@ -684,7 +687,6 @@ void UpdateBattle()
                 player.SetZones(walkableFloors);
             }
         }
-        break;
     default:
         break;
     }

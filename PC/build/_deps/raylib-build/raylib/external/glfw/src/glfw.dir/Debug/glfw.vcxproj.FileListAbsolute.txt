@@ -1,1 +1,0 @@
-C:\Users\woaml\OneDrive\Desktop\Personal\Electronics_Undertale\PC\build\_deps\raylib-build\raylib\external\glfw\src\glfw.dir\Debug\glfw.lib

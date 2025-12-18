@@ -1,3 +1,0 @@
-C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-subbuild/CMakeFiles/raylib-populate.dir
-C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-subbuild/CMakeFiles/ALL_BUILD.dir
-C:/Users/woaml/OneDrive/Desktop/Personal/Electronics_Undertale/PC/build/_deps/raylib-subbuild/CMakeFiles/ZERO_CHECK.dir

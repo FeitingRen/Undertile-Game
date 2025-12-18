@@ -11,27 +11,23 @@
 
 const bool DEBUG_SKIP_TO_BATTLE = false;
 
-// --- GLOBAL VARIABLES ---
-// 1. currentState is defined in Globals.cpp, so we don't define it here.
-// 2. currentDialogueState is NOT in Globals.cpp, so we MUST define it here.
+// --- MAIN VARIABLES ---
 DialogueState currentDialogueState = D_INTRO_1;
-
-// 3. playerInventory is NOT in Globals.cpp, so we define it here.
 Inventory playerInventory = {true, true, true};
 
 // Map Data
 std::vector<Rect> walkableFloors = {
-    // top section
-    {135, 227, 627, 48},
-    {135, 259, 558, 43},
+    // top section to the chair top
+    {135, 227, 583, 32}, // {135, 227, 613, 32}, +-30
+    {135, 259, 527, 17},
+    {135, 276, 489, 36}, // {135, 259, 519, 25}
     // middle
-    {134, 302, 510, 29},
-    {125, 331, 528, 30},
-    {114, 361, 579, 25},
+    {125, 312, 503, 29}, // {125, 312, 533, 29}
+    {114, 341, 547, 41}, // {114, 341, 577, 41},
     // bottom section
-    {104, 386, 589, 50},
-    {693, 402, 63, 18},
-    {137, 420, 619, 59}};
+    {104, 382, 615, 39}, // {104, 382, 656, 39}
+    {136, 421, 583, 52}  // {136, 421, 613, 52}
+};
 
 NPC mapEnemy = {425, 280};
 
@@ -99,11 +95,23 @@ bool IsRightPressed()
 
 void HandleMenu()
 {
+    if (!IsMusicStreamPlaying(menuMusic))
+    {
+        PlayMusicStream(menuMusic);
+    }
+    UpdateMusicStream(menuMusic);
+
     // --- 1. LANGUAGE SELECTION INPUT ---
     if (IsKeyPressed(KEY_ONE))
+    {
+        PlaySound(sndSelect);
         currentLanguage = LANG_EN;
+    }
     if (IsKeyPressed(KEY_TWO))
+    {
+        PlaySound(sndSelect);
         currentLanguage = LANG_CN;
+    }
 
     // --- 2. GET CURRENT FONT & COLORS ---
     Font activeFont = GetCurrentFont();
@@ -112,7 +120,7 @@ void HandleMenu()
 
     // --- 3. DRAW TITLE (Dynamic Language) ---
     // Uses the Text() helper to pick the string, and activeFont for the style
-    const char *titleStr = Text("UNDERTAIL", "傳說之上下左右");
+    const char *titleStr = Text("UNDERTILE", "傳說之下水道");
     if (currentLanguage == LANG_EN)
     {
         TextMetrics titleM = GetCenteredTextPosition(activeFont, titleStr, 60, 2);
@@ -155,6 +163,8 @@ void HandleMenu()
     // --- 7. START GAME ---
     if (IsInteractPressed())
     {
+        PlaySound(sndSelect);
+        StopMusicStream(menuMusic);
         currentState = MAP_WALK;
         player.Init(125, 300);
         player.SetZones(walkableFloors);
@@ -210,12 +220,12 @@ void HandleMap()
 
         if (currentLanguage == LANG_EN)
         {
-            guideText = "[Arrow Keys] Move   [Z] Interact";
+            guideText = "[Arrow Keys] Move   [Z] Interact with Robot";
             fontSize = 23.0f;
         }
         else
         {
-            guideText = "[方向鍵] 移動   [Z] 互動";
+            guideText = "[方向鍵] 移動   [Z] 與機器人互動";
             fontSize = 30.0f; // Slightly larger for Chinese readability
         }
 
@@ -679,7 +689,7 @@ void HandleDialogue()
     case D_INTRO_1:
         if (isStateFirstFrame)
             StartDialogue(
-                L("* AAAaaaaa Something is touching me \n* aaahhhHGGGGAAAAA!!!",
+                L("* AAAaaaaa Something is touching me \naaahhhHGGGGAAAAA!!!",
                   "* 誰啊啊啊啊啊啊aaa有東西碰我AAAA啊啊啊啊aaa！！"),
                 30, 0.3f);
         if (canProceed)
@@ -702,7 +712,7 @@ void HandleDialogue()
     case D_INTRO_4:
         if (isStateFirstFrame)
             StartDialogue(
-                L("* Sorry, I've been here alone for so\n* long.",
+                L("* Sorry, I've been here alone for so\nlong.",
                   "* 抱歉，我還以為鬧鬼了。"),
                 printSpeed, 0.3f);
         if (canProceed)
@@ -796,7 +806,7 @@ void HandleDialogue()
                     printSpeed, 0.3f);
             else
                 StartDialogue(
-                    L("* Then you are the 1,025th rock I've\n* met today.",
+                    L("* Then you are the 1,025th rock I've\nmet today.",
                       "* 那你就是我今天聊過的第1025塊石頭了。"),
                     printSpeed, 0.3f);
         }
@@ -1059,7 +1069,7 @@ void HandleDialogue()
     case D_REFUSAL:
         if (isStateFirstFrame)
             StartDialogue(
-                L("* Oh... okay.\n* I'll just go into Sleep Mode\n* FOREVER.",
+                L("* Oh... okay.\n* I'll just go into Sleep Mode\nFOREVER.",
                   "* 噢好吧 ... \n* 那我就要進入一輩子的休眠模式了。"),
                 printSpeed, 0.3f);
         if (canProceed)
@@ -1087,7 +1097,7 @@ void HandleDialogue()
     case D_POST_BATTLE_2:
         if (isStateFirstFrame)
             StartDialogue(
-                L("* And by the way you just finished\n* the game.",
+                L("* And by the way you just finished\nthe game.",
                   "* 順便說一句，你已經把這個遊戲打完了。"),
                 printSpeed, 0.3f);
         if (canProceed)
