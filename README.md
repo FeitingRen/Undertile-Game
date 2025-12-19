@@ -1,6 +1,8 @@
 # Undertile
 <small><em>A fan-made recreation inspired by Undertale by Toby Fox</em></small>
 
+![menu](./readme_pics/menu.png)
+
 ## Overview
 This project is available in two versions with slightly different content due to hardware constraints:
 1.  **PC Version:** Runs on Windows/macOS.
@@ -27,6 +29,10 @@ Built using C++ and [Raylib](https://www.raylib.com/).
 2.  Configure CMake with the CMakeLists.txt.
 3.  If you are using VSCode,build and run the project by clicking the buttons at bottom left. 
 
+| | | 
+|:-------------------------:|:-------------------------:|
+|<img width="1590" alt="dialogue-CN" src="./readme_pics/dialogue.png">  對話（中文） |  <img width="1590" alt="food-EN" src="./readme_pics/food.png">food(EN)|
+|<img width="1590" alt="prebattle-EN" src="./readme_pics/prebattle.png"> prebattle(EN) |  <img width="1590" alt="battle-CN" src="./readme_pics/battle.png"> 戰鬥（中文）|
 ---
 
 ## ESP-32 Electronic Device Version
