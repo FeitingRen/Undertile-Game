@@ -9,13 +9,8 @@
       "cStandard": "c17",
       "cppStandard": "c++17",
       "intelliSenseMode": "windows-msvc-x64",
-
-      // 🔥 Add this line:
       "compileCommands": "${workspaceFolder}/build/compile_commands.json",
-
-      // 🔥 Add this:
       "forcedInclude": [],
-
       "configurationProvider": "ms-vscode.cmake-tools"
     }
   ],

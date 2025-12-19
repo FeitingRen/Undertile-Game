@@ -4,9 +4,6 @@
 Typewriter globalTypewriter;
 
 // --- HELPER FUNCTION: Draw Text with Static Random Jitter ---
-// Replaces the "Sine Wave" look with a "Messy/Chaotic" look
-// matching the ESP32 random(-1, 2) logic, but deterministic (static).
-// --- HELPER FUNCTION: Draw Text with Static Random Jitter ---
 // Updated to support Multi-byte UTF-8 Characters (Chinese)
 void DrawTextJitter(Font font, const char *text, Vector2 pos, float fontSize, float spacing, Color color)
 {
@@ -88,9 +85,6 @@ void Typewriter::Update()
     {
         timer = 0;
 
-        // --- FIX START ---
-        // Instead of charCount++, we calculate how many bytes the NEXT character needs.
-
         // Safety check to prevent reading past the end
         if (charCount < fullText.length())
         {
@@ -106,7 +100,6 @@ void Typewriter::Update()
             // Just in case we are somehow at the end
             charCount++;
         }
-        // --- FIX END ---
 
         // Clamp to length
         if (charCount > fullText.length())

@@ -17,7 +17,6 @@ Music menuMusic;
 GameState currentState = MENU;
 Font gameFont;
 
-// Default to English (or whatever you prefer)
 Language currentLanguage = LANG_EN;
 Font fontEN;
 Font fontCN;
@@ -47,7 +46,7 @@ void LoadGameAssets()
     gameOver = LoadMusicStream("assets/gameOver.ogg");
     menuMusic = LoadMusicStream("assets/menu.ogg");
 
-    // This tells Raylib to automatically loop it when it reaches the end
+    // loop the music when it reaches the end
     battleBGMusic.looping = true;
     gameOver.looping = true;
     menuMusic.looping = true;
@@ -77,7 +76,6 @@ Font GetCurrentFont()
     return fontEN;
 }
 
-// This is the Magic Function to merge your battles
 const char *Text(const char *en, const char *cn)
 {
     if (currentLanguage == LANG_CN)
