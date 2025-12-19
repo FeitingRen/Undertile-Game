@@ -1,7 +1,7 @@
 # Undertile
 <small><em>A fan-made recreation inspired by Undertale by Toby Fox</em></small>
 
-<img src="./readme_pics/menu.png" width="200" alt="menu"/>
+<img src="./readme_pics/menu.png" width="450" alt="menu"/>
 
 ## Overview
 This project is available in two versions with slightly different content due to hardware constraints:
