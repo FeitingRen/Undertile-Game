@@ -4,9 +4,15 @@
 <img src="./readme_pics/menu.png" width="450" alt="menu"/>
 
 ## Overview
-This project is available in two versions with slightly different content due to hardware constraints:
-1.  **PC Version:** Runs on Windows/macOS.
-2.  **ESP32 Version:** Runs on custom electronics.
+This project is available in **two versions** with slightly different content due to hardware constraints:
+1.  PC Version: Runs on **Windows/macOS**.
+2.  ESP32 Version: Runs on custom electronics.
+
+This project supports **two languages**:
+1. English
+2. 繁體中文
+
+The overall gameplay will be **~3mins**.
 
 ---
 
