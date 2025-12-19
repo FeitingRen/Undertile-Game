@@ -22,10 +22,10 @@ Built using C++ and [Raylib](https://www.raylib.com/).
 * **Windows:** Source code in [`main/PC`](https://github.com/FeitingRen/Undertile/tree/main/PC/). Download executable in [Releases](https://github.com/FeitingRen/Undertile/releases/tag/v1.0).
 * **macOS:** Source code in [`mac/PC`](https://github.com/FeitingRen/Undertile/tree/mac/PC/src). Download executable in [Releases](https://github.com/FeitingRen/Undertile/releases/tag/v1.0).
 
-### How to Build
+### How to Build and run on local
 1.  Install a C++ Compiler (Visual Studio, MinGW, or Clang).
-2.  Install the **Raylib** library v4.5 (not sure if other version works).
-3.  Compile `main.cpp` linking strictly against Raylib dependencies.
+2.  Configure CMake with the CMakeLists.txt.
+3.  If you are using VSCode,build and run the project by clicking the buttons at bottom left. 
 
 ---
 
