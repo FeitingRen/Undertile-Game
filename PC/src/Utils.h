@@ -31,6 +31,5 @@ bool IsInteractPressed();
 bool IsCancelPressed();
 
 // --- RENDERING HELPERS ---
-// New helper to draw any text with the "Jitter" style (Up/Down offsets)
 void DrawTextJitter(Font font, const char *text, Vector2 pos, float fontSize, float spacing, Color color);
 #endif

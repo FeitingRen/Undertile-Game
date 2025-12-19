@@ -19,14 +19,12 @@ extern Music menuMusic;
 
 // Global State
 extern GameState currentState;
-extern Font gameFont; // Default or custom font
-
+extern Font gameFont;
 enum Language
 {
     LANG_EN,
     LANG_CN
 };
-
 extern Language currentLanguage;
 extern Font fontEN;
 extern Font fontCN;

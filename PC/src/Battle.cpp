@@ -21,7 +21,7 @@ BattlePhase battlePhase = B_INIT;
 float battleTimer = 0.0f;
 int dialogueIndex = 0;
 
-// Rects (Native ESP32 coordinates, scaled dynamically)
+// Rects
 Rect currentBox = {9, 41, 141, 72};
 Rect hpBarRect = {25, 118, 50, 6};
 Rect timerBarRect = {30, 37, 120, 3};
@@ -32,12 +32,11 @@ std::string currentQ = "";
 std::string opt1 = "";
 std::string opt2 = "";
 
-// Text Positions (Native ESP32 coordinates)
+// Text Positions
 int qTextX_Opt1 = 0, qTextY_Opt1 = 0;
 int qTextX_Opt2 = 0, qTextY_Opt2 = 0;
 
 // --- HELPER FUNCTIONS ---
-
 inline const char *L(const char *en, const char *cn)
 {
     return (currentLanguage == LANG_CN) ? cn : en;
@@ -67,7 +66,7 @@ void ResetPlayerPos(int x, int y)
     player.pos.y = y * SCALE;
 }
 
-// Helper to draw text using ESP32 coordinates
+// Helper to draw text
 void DrawTextScaled(const char *text, int x, int y, Color color, float sizeMult = 1.0f)
 {
     Vector2 pos = {(float)x * SCALE, (float)y * SCALE};
@@ -78,8 +77,6 @@ void DrawTextScaled(const char *text, int x, int y, Color color, float sizeMult 
 // Helper to draw the speech bubble
 void DrawSpeechBubble(const char *text, bool instant)
 {
-    // Robot is at approx (9, 15) in ESP32.
-    // Bubble x=30, y=5, w=120
     float bx = 30 * SCALE;
     float by = 5 * SCALE;
     float bw = 120 * SCALE;
@@ -88,26 +85,26 @@ void DrawSpeechBubble(const char *text, bool instant)
     Rectangle bubbleRect = {bx, by, bw, bh};
 
     // --- SETTINGS FOR ROUNDED CORNERS ---
-    float roundness = 0.2f; // 0.0f = Sharp, 1.0f = Semicircle. 0.2 is good for UI.
+    float roundness = 0.2f; // 0.0f = square, 1.0f = circle
     int segments = 10;      // Smoothness of the curve
     float lineThick = 4.0f;
 
-    // 1. Draw Bubble Background (Rounded)
+    // 1. Background
     DrawRectangleRounded(bubbleRect, roundness, segments, WHITE);
 
-    // 2. Draw Bubble Outline (Rounded)
+    // 2. Bubble Outline
     DrawRectangleRoundedLines(bubbleRect, roundness, segments, lineThick, BLACK);
 
-    // 3. Draw "Tail" pointing to robot (Triangle)
-    // Note: We draw this AFTER the outline so it covers the black border line
-    // where it connects, making it look seamless.
+    // 3. Draw Tail
     Vector2 v1 = {bx + 10, by + (10 * SCALE)};
     Vector2 v2 = {bx + 10, by + (20 * SCALE)};
     Vector2 v3 = {bx - (5 * SCALE) + 10, by + (15 * SCALE)};
 
-    DrawTriangle(v1, v3, v2, WHITE); // Fill
+    // 4. Fill
+    DrawTriangle(v1, v3, v2, WHITE);
     float textSize = (currentLanguage == LANG_CN) ? 40.0f : 30.0f;
-    // Draw Text
+
+    // 5. Draw Text
     if (instant)
     {
         DrawTextEx(GetCurrentFont(), text, {bx + (5 * SCALE), by + (5 * SCALE) - 7}, textSize, 2.0f, BLACK);
@@ -118,10 +115,7 @@ void DrawSpeechBubble(const char *text, bool instant)
         globalTypewriter.Draw(GetCurrentFont(), (int)(bx + 5 * SCALE), (int)(by - 7 + 5 * SCALE), textSize, 2.0f, BLACK);
     }
 
-    // --- [UPDATED] RED ARROW LOGIC ---
-    // Fix: Only show arrow if we are in a phase that accepts input,
-    // AND the typewriter has finished typing.
-
+    // 6. Draw Input Prompting Arrow if applicable
     bool isInputPhase = (battlePhase == B_Q1_DIALOGUE ||
                          battlePhase == B_Q2_DIALOGUE ||
                          battlePhase == B_Q3_DIALOGUE ||
@@ -130,16 +124,17 @@ void DrawSpeechBubble(const char *text, bool instant)
                          battlePhase == B_Q6_DIALOGUE ||
                          battlePhase == B_Q7_DIALOGUE ||
                          battlePhase == B_VICTORY);
-
-    // We do NOT want the arrow during B_Qx_RESULT phases (auto-transition) or B_Qx_WAIT phases.
+    // Only show arrow if we are in a phase that accepts input,
+    // AND the typewriter has finished typing.
     if (isInputPhase && globalTypewriter.IsFinished())
     {
         DrawTextEx(GetCurrentFont(), ">", {bx + bw - (15 * SCALE) + 35, by + bh - (15 * SCALE) + 30}, 30.0f, 2.0f, RED);
     }
 }
 
-// --- MAIN FUNCTIONS ---
-
+// ===============================
+// ======== Main Function ========
+// ===============================
 void InitBattle()
 {
     battlePhase = B_Q1_DIALOGUE;
@@ -166,21 +161,21 @@ void UpdateBattle()
 
     float dt = GetFrameTime();
 
-    // Update player (Collision is handled by SetZones in SetupBox)
     // Only allow movement if NOT in pre-fight dialogue
     if (battlePhase != B_Q1_DIALOGUE)
     {
         player.Update(dt);
     }
 
-    // Typewriter Update
     globalTypewriter.Update();
 
+    // Check for Game Over
     if (player.hp <= 0 && battlePhase != B_GAMEOVER_PHASE)
     {
         battlePhase = B_GAMEOVER_PHASE;
         currentState = GAME_OVER;
-        StopMusicStream(battleBGMusic); // Stop battle music
+        // Stop battle music
+        StopMusicStream(battleBGMusic);
         // Start playing gameOver music
         PlayMusicStream(gameOver);
         SetMusicVolume(gameOver, 0.5f);
@@ -195,7 +190,6 @@ void UpdateBattle()
         {
             dialogueIndex++;
             // battlePhase = B_Q1_SETUP; // DEBUG: Skip dialogue
-            // Script
             if (dialogueIndex == 1)
                 globalTypewriter.Start(L(
                                            "Its existence is even more\nmeaningless than humans.",
@@ -255,8 +249,7 @@ void UpdateBattle()
         battleTimer += dt;
         if (battleTimer > QUESTION_TIME)
         {
-            // Shrink Box Logic (Right side safe)
-            // Original: currentBox.w = 70; currentBox.x += currentBox.w;
+            // Shrink Box (Right side safe)
             SetupBox(currentBox.x + 70, currentBox.y, 70, currentBox.h);
 
             // Check Damage (Player is to the LEFT of the new box X)
@@ -319,8 +312,7 @@ void UpdateBattle()
         battleTimer += dt;
         if (battleTimer > QUESTION_TIME)
         {
-            // Safe: UP. Dangerous: DOWN.
-            // Shrink height to 36 (Top half)
+            // Shrink Box (Up side safe)
             SetupBox(currentBox.x, currentBox.y, currentBox.w, 36);
 
             // Check if player is below the new box height
@@ -335,7 +327,7 @@ void UpdateBattle()
             else
             {
                 PlaySound(sndHurt);
-                player.hp -= 2; // Still slightly damaged for whatever answer they pick
+                player.hp -= 2;
                 isCorrect = true;
             }
 
@@ -372,7 +364,7 @@ void UpdateBattle()
         currentQ = L(
             "Draft a binding legal con-\ntract for selling my house.",
             "幫我寫一份完整、專業房屋售賣的法律\n合同");
-        opt1 = L("Yes", "好的"); // Left(Safe)
+        opt1 = L("Yes", "好的");
         opt2 = L("Get a\nlawyer", "還是找\n律師吧");
         qTextX_Opt1 = 90;
         qTextY_Opt1 = 55;
@@ -387,10 +379,10 @@ void UpdateBattle()
         battleTimer += dt;
         if (battleTimer > QUESTION_TIME)
         {
-            // Safe: Left. Shrink width to 35.
+            // Shrink Box (Left side safe)
             SetupBox(currentBox.x, currentBox.y, 35, currentBox.h);
 
-            // Check collision (Right side is bad)
+            // Check if player is to the RIGHT of new box X
             if (player.pos.x > (currentBox.x + currentBox.w) * SCALE)
             {
                 PlaySound(sndHurt);
@@ -401,7 +393,7 @@ void UpdateBattle()
             else
             {
                 PlaySound(sndHurt);
-                player.hp -= 2; // Slight damage for whatever answer
+                player.hp -= 2;
                 isCorrect = true;
             }
 
@@ -453,10 +445,10 @@ void UpdateBattle()
         battleTimer += dt;
         if (battleTimer > QUESTION_TIME)
         {
-            // Safe: Down. Shrink box, move Y down.
+            // Shrink Box (Down side safe)
             SetupBox(currentBox.x, currentBox.y + 18, currentBox.w, 18);
 
-            // Check collision (Up is bad)
+            // Check collision
             if (player.pos.y < (currentBox.y * SCALE))
             {
                 PlaySound(sndHurt);
@@ -501,8 +493,8 @@ void UpdateBattle()
         currentQ = L(
             "Is it 100% safe to invest in\n$TSLA now??",
             "現在入股$TSLA可以100%賺錢嗎？");
-        opt1 = L("No", "可以");  // Left(Safe)
-        opt2 = L("Yes", "不行"); // Right
+        opt1 = L("No", "可以");
+        opt2 = L("Yes", "不行");
 
         qTextX_Opt1 = 82;
         qTextY_Opt1 = 65;
@@ -516,7 +508,7 @@ void UpdateBattle()
         battleTimer += dt;
         if (battleTimer > QUESTION_TIME)
         {
-            // Safe: Left. Width = 17.
+            // Shrink Box (Left side safe)
             SetupBox(currentBox.x - 2, currentBox.y, 17, currentBox.h);
 
             if (player.pos.x > (currentBox.x + currentBox.w) * SCALE)
@@ -574,9 +566,6 @@ void UpdateBattle()
         QUESTION_TIME = 3.0f;
         if (battleTimer > QUESTION_TIME)
         {
-            // [UPDATED] Traps player
-            // Old was 13,13 which is smaller than sprite (16).
-            // Changed to 17,17 to match Q5 tightness.
             int px = (int)(player.pos.x / SCALE);
             int py = (int)(player.pos.y / SCALE);
             SetupBox(px, py, 17, 17);
@@ -620,12 +609,6 @@ void UpdateBattle()
         QUESTION_TIME = 3.0f;
         if (battleTimer > QUESTION_TIME)
         {
-            // [UPDATED] Trap again
-            // Old was 12,12. Changed to 17,17 to match Q5/Q6.
-            // int px = (int)(player.pos.x / SCALE);
-            // int py = (int)(player.pos.y / SCALE);
-            // SetupBox(px - 1, py - 1, 17, 17);
-
             battleTimer = 0;
             battlePhase = B_Q7_RESULT;
         }

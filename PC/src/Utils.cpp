@@ -27,8 +27,7 @@ void DrawTextJitter(Font font, const char *text, Vector2 pos, float fontSize, fl
     float currentX = pos.x;
     float currentY = pos.y;
 
-    // FIX: Define a consistent line height.
-    // Usually 1.2x or 1.5x the font size looks best for pixel fonts.
+    // Define a consistent line height.
     float lineHeight = fontSize * 1.5f;
 
     int i = 0; // Byte index
@@ -141,7 +140,6 @@ void Typewriter::Skip()
     finished = true;
 }
 
-// --- FIX: UPDATED DRAW FUNCTION ---
 // Replaces DrawTextEx with a manual loop to control Line Height
 void Typewriter::Draw(Font font, int x, int y, float fontSize, float spacing, Color color)
 {

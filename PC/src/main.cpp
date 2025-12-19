@@ -18,16 +18,15 @@ Inventory playerInventory = {true, true, true};
 // Map Data
 std::vector<Rect> walkableFloors = {
     // top section to the chair top
-    {135, 227, 583, 32}, // {135, 227, 613, 32}, +-30
+    {135, 227, 583, 32},
     {135, 259, 527, 17},
-    {135, 276, 489, 36}, // {135, 259, 519, 25}
+    {135, 276, 489, 36},
     // middle
-    {125, 312, 503, 29}, // {125, 312, 533, 29}
-    {114, 341, 547, 41}, // {114, 341, 577, 41},
+    {125, 312, 503, 29},
+    {114, 341, 547, 41},
     // bottom section
-    {104, 382, 615, 39}, // {104, 382, 656, 39}
-    {136, 421, 583, 52}  // {136, 421, 613, 52}
-};
+    {104, 382, 615, 39},
+    {136, 421, 583, 52}};
 
 NPC mapEnemy = {425, 280};
 
@@ -35,7 +34,7 @@ NPC mapEnemy = {425, 280};
 int storyProgress = 0;
 bool showTutorialText = true;
 
-// These are defined in Battle.cpp
+// Defined in Battle.cpp
 extern bool battleCompleted;
 extern float preBattleX;
 extern float preBattleY;
@@ -79,8 +78,6 @@ Font myCustomFont;
 
 // --- INPUT HELPERS ---
 
-// IsInteractPressed() is in Utils.cpp
-
 bool IsLeftPressed()
 {
     return IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A);
@@ -119,7 +116,6 @@ void HandleMenu()
     Color cnColor = (currentLanguage == LANG_CN) ? YELLOW : GRAY;
 
     // --- 3. DRAW TITLE (Dynamic Language) ---
-    // Uses the Text() helper to pick the string, and activeFont for the style
     const char *titleStr = Text("UNDERTILE", "傳說之下水道");
     if (currentLanguage == LANG_EN)
     {
@@ -133,12 +129,10 @@ void HandleMenu()
     }
 
     // --- 4. DRAW LANGUAGE OPTIONS (Fixed Fonts) ---
-    // Line 1: English (Always uses English Font)
     const char *optEn = "PRESS [1] FOR ENGLISH";
     TextMetrics enM = GetCenteredTextPosition(fontEN, optEn, 25, 2);
     DrawTextEx(fontEN, optEn, {enM.x, 310}, 25, 2, enColor);
 
-    // Line 2: Chinese (Always uses Chinese Font)
     const char *optCn = "按 [2] 切換中文";
     TextMetrics cnM = GetCenteredTextPosition(fontCN, optCn, 32, 2);
     DrawTextEx(fontCN, optCn, {cnM.x, 350}, 32, 2, cnColor);
@@ -190,12 +184,10 @@ void HandleMap()
         showTutorialText = false;
         currentState = DIALOGUE;
 
-        // --- FIX START: RESET TYPEWRITER ---
-        // We ensure the typewriter is empty and inactive before the first Draw frame.
+        // Ensure the typewriter is empty and inactive before the first Draw frame.
         globalTypewriter.fullText = "";
         globalTypewriter.charCount = 0;
         globalTypewriter.active = false;
-        // --- FIX END ---
 
         if (battleCompleted)
             currentDialogueState = D_POST_BATTLE;
@@ -229,11 +221,8 @@ void HandleMap()
             fontSize = 30.0f; // Slightly larger for Chinese readability
         }
 
-        // Use your TextAlignment helper to center it
+        // Center the text
         TextMetrics tm = GetCenteredTextPosition(activeFont, guideText, fontSize, 2.0f);
-
-        // Draw at the bottom of the screen (GAME_HEIGHT - 40)
-        // Using GRAY so it looks like a UI hint, not dialogue
         DrawTextEx(activeFont, guideText, {tm.x, GAME_HEIGHT - 40.0f}, fontSize, 2.0f, WHITE);
     }
 }
@@ -257,7 +246,7 @@ void HandleCoffeeEvent()
         return (currentLanguage == LANG_CN) ? cn : en;
     };
 
-    // Lines we need to recognize specially in drawing/logic
+    // Special lines
     const char *controlLine = L("I CANNOT CONTROL THE OUTPUT!", "我控制不了我的輸出了!");
     const char *deleteLine = L("CTRL+ALT+DELETE ME!", "把我強制關機!");
 
@@ -320,7 +309,7 @@ void HandleCoffeeEvent()
 
     if (globalTypewriter.active)
     {
-        // Chaos “matrix” effect: CTRL+ALT+DELETE ME / 把我強制關機!
+        // CTRL+ALT+DELETE ME / 把我強制關機!
         if (globalTypewriter.fullText == deleteLine)
         {
             int repeatCount = (currentLanguage == LANG_CN) ? 70 : 60;
@@ -584,8 +573,6 @@ void HandleCoffeeEvent()
             bgColor = BLACK;
             coffeeLog.clear();
             PlaySound(sndDialup[5]);
-
-            // fast typing, bilingual
             globalTypewriter.Start(deleteLine, 20);
 
             currentTextColor = RED;
@@ -625,12 +612,11 @@ void HandleDialogue()
 
     if (currentDialogueState == D_COFFEE_EVENT)
     {
-        // Coffee cutscene is already bilingual via HandleCoffeeEvent()
         HandleCoffeeEvent();
         return;
     }
 
-    // --- GOAL 2: PRESS X TO CLOSE ---
+    // --- PRESS X TO CLOSE ---
     if (IsCancelPressed())
     {
         currentState = MAP_WALK;
@@ -643,12 +629,13 @@ void HandleDialogue()
     DrawTexture(texRobot, (int)mapEnemy.x, (int)mapEnemy.y, WHITE);
     player.Draw();
     int printSpeed = (currentLanguage == LANG_CN) ? 50.0f : 30.0f;
+
     // Box
     Rectangle box = {25, 450, 750, 200};
     DrawRectangleRec(box, BLACK);
     DrawRectangleLinesEx(box, 4, WHITE);
 
-    // Dialogue font size: slightly bigger for Chinese
+    // slightly bigger for Chinese
     float dialogueFontSize = (currentLanguage == LANG_CN) ? 35.0f : 30.0f;
 
     globalTypewriter.Update();
@@ -660,7 +647,7 @@ void HandleDialogue()
         2.0f,
         WHITE);
 
-    // --- GOAL 1: Z BUTTON LOGIC (SKIP vs NEXT) ---
+    // --- Z BUTTON LOGIC (SKIP vs NEXT) ---
     bool canProceed = false;
 
     if (IsInteractPressed())
@@ -701,7 +688,7 @@ void HandleDialogue()
 
     case D_INTRO_2:
         if (isStateFirstFrame)
-            StartDialogue("* ...", 40, 0.3f); // same in both languages
+            StartDialogue("* ...", 40, 0.3f);
         if (canProceed)
         {
             currentDialogueState = D_INTRO_4;
@@ -1171,9 +1158,7 @@ int main()
 
     fontEN = LoadFontEx("assets/determination-mono.otf", 64, 0, 0);
 
-    // ================== SAFE CHINESE FONT LOADING ==================
-    // 1. Prepare Codepoints (File Text + UI Chars)
-    // 1. Prepare Codepoints (File Text + UI Chars)
+    // ================== CHINESE FONT LOADING ==================
     char *textToLoad = LoadFileText("assets/dialogues_CN.txt");
     int codepointCount = 0;
     int *codepoints = NULL;
@@ -1188,9 +1173,7 @@ int main()
     {
         TraceLog(LOG_WARNING, "dialogues_CN.txt not found! Loading UI chars only.");
 
-        // --- FIX START: Manual Fallback Characters ---
-        // If the file is missing, we MUST manually tell Raylib which Chinese characters to load.
-        // I included the menu words and title from your code.
+        // If the file is missing
         std::string fallbackText = "傳說之上下左右按切換中文是的不是給予拒絕咖啡汽油電池";
         codepoints = LoadCodepoints(fallbackText.c_str(), &codepointCount);
         // --- FIX END ---
@@ -1210,12 +1193,10 @@ int main()
                                          codepoints, codepointCount,
                                          FONT_DEFAULT);
 
-        // --- FIX IS HERE: Update the count if glyphs were returned! ---
         if (glyphs != NULL)
         {
             glyphsLoadedCount = codepointCount;
         }
-
         // Now this check will pass because glyphsLoadedCount is no longer 0
         if (glyphs == NULL || glyphsLoadedCount == 0)
         {
@@ -1234,7 +1215,7 @@ int main()
             UnloadImage(atlas);
         }
 
-        UnloadFileData(fontFileData); // Don't forget to free the raw file data
+        UnloadFileData(fontFileData); // free the raw file data
     }
     else
     {

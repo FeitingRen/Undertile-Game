@@ -3,7 +3,6 @@
 
 #include "game_defs.h"
 
-// Updated Enum to match the ESP32 Logic structure
 enum BattlePhase
 {
     B_INIT,
